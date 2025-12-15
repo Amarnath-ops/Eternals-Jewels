@@ -36,6 +36,10 @@ const userSchema = new Schema({
   referredBy :{
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
+  },
+  refreshToken :{
+    type:String,
+    default:null
   }
 },{timestamps:true})
 

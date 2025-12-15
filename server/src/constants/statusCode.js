@@ -1,4 +1,4 @@
-export const statusCodes = Object.freeze({
+export const STATUS_CODES = Object.freeze({
     OK: 200,
     CREATED: 201,
     ACCEPTED: 202,

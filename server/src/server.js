@@ -9,8 +9,7 @@ const MONGO_URI = process.env.MONGO_URI
 const startServer = async ()=>{
   try{
     await connectDB(MONGO_URI)  
-
-    app.listen(PORT,()=>{
+    app.listen(PORT,"0.0.0.0",()=>{
       console.log(`Server runnning at http://localhost:${PORT}/api/v1`);
     })
   }

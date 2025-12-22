@@ -1,57 +1,218 @@
+import { CONSTANTS } from "../../constants/constants.js";
 import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
-import { refreshTokenService, signUpService } from "../../services/user/auth.service.js";
+import { findUserByEmail } from "../../repositories/user.repo.js";
+import {
+    forgotPasswordOTPService,
+    forgotPasswordVerifyService,
+    loginService,
+    logoutService,
+    refreshTokenService,
+    resendOTPService,
+    resetPasswordService,
+    signUpService,
+    verifyOTPService,
+} from "../../services/user/auth.service.js";
 
 export const signup = async (req, res) => {
-  try{
-    const { fullname, email, phone, password, confirmPassword, referralCode } = req.body;
-    const result = await signUpService({ fullname, email, phone, password ,confirmPassword, referralCode });
+    try {
+        const { fullname, email, phone, password, confirmPassword, referredBy } = req.body;
+        const result = await signUpService({ fullname, email, phone, password, confirmPassword, referredBy });
 
-    res.cookie("refreshToken", result.refreshToken,{
-      httpOnly :true,
-      secure:true,
-      sameSiteL:"strict",
-      maxAge: process.env.REFRESH_TOKEN_MAX_AGE
-    });
-
-    return res.status(STATUS_CODES.CREATED).json({
-        status: true,
-        statusCode: STATUS_CODES.CREATED,
-        message: "User registered Successfully",
-        data :{
-          token : result.accessToken,
-          user : result.user
-        }
-    });
-  }catch(error){
-    return res.status(error.statusCode || 500).json({message:error.message || "Internal server error"})
-  }
+        return res.status(STATUS_CODES.CREATED).json({
+            success: true,
+            statusCode: STATUS_CODES.CREATED,
+            message: result.message,
+        });
+    } catch (error) {
+        return res
+            .status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR)
+            .json({ message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR, fieldName: error.fieldName });
+    }
 };
 
-export const refresh = async(req,res)=>{
-  try{
-    const {refreshToken} = req.cookies;
-    if(!refreshToken){
-      const error = new Error(ERROR_MESSAGES.UNAUTHORIZED)
-      error.statusCode = STATUS_CODES.UNAUTHORIZED
-      throw error
+export const refresh = async (req, res) => {
+    try {
+        const { refreshToken } = req.cookies;
+        if (!refreshToken) {
+            const error = new Error(ERROR_MESSAGES.UNAUTHORIZED);
+            error.statusCode = STATUS_CODES.UNAUTHORIZED;
+            throw error;
+        }
+
+        const { newRefreshToken, newAccessToken } = await refreshTokenService(refreshToken);
+
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
+            path: "/",
+        });
+
+        return res.status(STATUS_CODES.OK).json({
+            data: {
+                accesstoken: newAccessToken,
+            },
+        });
+    } catch (error) {
+        res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
     }
+};
 
-    const {newRefreshToken, newAccessToken} = await refreshTokenService(refreshToken)
+export const login = async (req, res) => {
+    console.log(req.body);
+    try {
+        const { email, password } = req.body;
+        const { user, accessToken, refreshToken } = await loginService({ email, password });
 
-    res.cookie("refreshToken",newRefreshToken,{
-      httpOnly:true,
-      secure:true,
-      sameSite : "strict",
-      maxAge : process.env.REFRESH_TOKEN_MAX_AGE
-    })
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
+            path: "/",
+        });
 
-    return res.json({
-      data:{
-        accesstoken : newAccessToken
-      }
-    })
-  }catch(error){
-    res.status(error.statusCode || 500).json({message : error.message || "Internal server error"})
-  }
+        return res.status(STATUS_CODES.OK).json({
+            success: true,
+            statusCode: STATUS_CODES.OK,
+            message: "User login success",
+            data: {
+                user,
+                token: accessToken,
+            },
+        });
+    } catch (error) {
+        return res
+            .status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR)
+            .json({ message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR });
+    }
+};
+
+export const logout = async (req, res) => {
+    try {
+        await logoutService(req.body.userId);
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+        });
+        return res.json({ message: "Logged out" });
+    } catch (error) {
+        return res
+            .status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR)
+            .json({ message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR });
+    }
+};
+
+export const verifyOTP = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const result = await verifyOTPService({ email, otp });
+
+        res.cookie("refreshToken", result.refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
+            path: "/",
+        });
+
+        return res.status(STATUS_CODES.OK).json({
+            success: true,
+            message: CONSTANTS.OTP_VERIFIED,
+            data: {
+                user: result.user,
+                token: result.accessToken,
+            },
+        });
+    } catch (error) {
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
+export const resendOTP = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const result = await resendOTPService(email);
+        return res.status(STATUS_CODES.OK).json({
+            success:true,
+            message:result.message
+        })
+    } catch (error) {
+        return res.status(error.statusCode|| STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success : false,
+            message : error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR
+        })
+    }
+};
+
+
+export const forgotPasswordOTP = async (req,res)=>{
+    try {
+        const {email} = req.body;
+        const result = await forgotPasswordOTPService(email)
+        return res.status(STATUS_CODES.OK).json({
+            success : true,
+            message: result.message
+        })
+    } catch (error) {
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success:false,
+            message:error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR
+        })
+    }
+}
+
+export const forgotPasswordVerify = async (req,res)=>{
+    try {
+        const {email,otp} = req.body
+        const result = await forgotPasswordVerifyService(email,otp)   
+        return res.status(STATUS_CODES.OK).json({
+            success:true,
+            message:result.message
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success:true,
+            message:error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR
+        })
+    }
+}
+
+export const resetPassword = async (req,res)=>{
+    try {
+        const {email,password,confirmPassword} = req.body;
+        const result = await resetPasswordService(email,password,confirmPassword)
+
+        res.cookie("refreshToken",result.refreshToken,{
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
+            path: "/",
+        })
+        res.status(STATUS_CODES.OK).json({
+            success:true,
+            message:result.message,
+            data:{
+                token:result.accessToken,
+                user:result.user
+            }
+
+        })
+    } catch (error) {
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success:false,
+            message:error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR
+        })
+    }
 }

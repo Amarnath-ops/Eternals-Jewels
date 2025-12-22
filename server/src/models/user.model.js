@@ -23,6 +23,10 @@ const userSchema = new Schema({
   isAdmin :{
     type : Boolean,
     default : false
+  }, 
+  isVerified :{
+    type : Boolean,
+    default : false
   },
   isBlocked : {
     type : Boolean,
@@ -35,7 +39,8 @@ const userSchema = new Schema({
   },
   referredBy :{
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
+    ref: "User",
+    default :null
   },
   refreshToken :{
     type:String,

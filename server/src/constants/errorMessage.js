@@ -2,5 +2,14 @@ export const ERROR_MESSAGES = Object.freeze({
     EMAIL_ALREADY_EXISTS: "Email already exists.",
     INVALID_REFERRAL_CODE: "Referral code is invalid.",
     PASSWORD_MISMATCH: "Password must be match.",
-    UNAUTHORIZED:"Unauthorized"
+    UNAUTHORIZED:"Unauthorized.",
+    INVALID_PASSWORD:"Invalid Password.",
+    INVALID_REFRESH_TOKEN : "Invalid refresh token.",
+    INTERNAL_SERVER_ERROR : "Internal server Error.",
+    USER_NOT_FOUND : "User not found.",
+    OTP_EXPIRED : "OTP expired.",
+    INVALID_OTP:"OTP is invalid.",
+    ALREADY_VERIFIED:"OTP already verified.",
+    USER_NOT_VERIFIED : "User is not verified.",
+    USER_BLOCKED:"User is blocked.",
 })

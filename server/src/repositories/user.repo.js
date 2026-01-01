@@ -28,8 +28,11 @@ export const findUserByRefreshToken = async (token) => {
 
 // To remove the refresh token
 
-export const clearRefreshTokenById = async (id) => {
-    return User.findByIdAndUpdate(id, { refreshToken: null }, { new: true });
+export const clearRefreshTokenByRefreshTOken = async (refreshToken) => {
+    const user = await User.findOne({refreshToken:refreshToken})
+    user.refreshToken = null;
+    await user.save()
+    return user
 };
 
 export const setUserPasswordById = async (id, hashedpassword) => {
@@ -38,3 +41,7 @@ export const setUserPasswordById = async (id, hashedpassword) => {
     await user.save();
     return user;
 };
+
+export const findUserById = async (id)=>{
+    return User.findById(id)
+}

@@ -12,4 +12,5 @@ export const ERROR_MESSAGES = Object.freeze({
     ALREADY_VERIFIED:"OTP already verified.",
     USER_NOT_VERIFIED : "User is not verified.",
     USER_BLOCKED:"User is blocked.",
+    TOKEN_EXPIRED:"Token expired or invalid"
 })

@@ -1,10 +1,10 @@
 import { CONSTANTS } from "../../constants/constants.js";
 import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
-import { findUserByEmail } from "../../repositories/user.repo.js";
 import {
     forgotPasswordOTPService,
     forgotPasswordVerifyService,
+    googleCallbackService,
     loginService,
     logoutService,
     refreshTokenService,
@@ -13,10 +13,14 @@ import {
     signUpService,
     verifyOTPService,
 } from "../../services/user/auth.service.js";
+import validateData from "../../utils/validation.js";
+import { emailSchema, loginSchema, otpEmailSchema, OtpSchema, resetPasswordSchema, signupSchema } from "../../validations/auth.validation.js";
 
 export const signup = async (req, res) => {
     try {
-        const { fullname, email, phone, password, confirmPassword, referredBy } = req.body;
+        const validatedData = validateData(req.body, signupSchema);
+        console.log(validatedData)
+        const { fullname, email, phone, password, confirmPassword, referredBy } = validatedData.data;
         const result = await signUpService({ fullname, email, phone, password, confirmPassword, referredBy });
 
         return res.status(STATUS_CODES.CREATED).json({
@@ -40,19 +44,20 @@ export const refresh = async (req, res) => {
             throw error;
         }
 
-        const { newRefreshToken, newAccessToken } = await refreshTokenService(refreshToken);
+        const { newRefreshToken, newAccessToken, user } = await refreshTokenService(refreshToken);
 
         res.cookie("refreshToken", newRefreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
             path: "/",
         });
 
         return res.status(STATUS_CODES.OK).json({
             data: {
-                accesstoken: newAccessToken,
+                accessToken: newAccessToken,
+                user,
             },
         });
     } catch (error) {
@@ -63,9 +68,10 @@ export const refresh = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-    console.log(req.body);
+    const validatedData = validateData(req.body, loginSchema)
+    console.log(validatedData,req.body)
     try {
-        const { email, password } = req.body;
+        const { email, password } = validatedData.data;
         const { user, accessToken, refreshToken } = await loginService({ email, password });
 
         res.cookie("refreshToken", refreshToken, {
@@ -94,11 +100,12 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
     try {
-        await logoutService(req.body.userId);
+        const { refreshToken } = req.cookies;
+        await logoutService(refreshToken);
         res.clearCookie("refreshToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "lax",
             path: "/",
         });
         return res.json({ message: "Logged out" });
@@ -111,7 +118,8 @@ export const logout = async (req, res) => {
 
 export const verifyOTP = async (req, res) => {
     try {
-        const { email, otp } = req.body;
+        const validatedData = validateData(req.body,otpEmailSchema)
+        const { email, otp } = validatedData.data;
         const result = await verifyOTPService({ email, otp });
 
         res.cookie("refreshToken", result.refreshToken, {
@@ -140,79 +148,100 @@ export const verifyOTP = async (req, res) => {
 
 export const resendOTP = async (req, res) => {
     try {
-        const { email } = req.body;
+        const {data} = validateData(req.body ,emailSchema)
+        console.log(req.body , data)
+        const { email } = data;
         const result = await resendOTPService(email);
         return res.status(STATUS_CODES.OK).json({
-            success:true,
-            message:result.message
-        })
-    } catch (error) {
-        return res.status(error.statusCode|| STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-            success : false,
-            message : error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR
-        })
+            success: true,
+            message: result.message,
+        });
+    } catch (error){
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
     }
 };
 
-
-export const forgotPasswordOTP = async (req,res)=>{
+export const forgotPasswordOTP = async (req, res) => {
     try {
-        const {email} = req.body;
-        const result = await forgotPasswordOTPService(email)
+        const {data} = validateData(req.body,emailSchema)
+        const { email } = data;
+        const result = await forgotPasswordOTPService(email);
         return res.status(STATUS_CODES.OK).json({
-            success : true,
-            message: result.message
-        })
+            success: true,
+            message: result.message,
+        });
     } catch (error) {
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-            success:false,
-            message:error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR
-        })
+            success: false,
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
     }
-}
+};
 
-export const forgotPasswordVerify = async (req,res)=>{
+export const forgotPasswordVerify = async (req, res) => {
     try {
-        const {email,otp} = req.body
-        const result = await forgotPasswordVerifyService(email,otp)   
+        const {data} = validateData(req.body,otpEmailSchema)
+        const { email, otp } = data;
+        const result = await forgotPasswordVerifyService(email, otp);
         return res.status(STATUS_CODES.OK).json({
-            success:true,
-            message:result.message
-        })
+            success: true,
+            message: result.message,
+        });
     } catch (error) {
         console.log(error);
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-            success:true,
-            message:error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR
-        })
+            success: true,
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
     }
-}
+};
 
-export const resetPassword = async (req,res)=>{
+export const resetPassword = async (req, res) => {
     try {
-        const {email,password,confirmPassword} = req.body;
-        const result = await resetPasswordService(email,password,confirmPassword)
+        const {data} = validateData(req.body,resetPasswordSchema)
+        const { email, password, confirmPassword } = data;
+        const result = await resetPasswordService(email, password, confirmPassword);
 
-        res.cookie("refreshToken",result.refreshToken,{
+        res.cookie("refreshToken", result.refreshToken, {
             httpOnly: true,
             secure: true,
             sameSite: "strict",
             maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
             path: "/",
-        })
+        });
         res.status(STATUS_CODES.OK).json({
-            success:true,
-            message:result.message,
-            data:{
-                token:result.accessToken,
-                user:result.user
-            }
-
-        })
+            success: true,
+            message: result.message,
+            data: {
+                token: result.accessToken,
+                user: result.user,
+            },
+        });
     } catch (error) {
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-            success:false,
-            message:error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR
-        })
+            success: false,
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
     }
-}
+};
+
+export const googleCallback = (req, res) => {
+    try {
+        const user = req.user;
+        const { refreshToken, accessToken } = googleCallbackService(user);
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+        });
+        res.redirect(`${process.env.FRONTEND_URL}/google-success?token=${accessToken}`);
+    } catch (error) {
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};

@@ -16,6 +16,18 @@ const userSchema = new Schema({
   phone:{
     type : String,
   },
+  avatar:{
+    type:String,
+    default:null
+  },
+  provider:{
+    type:String,
+    enum: ["local","google"],
+    default: "local"
+  },
+  googleId:{
+    type:String
+  },
   password:{
     type : String,
     required : true

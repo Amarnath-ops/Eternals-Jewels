@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axiosInstance from "../../api/axios";
-import { signupSchema } from "../../schema/signup.schema";
+import { signupSchema } from "../../validations/auth.schema";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -9,7 +9,9 @@ import { Eye, EyeClosed } from "lucide-react";
 import useZodForm from "@/hooks/useZodForm";
 import FormWrapper from "@/components/form/Form";
 import FormInput from "@/components/form/FormInput";
+import { SpinnerBadge } from "@/components/Spinner";
 const SignUpPage = () => {
+    const [loading,setLoading] = useState(false);
     const initialState = {
         password: false,
         confirmPassword: false,
@@ -24,6 +26,7 @@ const SignUpPage = () => {
     } = useZodForm(signupSchema);
     const onSignup = async (data) => {
         data.phone = `+91 ${data.phone}`;
+        setLoading(true);
         try {
             const res = await axiosInstance.post("/auth/register", {
                 fullname: data.fullname,
@@ -33,6 +36,7 @@ const SignUpPage = () => {
                 confirmPassword: data.confirmPassword,
                 refferedBy: data.refferedBy,
             });
+            console.log(res)
             if (res.data.success) {
                 toast.success(res.data.message);
                 navigate("/verify-otp", { state: { email: data.email } });
@@ -45,10 +49,13 @@ const SignUpPage = () => {
             if (error.response.data.fieldName) {
                 setError(error.response.data.fieldName, { message: error.response.data.message });
             }
+        }finally{
+            setLoading(false)
         }
     };
     return (
         <>
+        {loading&&<SpinnerBadge content={"Please wait while we create your account…"}/>}
             <Navbar homePage={false} />
             <div className="min-h-screen flex items-center justify-center">
                 <div className="w-full max-w-md p-6">

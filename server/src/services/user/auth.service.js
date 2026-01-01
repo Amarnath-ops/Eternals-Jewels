@@ -5,8 +5,8 @@ import {
     findUserByReferralCode,
     setReferredBy,
     findUserByRefreshToken,
-    clearRefreshTokenById,
     setUserPasswordById,
+    clearRefreshTokenByRefreshTOken,
 } from "../../repositories/user.repo.js";
 import { generateAccessToken, generateRefreshToken, verifyToken } from "../../utils/jwt.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
@@ -76,7 +76,7 @@ export const signUpService = async (userData) => {
     const otp = generateOTP();
 
     cache.set(`verify_${user.email}`, otp, CONSTANTS.OTP_CACHE_TIME);
-
+    console.log(otp);
     await sendMail(user.email, otp);
     // REST API Response
     return {
@@ -100,7 +100,15 @@ export const refreshTokenService = async (oldToken) => {
     user.refreshToken = newRefreshToken;
     await user.save();
 
-    return { newAccessToken, newRefreshToken };
+    return {
+        newAccessToken,
+        newRefreshToken,
+        user: {
+            id: user._id,
+            fullname: user.fullname,
+            email: user.email,
+        },
+    };
 };
 
 export const loginService = async (userData) => {
@@ -129,20 +137,14 @@ export const loginService = async (userData) => {
             id: user._id,
             fullname: user.fullname,
             email: user.email,
-            phone: user.phone,
-            isAdmin: user.isAdmin,
-            isBlocked: user.isBlocked,
-            referralCode: user.referralCode,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
         },
         accessToken,
         refreshToken,
     };
 };
 
-export const logoutService = async (userId) => {
-    await clearRefreshTokenById(userId);
+export const logoutService = async (rToken) => {
+    await clearRefreshTokenByRefreshTOken(rToken)
 };
 
 export const verifyOTPService = async ({ email, otp }) => {
@@ -201,7 +203,7 @@ export const resendOTPService = async (email) => {
 
     const otp = generateOTP();
     cache.set(`verify_${email}`, otp, CONSTANTS.OTP_CACHE_TIME);
-
+    console.log(otp);
     await sendMail(email, otp);
 
     return {
@@ -219,7 +221,7 @@ export const forgotPasswordOTPService = async (email) => {
     const otp = generateOTP();
 
     cache.set(`verify_${email}`, otp, CONSTANTS.OTP_CACHE_TIME);
-
+    console.log(otp);
     await sendMail(email, otp);
 
     return {
@@ -263,29 +265,40 @@ export const resetPasswordService = async (email, password, confirmPassword) => 
         throw error;
     }
 
-    if(password !== confirmPassword){
+    if (password !== confirmPassword) {
         const error = new Error(ERROR_MESSAGES.PASSWORD_MISMATCH);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
-        throw error;    
+        throw error;
     }
-    
-    const hashedPassword = await bcrypt.hash(password,10);
 
-    await setUserPasswordById(user._id,hashedPassword);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await setUserPasswordById(user._id, hashedPassword);
 
     const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user)
+    const refreshToken = generateRefreshToken(user);
     user.refreshToken = refreshToken;
-    await user.save()
+    await user.save();
 
     return {
-        message:CONSTANTS.PASSWORD_RESET_SUCCESS,
+        message: CONSTANTS.PASSWORD_RESET_SUCCESS,
         refreshToken,
         accessToken,
-        user:{
-            _id:user._id,
-            email:user.email,
-            name:user.fullname
-        }
-    }
+        user: {
+            _id: user._id,
+            email: user.email,
+            name: user.fullname,
+        },
+    };
 };
+
+
+export const googleCallbackService = (user)=>{
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user)
+
+    return {
+        accessToken,
+        refreshToken
+    }
+}

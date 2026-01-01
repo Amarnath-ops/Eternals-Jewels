@@ -7,6 +7,7 @@ import {
     findUserByRefreshToken,
     setUserPasswordById,
     clearRefreshTokenByRefreshTOken,
+    setRefreshTokenByEmail,
 } from "../../repositories/user.repo.js";
 import { generateAccessToken, generateRefreshToken, verifyToken } from "../../utils/jwt.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
@@ -85,6 +86,11 @@ export const signUpService = async (userData) => {
 };
 
 export const refreshTokenService = async (oldToken) => {
+    if (!oldToken) {
+        const error = new Error(ERROR_MESSAGES.UNAUTHORIZED);
+        error.statusCode = STATUS_CODES.UNAUTHORIZED;
+        throw error;
+    }
     const user = await findUserByRefreshToken(oldToken);
     if (!user) {
         const error = new Error(ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
@@ -144,7 +150,7 @@ export const loginService = async (userData) => {
 };
 
 export const logoutService = async (rToken) => {
-    await clearRefreshTokenByRefreshTOken(rToken)
+    await clearRefreshTokenByRefreshTOken(rToken);
 };
 
 export const verifyOTPService = async ({ email, otp }) => {
@@ -292,13 +298,12 @@ export const resetPasswordService = async (email, password, confirmPassword) => 
     };
 };
 
-
-export const googleCallbackService = (user)=>{
+export const googleCallbackService = async (user) => {
     const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user)
-
+    const refreshToken = generateRefreshToken(user);
+    await setRefreshTokenByEmail(user.email, refreshToken);
     return {
         accessToken,
-        refreshToken
-    }
-}
+        refreshToken,
+    };
+};

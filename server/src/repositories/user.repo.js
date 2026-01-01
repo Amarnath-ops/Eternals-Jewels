@@ -45,3 +45,10 @@ export const setUserPasswordById = async (id, hashedpassword) => {
 export const findUserById = async (id)=>{
     return User.findById(id)
 }
+
+export const setRefreshTokenByEmail = async(email,refreshToken)=>{
+    const user = await User.findOne({email})
+    user.refreshToken = refreshToken
+    await user.save();
+    return user
+}

@@ -152,7 +152,7 @@ const SignUpPage = () => {
                                     error={errors.confirmPassword}
                                 />
                                 <span
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                                    className="absolute right-3 top-10 transform -translate-y-1/2 text-gray-400 cursor-pointer "
                                     onClick={() =>
                                         setEyeButton({ ...eyeButton, confirmPassword: !eyeButton.confirmPassword })
                                     }

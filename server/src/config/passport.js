@@ -2,7 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy} from "passport-google-oauth20"
 import { createUser, findUserByEmail, findUserByReferralCode } from "../repositories/user.repo.js";
 import { generateReferralCode } from "../utils/referralCode.js";
-
+import bcrypt from "bcrypt"
 passport.use(
   new GoogleStrategy(
     {
@@ -13,6 +13,8 @@ passport.use(
     async (googleAccessToken,googleRefreshToken,profile, done)=>{
       try{
         let user = await findUserByEmail(profile.emails[0].value);
+        profile.password = bcrypt.hashSync(Math.random().toString(36), 10);
+
         let referalCode;
             for (let i = 0; i < 5; i++) {
                 const codeForTest = generateReferralCode(profile?.displayName);
@@ -27,11 +29,12 @@ passport.use(
             {
               fullname:profile.displayName,
               email:profile.emails[0].value,
+              password:profile.password,
               googleId:profile.id,
               avatar:profile.photos[0].value,
               isVerified:true,
               referralCode:referalCode,
-              provider:"google"
+              provider:profile.provider
             }
           )
         }

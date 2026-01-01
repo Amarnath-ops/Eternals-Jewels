@@ -38,12 +38,6 @@ export const signup = async (req, res) => {
 export const refresh = async (req, res) => {
     try {
         const { refreshToken } = req.cookies;
-        if (!refreshToken) {
-            const error = new Error(ERROR_MESSAGES.UNAUTHORIZED);
-            error.statusCode = STATUS_CODES.UNAUTHORIZED;
-            throw error;
-        }
-
         const { newRefreshToken, newAccessToken, user } = await refreshTokenService(refreshToken);
 
         res.cookie("refreshToken", newRefreshToken, {
@@ -77,7 +71,7 @@ export const login = async (req, res) => {
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
             path: "/",
         });
@@ -124,8 +118,8 @@ export const verifyOTP = async (req, res) => {
 
         res.cookie("refreshToken", result.refreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
             maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
             path: "/",
         });
@@ -207,8 +201,8 @@ export const resetPassword = async (req, res) => {
 
         res.cookie("refreshToken", result.refreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
             maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
             path: "/",
         });
@@ -228,15 +222,16 @@ export const resetPassword = async (req, res) => {
     }
 };
 
-export const googleCallback = (req, res) => {
+export const googleCallback = async (req, res) => {
     try {
         const user = req.user;
-        const { refreshToken, accessToken } = googleCallbackService(user);
-
+        const { refreshToken, accessToken } = await googleCallbackService(user);
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
+            maxAge: process.env.REFRESH_TOKEN_MAX_AGE,
+            path: "/",
         });
         res.redirect(`${process.env.FRONTEND_URL}/google-success?token=${accessToken}`);
     } catch (error) {

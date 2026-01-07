@@ -17,8 +17,13 @@ const userSchema = new Schema({
     type : String,
   },
   avatar:{
-    type:String,
-    default:null
+    provider:{
+      type:String,
+      enum:["local","cloudinary","google"],
+      default:"local"
+    },
+    url:String,
+    publicId:String
   },
   provider:{
     type:String,

@@ -19,6 +19,6 @@ app.use(passport.initialize())
 
 // Routes
 app.use("/api/v1/auth",authUserRoutes);
-app.use("/api/v1/users",userRoutes)
+app.use("/api/v1/users",userRoutes);
 
 export default app

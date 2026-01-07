@@ -12,6 +12,7 @@ passport.use(
     },
     async (googleAccessToken,googleRefreshToken,profile, done)=>{
       try{
+        console.log(profile)
         let user = await findUserByEmail(profile.emails[0].value);
         profile.password = bcrypt.hashSync(Math.random().toString(36), 10);
 
@@ -29,9 +30,13 @@ passport.use(
             {
               fullname:profile.displayName,
               email:profile.emails[0].value,
+              phone:null,
               password:profile.password,
               googleId:profile.id,
-              avatar:profile.photos[0].value,
+              avatar:{
+                url:profile.photos[0].value,
+                provider:profile.provider
+              },
               isVerified:true,
               referralCode:referalCode,
               provider:profile.provider

@@ -1,13 +1,44 @@
-import { logoutApi } from "@/api/auth.api"
-import store from "@/store/store"
-import { logOut } from "@/store/user/authSlice"
-import { toast } from "sonner";
-
+import {
+    forgotPasswordApi,
+    forgotPasswordVerifyApi,
+    loginApi,
+    logoutApi,
+    resendOTPApi,
+    resetPasswordApi,
+    signupApi,
+    verifyOTPApi,
+} from "@/api/auth.api";
 export const authService = {
-  logout :async ()=>{
-    const res = await logoutApi();
-    console.log(res)
-    store.dispatch(logOut())
-    toast.success("You've logged out successfully.")
-  }
-}
+    logout: async () => {
+        const res = await logoutApi();
+        return res
+    },
+    login: async (data) => {
+        const res = await loginApi(data);
+        return res;
+    },
+    signup: async (data) => {
+        const res = await signupApi(data);
+        return res;
+    },
+    verifyOTP: async (data) => {
+        const res = await verifyOTPApi(data);
+        return res.data.data;
+    },
+    resendOTP: async (email) => {
+        const res = await resendOTPApi(email);
+        return res;
+    },
+    forgotPassword: async (data) => {
+        const res = await forgotPasswordApi(data);
+        return res;
+    },
+    forgotPasswordVerify: async (data) => {
+        const res = await forgotPasswordVerifyApi(data);
+        return res;
+    },
+    resetPassword: async (data) => {
+        const res = await resetPasswordApi(data);
+        return res.data;
+    },
+};

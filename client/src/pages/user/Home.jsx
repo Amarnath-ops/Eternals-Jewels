@@ -86,24 +86,22 @@ const FAQS = [
 // --- Main Page Component ---
 
 const HomePage = () => {
-    const accessToken = useSelector(state=>state.user)
-    console.log(accessToken)
+    const accessToken = useSelector((state) => state.user);
+    console.log(accessToken);
     return (
         <>
             <div className="w-full bg-white font-sans text-gray-900">
                 <Navbar homePage={true} />
                 {/* 1. Hero Section */}
                 <section className="relative h-screen w-full">
-                    {/* Background Image */}
-                    <div
-                        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                        style={{
-                            backgroundImage: "url('asset/Rectangle 3.png')",
-                        }}
-                    >
-                        {/* Overlay gradient for text readability */}
-                        <div className="absolute inset-0 bg-black/20 md:bg-black/10"></div>
-                    </div>
+                    {/* Background Video */}
+                    <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
+                        <source src="/asset/promovideo (2) - Trim.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+
+                    {/* Overlay gradient for text readability */}
+                    <div className="absolute inset-0 bg-black/30 md:bg-black/20"></div>
 
                     {/* Hero Content */}
                     <div className="relative h-full max-w-7xl mx-auto px-6 flex flex-col justify-center text-white">
@@ -115,7 +113,7 @@ const HomePage = () => {
                             <p className="text-base font-karla md:text-lg mb-8 max-w-md font-semibold tracking-wide text-white/90">
                                 Indulge in the opulence of Golden Memory, a mesmerizing jewelry collection fit for a queen.
                             </p>
-                            <Button className="px-8 py-3 border border-white text-white uppercase tracking-widest text-xs font-bold hover:bg-white hover:text-black transition duration-300">
+                            <Button className="px-8 py-3 border bg-transparent border-white text-white uppercase tracking-widest text-xs font-bold hover:bg-white hover:text-black transition duration-300">
                                 Shop Now
                             </Button>
                         </div>
@@ -278,7 +276,10 @@ const HomePage = () => {
                                 tristique senectus et netus et malesuada fames ac.
                             </p>
                             <div>
-                                <Button size={40} className="px-8 py-3 border border-gray-600 text-gray-300 uppercase tracking-widest text-xs font-bold hover:border-white hover:text-white transition duration-300">
+                                <Button
+                                    size={40}
+                                    className="px-8 py-3 border border-gray-600 text-gray-300 uppercase tracking-widest text-xs font-bold hover:border-white hover:text-white transition duration-300"
+                                >
                                     About Us
                                 </Button>
                             </div>

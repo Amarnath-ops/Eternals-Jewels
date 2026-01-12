@@ -11,6 +11,10 @@ export const ERROR_MESSAGES = Object.freeze({
     INVALID_OTP:"OTP is invalid.",
     ALREADY_VERIFIED:"OTP already verified.",
     USER_NOT_VERIFIED : "User is not verified.",
-    USER_BLOCKED:"User is blocked.",
-    TOKEN_EXPIRED:"Token expired or invalid"
+    USER_BLOCKED:"Your account is blocked",
+    TOKEN_EXPIRED:"Token expired or invalid",
+    ACCESS_TOKEN_MISSING: "Access token is missing.",
+    EMAIL_IN_USE :"An account with this email already exists.",
+    ADDRESS_NOT_FOUND:"Address is not found.",
+    EMAIL_CANNOT_BE_CHANGED_FOR_GOOGLE:"Email cannot be changed for Google-authenticated accounts"
 })

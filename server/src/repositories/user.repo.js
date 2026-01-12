@@ -28,11 +28,11 @@ export const findUserByRefreshToken = async (token) => {
 
 // To remove the refresh token
 
-export const clearRefreshTokenByRefreshTOken = async (refreshToken) => {
-    const user = await User.findOne({refreshToken:refreshToken})
+export const clearRefreshTokenByRefreshToken = async (refreshToken) => {
+    const user = await User.findOne({ refreshToken: refreshToken });
     user.refreshToken = null;
-    await user.save()
-    return user
+    await user.save();
+    return user;
 };
 
 export const setUserPasswordById = async (id, hashedpassword) => {
@@ -42,6 +42,35 @@ export const setUserPasswordById = async (id, hashedpassword) => {
     return user;
 };
 
-export const findUserById = async (id)=>{
-    return User.findById(id)
+export const findUserById = async (id) => {
+    return User.findById(id);
+};
+
+export const setRefreshTokenByEmail = async (email, refreshToken) => {
+    const user = await User.findOne({ email });
+    user.refreshToken = refreshToken;
+    await user.save();
+    return user;
+};
+
+export const updateUserById = async (id, data) => {
+    return await User.findByIdAndUpdate(id, data, {
+        new: true,
+    });
+};
+
+export const findCustomers = async (query, skip, limit) => {
+    return await User.find(query).select(" -password -refreshToken").skip(skip).limit(limit).sort({ createdAt: -1 });
+};
+
+export const countCustomers = async(query)=>{
+    return await User.countDocuments(query)
+}
+
+export const toggleBlockStatus = async (id)=>{
+    const user = await User.findById(id);
+    if(!user) return null;
+
+    user.isBlocked = !user.isBlocked;
+    return await user.save()
 }

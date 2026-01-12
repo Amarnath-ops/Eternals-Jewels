@@ -8,7 +8,7 @@ export const getAllCustomers = async (req, res) => {
       console.log(req.query)
       const {search="" , page=1, limit= 10, status } = req.query;
       const data = await getAllCustomersService({
-        search,
+        search:search.trim(),
         page:Number(page),
         limit:Number(limit),
         status

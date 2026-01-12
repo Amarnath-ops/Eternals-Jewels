@@ -5,7 +5,7 @@ export const profileDetailsSchema = z.object({
         .string()
         .trim()
         .min(3, { message: "Must be between 4 and 15 characters long." })
-        .max(15, { message: "Must be between 4 and 15 characters long." }),
+        .max(15, { message: "Must be between 4 and 15 characters long." }).regex(/^[A-Za-z\s]+$/, "must contain only letters"),
     email: z
         .email({ message: "Invalid email address. Please check the format." })
         .trim({ message: "Invalid email address. Please check the format." })

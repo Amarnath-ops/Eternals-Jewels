@@ -3,16 +3,17 @@ import { Heart, ShoppingCart, User, Menu, X, LogOut, ShoppingBag, ShoppingBagIco
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import AccountDropdown, { MenuItem } from "./AccountDropdown";
-import { authService } from "@/services/auth.service";
+import { useLogoutUser } from "@/hooks/tanstack_Queries/auth/useLogoutUser";
 
 const Navbar = ({ homePage }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [accountOpen, setAccountOpen] = useState(false);
     const [mobileDropDown, setMobileDropdown] = useState(false);
+    const {mutateAsync} = useLogoutUser()
     const isLogin = useSelector((state) => state.user.isLogin);
     const handleLogout = async () => {
         try {
-            authService.logout();
+            await mutateAsync()
         } catch (error) {
             console.log(error);
         }
@@ -141,8 +142,9 @@ const Navbar = ({ homePage }) => {
                         {mobileDropDown && (
                             <div className="mobile-dropdown">
                                 {/* Account Item */}
-                                <MenuItem icon={User} label="Account" onClick={() => console.log("Account clicked")} />
-
+                                <Link to="/account/profile">
+                                    <MenuItem icon={User} label="Account" onClick={() => console.log("Account clicked")} />
+                                </Link>
                                 {/* My Order Item */}
                                 <MenuItem
                                     icon={ShoppingBagIcon}
@@ -162,7 +164,7 @@ const Navbar = ({ homePage }) => {
                     </div>
                 </div>
             )}
-            {accountOpen && isLogin && <AccountDropdown />}
+            {accountOpen && isLogin && <AccountDropdown onClose={()=>setAccountOpen(false)}/>}
         </nav>
     );
 };

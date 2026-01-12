@@ -70,9 +70,32 @@ export const resetPasswordSchema = z
                 message:
                     "Password must be 4-15 characters and contain an uppercase letter, lowercase letter, number, and special character.",
             }),
-        confirmPassword: z.string().trim().min(1, { message: "Confirm password cannot be empty." }),    
+        confirmPassword: z.string().trim().min(1, { message: "Confirm password cannot be empty." }),
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: "Passwords do not match.",
         path: ["confirmPassword"],
+    });
+
+export const changePasswordSchema = z
+    .object({
+        currentPassword: z
+            .string()
+            .trim()
+            .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{4,15}$/, {
+                message:
+                    "Password must be 4-15 characters and contain an uppercase letter, lowercase letter, number, and special character.",
+            }),
+        newPassword: z
+            .string()
+            .trim()
+            .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{4,15}$/, {
+                message:
+                    "Password must be 4-15 characters and contain an uppercase letter, lowercase letter, number, and special character.",
+            }),
+        confirmNewPassword: z.string().trim().min(1, { message: "Confirm password cannot be empty." }),
+    })
+    .refine((data) => data.newPassword === data.confirmNewPassword, {
+        message: "Passwords do not match.",
+        path: ["confirmNewPassword"],
     });

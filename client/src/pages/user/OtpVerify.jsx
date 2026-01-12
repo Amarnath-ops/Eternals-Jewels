@@ -1,24 +1,23 @@
-import axiosInstance from "@/api/axios";
 import Navbar from "@/components/Navbar";
 import { SpinnerBadge } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { OtpSchema } from "@/validations/auth.schema";
-import { setCredentials } from "@/store/user/authSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { useDispatch } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { useVerifyOtp } from "@/hooks/tanstack_Queries/auth/useVerifyOtp";
+import { useResendOtp } from "@/hooks/tanstack_Queries/auth/useResendOtp";
 
 const OtpVerification = () => {
     const [loading, setLoading] = useState(false);
     const location = useLocation();
     const email = location.state?.email;
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const {mutateAsync , isPending} = useVerifyOtp()
+    const {mutateAsync:ResendOtpRequest } = useResendOtp()
     const [timeLeft, setTimeLeft] = useState(59);
     const canResend = timeLeft === 0;
     useEffect(() => {
@@ -44,24 +43,11 @@ const OtpVerification = () => {
 
     const onSubmit = async (data) => {
         setTimeLeft(59);
-        setLoading(true);
         try {
-            const res = await axiosInstance.post("/auth/verify-otp", {
-                email,
-                otp: data.otp,
-            });
-            if (res.data.success) {
-                console.log(res.data);
-                dispatch(setCredentials({ accessToken: res.data.data.token, user: res.data.data.user }));
-                navigate("/");
-                toast.success("You've registered successfully.");
-            }
+            await mutateAsync({...data,email})
         } catch (error) {
-            if (error?.response?.data) {
-                toast.error(error?.response?.data?.message);
-            }
-        } finally {
-            setLoading(false);
+            console.log(error)
+            toast.error(error?.response?.data?.message);
         }
     };
 
@@ -69,13 +55,9 @@ const OtpVerification = () => {
         setTimeLeft(59);
         setLoading(true);
         try {
-            const res = await axiosInstance.post("/auth/resend-otp", {
-                email,
-            });
-            if (res.data.success) {
-                toast.success(res.data.message);
-            }
+            await ResendOtpRequest(email)
         } catch (error) {
+            console.log(email);
             toast.error(error?.response?.data?.message || "Something went wrong.");
         } finally {
             setLoading(false);
@@ -146,7 +128,7 @@ const OtpVerification = () => {
                                 // onClick={handleVerify}
                                 className="w-full max-w-100 py-7 bg-[#1A4D3E] text-white text-base font-semibold rounded-lg hover:bg-[#143d31] transition-colors"
                             >
-                                Verify
+                                {isPending?"Verifying..":"Verify"}
                             </Button>
                         </form>
                     </div>

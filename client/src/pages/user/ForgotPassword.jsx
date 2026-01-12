@@ -1,61 +1,46 @@
 import React, { useState } from "react";
-import { Heart, ShoppingCart, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { emailSchema, OtpSchema } from "@/validations/auth.schema";
-import axiosInstance from "@/api/axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { SpinnerBadge } from "@/components/Spinner";
-
+import { useForgotPassword } from "@/hooks/tanstack_Queries/auth/useForgotPassword";
+import { useForgotPasswordVerify } from "@/hooks/tanstack_Queries/auth/useForgotPasswordVerify";
 const ForgotPasswordPage = () => {
-    const [loading, setLoading] = useState(false);
     const emailForm = useForm({ resolver: zodResolver(emailSchema) });
     const OTPForm = useForm({ resolver: zodResolver(OtpSchema) });
     const [emailEdit, setEmailEdit] = useState(false);
+    const { mutateAsync, isPending } = useForgotPassword();
+    const { mutateAsync: VerifyEmailandOTP, isPending: Verifying } = useForgotPasswordVerify();
     const [email, setEmail] = useState("");
     const navigate = useNavigate();
     const onSubmitEmail = async (data) => {
-        setLoading(true);
         setEmail(data.email);
         try {
-            const res = await axiosInstance.post("/auth/forgot-password", {
-                email: data.email,
-            });
-            if (res.data.success) {
-                toast.success(res.data.message);
-                setEmailEdit(true);
-            }
+            await mutateAsync(data);
+            setEmailEdit(true);
         } catch (error) {
             console.log(error);
             toast.error(error.response.data.message);
-        } finally {
-            setLoading(false);
         }
     };
     const onSubmitOTP = async (data) => {
-        setLoading(true);
         try {
-            const res = await axiosInstance.post("/auth/forgot-password-verify", {
-                email,
-                otp: data.otp,
-            });
-            if (res.data.success) {
-                navigate("/reset-password", { state: { email } });
-                toast.success("OTP verified successfully. You can now reset your password.");
-            }
+            await VerifyEmailandOTP({...data,email})
+            navigate("/reset-password", { state: { email } });
         } catch (error) {
             setEmailEdit(false);
             console.log(error);
             toast.error(error.response.data.message);
-        } finally {
-            setLoading(false);
         }
     };
+    if (Verifying) {
+        return <SpinnerBadge content={"Verifying"} />;
+    }
     return (
         <>
-        {loading&&<SpinnerBadge content={"Loading"}/>}
             <div className="min-h-screen bg-[#D9D9D9] font-sans flex flex-col">
                 <Navbar />
 
@@ -86,9 +71,9 @@ const ForgotPasswordPage = () => {
                                         emailEdit ? "cursor-not-allowed" : ""
                                     }`}
                                     type="submit"
-                                    disabled={emailEdit}
+                                    disabled={emailEdit || isPending}
                                 >
-                                    Send OTP
+                                    {isPending ? "OTP Sending.." : "Send OTP"}
                                 </button>
                             </div>
                             {emailForm.formState.errors.email && (

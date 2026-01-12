@@ -1,45 +1,37 @@
-import React, { useState } from "react";
+import React from "react";
 import { Heart, ShoppingCart, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import axiosInstance from "@/api/axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
-import { useDispatch } from "react-redux";
-import { setCredentials } from "@/store/user/authSlice";
 import { SpinnerBadge } from "@/components/Spinner";
 import { resetPasswordSchema } from "@/validations/auth.schema";
 import useZodForm from "@/hooks/useZodForm";
 import FormWrapper from "@/components/form/Form";
 import FormInput from "@/components/form/FormInput";
+import { useResetPassword } from "@/hooks/tanstack_Queries/auth/useResetPassword";
 
 const ResetPassword = () => {
-    const [loading, setLoading] = useState(false);
-    const { handleSubmit, register, formState:{errors}} = useZodForm(resetPasswordSchema);
+    const { mutateAsync, isPending } = useResetPassword();
+    const {
+        handleSubmit,
+        register,
+        formState: { errors },
+    } = useZodForm(resetPasswordSchema);
     const location = useLocation();
     const email = location.state.email;
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
     const onSubmit = async (data) => {
-      setLoading(true)
         try {
-            const res = await axiosInstance.post("/auth/reset-password", {
-                email,
-                password: data.password,
-                confirmPassword: data.confirmPassword,
-            });
-            dispatch(setCredentials({ accessToken: res.data.data.token, user: res.data.data.user }));
-            navigate("/");
-            toast.success(res.data.message);
+            await mutateAsync({ ...data, email });
         } catch (error) {
             console.log(error);
             toast.error(error.response.data.message);
-        }finally{
-          setLoading(false)
         }
     };
+    if(isPending){
+        return <SpinnerBadge content={"Password is reseting.."}/>
+    }
     return (
         <>
-        {loading&&<SpinnerBadge content={"Hang on, resetting your password..."}/>}
             <div className="min-h-screen bg-[#D9D9D9] flex flex-col">
                 <Navbar />
 

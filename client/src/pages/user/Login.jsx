@@ -1,50 +1,36 @@
-import { EyeOff, CheckCircle, EyeIcon } from "lucide-react";
-import Footer from "../../components/Footer";
+import { EyeOff, EyeIcon } from "lucide-react";
 import Navbar from "../../components/Navbar";
-import axiosInstance from "@/api/axios";
-import { useDispatch } from "react-redux";
-import { setCredentials } from "@/store/user/authSlice";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { loginSchema } from "@/validations/auth.schema";
 import FormInput from "@/components/form/FormInput";
 import useZodForm from "@/hooks/useZodForm";
 import FormWrapper from "@/components/form/Form";
 import { useState } from "react";
 import { SpinnerBadge } from "@/components/Spinner";
+import { useLoginUser } from "@/hooks/tanstack_Queries/auth/useLoginUser";
 const LoginPage = () => {
-    const [showPassword, setShowPassword] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const {handleSubmit,register , formState:{errors}} = useZodForm(loginSchema);
-    const onSubmit = async(data)=>{
-        setLoading(true)
+    const [showPassword, setShowPassword] = useState(false);
+    const { mutateAsync,isPending} = useLoginUser()
+    const {
+        handleSubmit,
+        register,
+        formState: { errors },
+    } = useZodForm(loginSchema);
+    const onSubmit = async (data) => {
         try {
-            const res = await axiosInstance.post("/auth/login",{
-                email:data.email,
-                password:data.password
-            })
-            console.log(res)
-            if(res.data.success){
-                dispatch(setCredentials({accessToken : res?.data?.data?.token , user : res?.data?.data?.user}))
-                navigate("/");
-                toast.success("You've Login successfully.")
-                setLoading(false)
-            }
-            
+         await mutateAsync(data)
         } catch (error) {
-            setLoading(false)
-            console.log(error)
-            toast.error(error.response.data.message)
+            console.log(error);
         }
-    }
-    const handleGoogleLogin = ()=>{
-        window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`
+    };
+    const handleGoogleLogin = () => {
+        window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
+    };
+    if(isPending){
+        return <SpinnerBadge content={"Please wait..."}/>
     }
     return (
         <>
-        {loading&&<SpinnerBadge content={"Logging in."}/>}
             <Navbar homePage={false} />
             <div className="flex flex-col items-center justify-center mt-10 min-h-screen">
                 {/* Header */}
@@ -66,32 +52,41 @@ const LoginPage = () => {
                                 />
                             </div>
                         </div>
-                        
+
                         {/* Password Input */}
                         <div className="space-y-2">
                             <div className="relative">
                                 <FormInput
                                     label="Password"
                                     name="password"
-                                    type={showPassword?`text`:`password`}
+                                    type={showPassword ? `text` : `password`}
                                     placeholder="Password@123"
                                     register={register}
                                     error={errors.password}
                                     className="w-full bg-white rounded-xl py-3.5 px-4 text-gray-700 tracking-widest focus:outline-none focus:ring-2 focus:ring-gray-400"
                                 />
-                                <div className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-500" onClick={()=>setShowPassword(!showPassword)}>
-                                    {!showPassword?<EyeOff size={20}/>:<EyeIcon size={20}/>}
+                                <div
+                                    className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-500"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {!showPassword ? <EyeOff size={20} /> : <EyeIcon size={20} />}
                                 </div>
                             </div>
                             <div className="flex justify-end pt-1">
-                                <Link to="/forgot-password" className="text-sm font-semibold text-gray-900 hover:text-gray-500 transition mb-3">
+                                <Link
+                                    to="/forgot-password"
+                                    className="text-sm font-semibold text-gray-900 hover:text-gray-500 transition mb-3"
+                                >
                                     Forgot password?
                                 </Link>
                             </div>
                         </div>
 
                         {/* Login Button */}
-                        <button className="w-full py-3.5 rounded-lg text-white font-medium text-lg hover:opacity-90 transition shadow-md bg-[#1F463E]" type="submit">
+                        <button
+                            className="w-full py-3.5 rounded-lg text-white font-medium text-lg hover:opacity-90 transition shadow-md bg-[#1F463E]"
+                            type="submit"
+                        >
                             Log in
                         </button>
                     </FormWrapper>
@@ -114,7 +109,9 @@ const LoginPage = () => {
                     </div>
 
                     {/* Google Login Button */}
-                    <button onClick={handleGoogleLogin} className="w-full bg-white text-black py-3 rounded-lg font-medium flex items-center justify-center space-x-2 hover:bg-gray-50 transition shadow-sm"
+                    <button
+                        onClick={handleGoogleLogin}
+                        className="w-full bg-white text-black py-3 rounded-lg font-medium flex items-center justify-center space-x-2 hover:bg-gray-50 transition shadow-sm"
                     >
                         {/* Google Logo SVG */}
                         <svg className="w-5 h-5" viewBox="0 0 24 24">

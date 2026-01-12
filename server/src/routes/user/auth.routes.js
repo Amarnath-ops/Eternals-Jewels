@@ -1,7 +1,7 @@
 import express from "express"
-import {forgotPasswordOTP, forgotPasswordVerify, googleCallback, login, logout, refresh, resendOTP, resetPassword, signup, verifyOTP } from "../../controllers/user/auth.controller.js"
+import {changePassword, forgotPasswordOTP, forgotPasswordVerify, googleCallback, login, logout, refresh, resendOTP, resetPassword, signup, verifyOTP } from "../../controllers/user/auth.controller.js"
 import passport from "passport";
-
+import {protect} from "../../middlewares/auth.middleware.js"
 const router = express.Router()
 
 router.post("/register",signup);
@@ -20,8 +20,9 @@ router.get("/google",passport.authenticate("google",{
 router.get("/google/callback",
   passport.authenticate("google",{
     session:false,
-    failureRedirect:"/login"
+    failureRedirect:`${process.env.FRONTEND_URL}/login`
   }),
   googleCallback
 )
+router.post("/change-password",protect,changePassword)
 export default router

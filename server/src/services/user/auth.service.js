@@ -6,7 +6,10 @@ import {
     setReferredBy,
     findUserByRefreshToken,
     setUserPasswordById,
-    clearRefreshTokenByRefreshTOken,
+    clearRefreshTokenByRefreshToken,
+    setRefreshTokenByEmail,
+    findUserById,
+    updateUserById,
 } from "../../repositories/user.repo.js";
 import { generateAccessToken, generateRefreshToken, verifyToken } from "../../utils/jwt.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
@@ -16,6 +19,7 @@ import cache from "../../utils/node.cache.js";
 import generateOTP from "../../utils/otp.generator.js";
 import { CONSTANTS } from "../../constants/constants.js";
 import { sendMail } from "../../utils/nodemailer.js";
+import generateAvatar from "../../utils/avatar.js";
 export const signUpService = async (userData) => {
     // Check if email exists
     const existing = await findUserByEmail(userData?.email);
@@ -26,12 +30,11 @@ export const signUpService = async (userData) => {
         throw error;
     }
 
-    if (userData.password !== userData.confirmPassword) {
-        const error = new Error(ERROR_MESSAGES.PASSWORD_MISMATCH);
-        error.statusCode = STATUS_CODES.BAD_REQUEST;
-        error.fieldName = "confirmPassword";
-        throw error;
-    }
+    const avatarURL = generateAvatar(userData.fullname);
+    const avatar = {
+        provider: "local",
+        url: avatarURL,
+    };
     // Hash password
     const hashedPassword = await bcrypt.hash(userData?.password, 10);
 
@@ -58,6 +61,7 @@ export const signUpService = async (userData) => {
         phone: userData.phone,
         password: hashedPassword,
         referralCode: referalCode,
+        avatar,
     };
     const user = await createUser(userInfo);
 
@@ -85,10 +89,15 @@ export const signUpService = async (userData) => {
 };
 
 export const refreshTokenService = async (oldToken) => {
+    if (!oldToken) {
+        const error = new Error(ERROR_MESSAGES.UNAUTHORIZED);
+        error.statusCode = STATUS_CODES.UNAUTHORIZED;
+        throw error;
+    }
     const user = await findUserByRefreshToken(oldToken);
     if (!user) {
         const error = new Error(ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
-        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        error.statusCode = STATUS_CODES.FORBIDDEN;
         throw error;
     }
 
@@ -99,7 +108,6 @@ export const refreshTokenService = async (oldToken) => {
 
     user.refreshToken = newRefreshToken;
     await user.save();
-
     return {
         newAccessToken,
         newRefreshToken,
@@ -144,7 +152,7 @@ export const loginService = async (userData) => {
 };
 
 export const logoutService = async (rToken) => {
-    await clearRefreshTokenByRefreshTOken(rToken)
+    await clearRefreshTokenByRefreshToken(rToken);
 };
 
 export const verifyOTPService = async ({ email, otp }) => {
@@ -292,13 +300,35 @@ export const resetPasswordService = async (email, password, confirmPassword) => 
     };
 };
 
-
-export const googleCallbackService = (user)=>{
+export const googleCallbackService = async (user) => {
     const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user)
-
+    const refreshToken = generateRefreshToken(user);
+    await setRefreshTokenByEmail(user.email, refreshToken);
     return {
         accessToken,
-        refreshToken
+        refreshToken,
+    };
+};
+
+export const changePasswordService = async (userId, payload) => {
+    const user = await findUserById(userId);
+    if (!user) {
+        const error = new Error(ERROR_MESSAGES.USER_NOT_FOUND);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
     }
-}
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
+    const validPassword = await bcrypt.compare(payload.currentPassword, user.password);
+    if (!validPassword) {
+        const error = new Error(ERROR_MESSAGES.INVALID_PASSWORD);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+    return updateUserById(userId,{
+        password:payload.newPassword
+    })
+};

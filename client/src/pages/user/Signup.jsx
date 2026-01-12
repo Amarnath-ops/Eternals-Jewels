@@ -1,23 +1,22 @@
 import React, { useState } from "react";
-import axiosInstance from "../../api/axios";
 import { signupSchema } from "../../validations/auth.schema";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
-import { toast } from "sonner";
 import { Eye, EyeClosed } from "lucide-react";
 import useZodForm from "@/hooks/useZodForm";
 import FormWrapper from "@/components/form/Form";
 import FormInput from "@/components/form/FormInput";
 import { SpinnerBadge } from "@/components/Spinner";
+import {  useSignupUser } from "@/hooks/tanstack_Queries/auth/useSignupUser";
 const SignUpPage = () => {
-    const [loading,setLoading] = useState(false);
+    const navigate = useNavigate()
+    const {mutateAsync,isPending} = useSignupUser()
     const initialState = {
         password: false,
         confirmPassword: false,
     };
     const [eyeButton, setEyeButton] = useState(initialState);
-    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
@@ -26,36 +25,21 @@ const SignUpPage = () => {
     } = useZodForm(signupSchema);
     const onSignup = async (data) => {
         data.phone = `+91 ${data.phone}`;
-        setLoading(true);
         try {
-            const res = await axiosInstance.post("/auth/register", {
-                fullname: data.fullname,
-                email: data.email,
-                phone: data.phone,
-                password: data.password,
-                confirmPassword: data.confirmPassword,
-                refferedBy: data.refferedBy,
-            });
-            console.log(res)
-            if (res.data.success) {
-                toast.success(res.data.message);
-                navigate("/verify-otp", { state: { email: data.email } });
-            } else {
-                toast.error(res.data.message || "Something went wrong !");
-                console.log(res);
-            }
+            await mutateAsync(data)
+            navigate("/verify-otp", { state: { email: data.email } });
         } catch (error) {
             console.log(error);
             if (error.response.data.fieldName) {
                 setError(error.response.data.fieldName, { message: error.response.data.message });
             }
-        }finally{
-            setLoading(false)
         }
     };
+    if(isPending){
+        return <SpinnerBadge content={"Sending OTP..."}/>
+    }
     return (
         <>
-        {loading&&<SpinnerBadge content={"Please wait while we create your account…"}/>}
             <Navbar homePage={false} />
             <div className="min-h-screen flex items-center justify-center">
                 <div className="w-full max-w-md p-6">
@@ -152,7 +136,7 @@ const SignUpPage = () => {
                                     error={errors.confirmPassword}
                                 />
                                 <span
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                                    className="absolute right-3 top-10 transform -translate-y-1/2 text-gray-400 cursor-pointer "
                                     onClick={() =>
                                         setEyeButton({ ...eyeButton, confirmPassword: !eyeButton.confirmPassword })
                                     }

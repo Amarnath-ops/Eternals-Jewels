@@ -58,3 +58,19 @@ export const updateUserById = async (id, data) => {
         new: true,
     });
 };
+
+export const findCustomers = async (query, skip, limit) => {
+    return await User.find(query).select(" -password -refreshToken").skip(skip).limit(limit).sort({ createdAt: -1 });
+};
+
+export const countCustomers = async(query)=>{
+    return await User.countDocuments(query)
+}
+
+export const toggleBlockStatus = async (id)=>{
+    const user = await User.findById(id);
+    if(!user) return null;
+
+    user.isBlocked = !user.isBlocked;
+    return await user.save()
+}

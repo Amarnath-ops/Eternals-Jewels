@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Plus, Pencil, Trash2, MapPinOff, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useDeleteAddress } from "@/hooks/tanstack_Queries/address/useDeleteAddress";
+import { useDeleteAddress } from "@/hooks/tanstack_Queries/user/address/useDeleteAddress";
 import { SpinnerBadge } from "../../components/Spinner";
 import ConfirmModal from "../../components/Modal";
-import { useGetAddress } from "@/hooks/tanstack_Queries/address/useAddresses";
+import { useGetAddress } from "@/hooks/tanstack_Queries/user/address/useAddresses";
 
 const AddressContent = () => {
     const {data:addresses,isLoading} = useGetAddress()

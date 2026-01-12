@@ -1,4 +1,4 @@
-import { changePasswordApi } from "@/api/password.api";
+import { changePasswordApi } from "@/api/users/password.api";
 
 
 export const passwordService = {

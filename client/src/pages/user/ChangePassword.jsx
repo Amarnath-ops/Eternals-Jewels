@@ -3,10 +3,10 @@ import FormWrapper from "../../components/form/Form";
 import useZodForm from "@/hooks/useZodForm";
 import { changePasswordSchema } from "@/validations/auth.schema";
 import FormInput from "../../components/form/FormInput";
-import { useChangePassword } from "@/hooks/tanstack_Queries/profile/useChangePassword";
+import { useChangePassword } from "@/hooks/tanstack_Queries/user/profile/useChangePassword";
 import { SpinnerBadge } from "../../components/Spinner";
 import { EyeIcon, EyeOff } from "lucide-react";
-import { useCurrentUser } from "@/hooks/tanstack_Queries/profile/useCurrentUser";
+import { useCurrentUser } from "@/hooks/tanstack_Queries/user/profile/useCurrentUser";
 
 const ChangePassword = () => {
   const {data:user,isLoading} = useCurrentUser()

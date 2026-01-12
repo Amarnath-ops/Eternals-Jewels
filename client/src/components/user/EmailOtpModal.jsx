@@ -1,4 +1,4 @@
-import { useVerifyEmailOtp } from "@/hooks/tanstack_Queries/profile/useEmailChange";
+import { useVerifyEmailOtp } from "@/hooks/tanstack_Queries/user/profile/useEmailChange";
 import useZodForm from "@/hooks/useZodForm";
 import { OtpSchema } from "@/validations/auth.schema";
 import { toast } from "sonner";

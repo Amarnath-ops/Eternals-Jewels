@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import authUserRoutes from "./routes/user/auth.routes.js"
 import userRoutes from "./routes/user/user.routes.js"
+import adminCustomersRoutes from "./routes/admin/customers.routes.js"
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import "./config/passport.js"
@@ -17,8 +18,11 @@ app.use(express.json());
 app.use(cookieParser())
 app.use(passport.initialize())
 
-// Routes
+// User Routes
 app.use("/api/v1/auth",authUserRoutes);
 app.use("/api/v1/users",userRoutes);
+
+// Admin Routes
+app.use("/api/v1/admin/customers",adminCustomersRoutes);
 
 export default app

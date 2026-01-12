@@ -7,7 +7,7 @@ import useZodForm from "@/hooks/useZodForm";
 import FormWrapper from "@/components/form/Form";
 import { useState } from "react";
 import { SpinnerBadge } from "@/components/Spinner";
-import { useLoginUser } from "@/hooks/tanstack_Queries/auth/useLoginUser";
+import { useLoginUser } from "@/hooks/tanstack_Queries/user/auth/useLoginUser";
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const { mutateAsync,isPending} = useLoginUser()

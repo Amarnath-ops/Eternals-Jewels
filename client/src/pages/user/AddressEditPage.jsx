@@ -5,8 +5,8 @@ import { ChevronRight } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { SpinnerBadge } from "@/components/Spinner";
-import { useGetAddress } from "@/hooks/tanstack_Queries/address/useAddresses";
-import { useUpdateAddress } from "@/hooks/tanstack_Queries/address/useUpdateAddress";
+import { useGetAddress } from "@/hooks/tanstack_Queries/user/address/useAddresses";
+import { useUpdateAddress } from "@/hooks/tanstack_Queries/user/address/useUpdateAddress";
 
 const AddressEditPage = () => {
     const { addressId } = useParams();

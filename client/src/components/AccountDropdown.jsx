@@ -1,4 +1,4 @@
-import { useLogoutUser } from "@/hooks/tanstack_Queries/auth/useLogoutUser";
+import { useLogoutUser } from "@/hooks/tanstack_Queries/user/auth/useLogoutUser";
 import { User, ShoppingBag, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 const AccountDropdown = ({onClose}) => {

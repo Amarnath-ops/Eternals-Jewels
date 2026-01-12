@@ -3,11 +3,11 @@ import { ChevronRight, Pencil } from "lucide-react";
 import useZodForm from "@/hooks/useZodForm";
 import { profileDetailsSchema } from "@/validations/profile.schema";
 import FormWrapper from "../../components/form/Form";
-import { useUpdateProfile } from "@/hooks/tanstack_Queries/profile/useUpdateProfile";
+import { useUpdateProfile } from "@/hooks/tanstack_Queries/user/profile/useUpdateProfile";
 import FormInput from "../../components/form/FormInput";
-import { useRequestEmailChange } from "@/hooks/tanstack_Queries/profile/useEmailChange";
+import { useRequestEmailChange } from "@/hooks/tanstack_Queries/user/profile/useEmailChange";
 import EmailOtpModal from "../../components/user/EmailOtpModal";
-import { useCurrentUser } from "@/hooks/tanstack_Queries/profile/useCurrentUser";
+import { useCurrentUser } from "@/hooks/tanstack_Queries/user/profile/useCurrentUser";
 import { SpinnerBadge } from "@/components/Spinner";
 import { Link } from "react-router-dom";
 

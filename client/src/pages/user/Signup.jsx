@@ -8,7 +8,7 @@ import useZodForm from "@/hooks/useZodForm";
 import FormWrapper from "@/components/form/Form";
 import FormInput from "@/components/form/FormInput";
 import { SpinnerBadge } from "@/components/Spinner";
-import {  useSignupUser } from "@/hooks/tanstack_Queries/auth/useSignupUser";
+import {  useSignupUser } from "@/hooks/tanstack_Queries/user/auth/useSignupUser";
 const SignUpPage = () => {
     const navigate = useNavigate()
     const {mutateAsync,isPending} = useSignupUser()

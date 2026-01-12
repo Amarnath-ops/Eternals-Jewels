@@ -8,7 +8,7 @@ import { resetPasswordSchema } from "@/validations/auth.schema";
 import useZodForm from "@/hooks/useZodForm";
 import FormWrapper from "@/components/form/Form";
 import FormInput from "@/components/form/FormInput";
-import { useResetPassword } from "@/hooks/tanstack_Queries/auth/useResetPassword";
+import { useResetPassword } from "@/hooks/tanstack_Queries/user/auth/useResetPassword";
 
 const ResetPassword = () => {
     const { mutateAsync, isPending } = useResetPassword();

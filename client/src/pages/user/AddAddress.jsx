@@ -1,7 +1,7 @@
 import React from "react";
 import AddressForm from "@/components/user/AddressForm";
 import Sidebar from "@/components/user/UserSidebar";
-import { useAddAddress } from "@/hooks/tanstack_Queries/address/useAddAddress";
+import { useAddAddress } from "@/hooks/tanstack_Queries/user/address/useAddAddress";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";

@@ -10,5 +10,6 @@ export const CONSTANTS = Object.freeze({
     ADDRESS_ADDED:"Address added successfully.",
     ADDRESS_FETCHED:"Addresses fetched successfully.",
     ADDRESS_UPDATED:"Address updated successfully.",
-    ADDRESS_DELETED:"Address is deleted."
+    ADDRESS_DELETED:"Address is deleted.",
+    CUSTOMERS_FETCHED:"Customers details fetched successfully."
 });

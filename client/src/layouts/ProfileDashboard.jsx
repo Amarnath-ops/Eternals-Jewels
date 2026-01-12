@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import { SpinnerBadge } from "@/components/Spinner";
 import Sidebar from "@/components/user/UserSidebar";
-import { useCurrentUser } from "@/hooks/tanstack_Queries/profile/useCurrentUser";
+import { useCurrentUser } from "@/hooks/tanstack_Queries/user/profile/useCurrentUser";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 import { Link, Outlet } from "react-router-dom";

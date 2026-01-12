@@ -9,8 +9,8 @@ import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
-import { useVerifyOtp } from "@/hooks/tanstack_Queries/auth/useVerifyOtp";
-import { useResendOtp } from "@/hooks/tanstack_Queries/auth/useResendOtp";
+import { useVerifyOtp } from "@/hooks/tanstack_Queries/user/auth/useVerifyOtp";
+import { useResendOtp } from "@/hooks/tanstack_Queries/user/auth/useResendOtp";
 
 const OtpVerification = () => {
     const [loading, setLoading] = useState(false);

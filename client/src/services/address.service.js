@@ -1,4 +1,4 @@
-import { addAddressApi, deleteAddressApi, getAddressApi, updateAddressApi } from "@/api/address.api"
+import { addAddressApi, deleteAddressApi, getAddressApi, updateAddressApi } from "@/api/users/address.api"
 
 export const  addressServices = {
   getAllAddress : async ()=>{

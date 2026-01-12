@@ -1,4 +1,4 @@
-import { useCurrentUser } from "@/hooks/tanstack_Queries/profile/useCurrentUser";
+import { useCurrentUser } from "@/hooks/tanstack_Queries/user/profile/useCurrentUser";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";

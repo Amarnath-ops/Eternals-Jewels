@@ -69,7 +69,6 @@ export const refresh = async (req, res) => {
 
 export const login = async (req, res) => {
     const validatedData = validateData(req.body, loginSchema);
-    console.log(validatedData, req.body);
     try {
         const { email, password } = validatedData.data;
         const { user, accessToken, refreshToken } = await loginService({ email, password });

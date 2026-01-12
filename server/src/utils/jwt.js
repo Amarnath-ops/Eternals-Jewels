@@ -10,6 +10,7 @@ export const generateAccessToken = (user) => {
         {
             _id: user._id,
             email: user.email,
+            isAdmin: user.isAdmin
         },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE }

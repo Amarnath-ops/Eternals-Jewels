@@ -1,4 +1,4 @@
-import { requestEmailChangeApi, updateProfileApi, verifyEmailOtpApi } from "@/api/user.api";
+import { requestEmailChangeApi, updateProfileApi, verifyEmailOtpApi } from "@/api/users/user.api";
 
 export const userService = {
     updateProfile: async (data) => {

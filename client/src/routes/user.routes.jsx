@@ -26,8 +26,8 @@ const UserRoutes = () => {
     return (
         <>
             <Routes>
-                <Route path="login" element={accessToken ? <Navigate to="/" replace /> : <LoginPage />} />
-                <Route path="register" element={accessToken ? <Navigate to="/" replace /> : <SignUpPage />} />
+                <Route path="/login" element={accessToken ? <Navigate to="/" replace /> : <LoginPage />} />
+                <Route path="/register" element={accessToken ? <Navigate to="/" replace /> : <SignUpPage />} />
                 <Route path="/" element={<HomePage />} />
                 <Route path="/about" element={<AboutUsPage />} />
                 <Route path="/contact" element={<ContactPage />} />

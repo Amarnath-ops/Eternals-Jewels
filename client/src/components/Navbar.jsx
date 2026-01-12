@@ -3,7 +3,7 @@ import { Heart, ShoppingCart, User, Menu, X, LogOut, ShoppingBag, ShoppingBagIco
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import AccountDropdown, { MenuItem } from "./AccountDropdown";
-import { useLogoutUser } from "@/hooks/tanstack_Queries/auth/useLogoutUser";
+import { useLogoutUser } from "@/hooks/tanstack_Queries/user/auth/useLogoutUser";
 
 const Navbar = ({ homePage }) => {
     const [isOpen, setIsOpen] = useState(false);

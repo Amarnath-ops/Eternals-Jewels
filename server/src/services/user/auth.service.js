@@ -126,7 +126,11 @@ export const loginService = async (userData) => {
         error.statusCode = STATUS_CODES.UNAUTHORIZED;
         throw error;
     }
-
+    if(user.isBlocked){
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN
+        throw error
+    }
     const validPassword = await bcrypt.compare(userData.password, user.password);
     if (!validPassword) {
         const error = new Error(ERROR_MESSAGES.INVALID_PASSWORD);
@@ -145,6 +149,7 @@ export const loginService = async (userData) => {
             id: user._id,
             fullname: user.fullname,
             email: user.email,
+            isAdmin:user.isAdmin
         },
         accessToken,
         refreshToken,

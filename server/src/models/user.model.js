@@ -21,7 +21,7 @@ const userSchema = new Schema({
       type:String,
       enum:["local","cloudinary","google"],
       default:"local"
-    },
+    },  
     url:String,
     publicId:String
   },

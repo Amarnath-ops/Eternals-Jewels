@@ -1,4 +1,4 @@
-import { fectchCurrentUser } from "@/api/user.api";
+import { fectchCurrentUser } from "@/api/users/user.api";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { useQuery } from "@tanstack/react-query";
 

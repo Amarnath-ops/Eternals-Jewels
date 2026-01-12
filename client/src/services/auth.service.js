@@ -7,7 +7,7 @@ import {
     resetPasswordApi,
     signupApi,
     verifyOTPApi,
-} from "@/api/auth.api";
+} from "@/api/users/auth.api";
 export const authService = {
     logout: async () => {
         const res = await logoutApi();

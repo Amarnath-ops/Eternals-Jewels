@@ -6,8 +6,8 @@ import { emailSchema, OtpSchema } from "@/validations/auth.schema";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { SpinnerBadge } from "@/components/Spinner";
-import { useForgotPassword } from "@/hooks/tanstack_Queries/auth/useForgotPassword";
-import { useForgotPasswordVerify } from "@/hooks/tanstack_Queries/auth/useForgotPasswordVerify";
+import { useForgotPassword } from "@/hooks/tanstack_Queries/user/auth/useForgotPassword";
+import { useForgotPasswordVerify } from "@/hooks/tanstack_Queries/user/auth/useForgotPasswordVerify";
 const ForgotPasswordPage = () => {
     const emailForm = useForm({ resolver: zodResolver(emailSchema) });
     const OTPForm = useForm({ resolver: zodResolver(OtpSchema) });

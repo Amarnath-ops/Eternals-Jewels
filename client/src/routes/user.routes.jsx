@@ -9,7 +9,7 @@ import ShopPage from "@/pages/user/Shop";
 import OtpVerification from "@/pages/user/OtpVerify";
 import ForgotPasswordPage from "@/pages/user/ForgotPassword";
 import ResetPassword from "@/pages/user/ResetPassword";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import GoogleSuccess from "@/pages/user/GoogleSuccess";
 import MyProfile from "@/pages/user/MyProfile";
 import EditProfile from "@/pages/user/EditProfile";
@@ -18,8 +18,26 @@ import AddressEditPage from "@/pages/user/AddressEditPage";
 import AddressAddPage from "@/pages/user/AddAddress";
 import ChangePassword from "@/pages/user/ChangePassword";
 import ProfileDashboard from "@/layouts/ProfileDashboard";
+import { useEffect } from "react";
+import axiosInstance from "@/api/axios";
+import { setCredentials } from "@/store/user/authSlice";
+import { toast } from "sonner";
 
 const UserRoutes = () => {
+    const dispatch = useDispatch();
+    const restoreToken = async () => {
+        try {
+            const res = await axiosInstance.post("/auth/refresh");
+            dispatch(setCredentials({ accessToken: res.data.data.accessToken, user: res.data.data.user }));
+        } catch (error) {
+            console.error("No active Sessions ", error);
+            error.response?.data?.message === 'Your account is blocked' && toast.error(error?.response?.data?.message)
+        }
+    };
+    useEffect(() => {
+        restoreToken();
+    }, []);
+
     const accessToken = useSelector((state) => state.user.accessToken);
     const isLogin = useSelector((state) => state.user.isLogin);
     console.log("access token recieved", accessToken);

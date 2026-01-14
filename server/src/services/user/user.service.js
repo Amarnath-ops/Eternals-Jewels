@@ -78,27 +78,32 @@ export const updateProfileService = async (userId, body, file) => {
 
 export const requestEmailChangeService = async (userId, email) => {
     try {
-        const isExist = await findUserByEmail(email)
-        if(isExist){
+        const isExist = await findUserByEmail(email);
+        if (isExist) {
             const error = new Error(ERROR_MESSAGES.EMAIL_IN_USE);
-            error.statusCode = STATUS_CODES.BAD_REQUEST
-            throw error
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
         }
         const user = await findUserById(userId);
-        if(user.provider === "google"){
+        if (user.provider === "google") {
             const error = new Error(ERROR_MESSAGES.EMAIL_CANNOT_BE_CHANGED_FOR_GOOGLE);
-            error.statusCode = STATUS_CODES.CONFLICT
-            throw error
+            error.statusCode = STATUS_CODES.CONFLICT;
+            throw error;
         }
         if (!user) {
             const error = new Error(ERROR_MESSAGES.USER_NOT_FOUND);
             error.statusCode = STATUS_CODES.NOT_FOUND;
             throw error;
         }
+        if (user.isBlocked) {
+            const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+            error.statusCode = STATUS_CODES.FORBIDDEN;
+            throw error;
+        }
 
         const otp = generateOTP();
-        console.log(otp)
-        cache.set(`email_for_${user._id}`,email, CONSTANTS.OTP_CACHE_TIME)
+        console.log(otp);
+        cache.set(`email_for_${user._id}`, email, CONSTANTS.OTP_CACHE_TIME);
 
         cache.set(`verify_${email}`, otp, CONSTANTS.OTP_CACHE_TIME);
 
@@ -118,7 +123,12 @@ export const verifyEmailChangeOtpService = async (userId, otp) => {
             error.statusCode = STATUS_CODES.NOT_FOUND;
             throw error;
         }
-        const changedEmail = cache.get(`email_for_${user.id}`)
+        if (user.isBlocked) {
+            const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+            error.statusCode = STATUS_CODES.FORBIDDEN;
+            throw error;
+        }
+        const changedEmail = cache.get(`email_for_${user.id}`);
         const cachedOTP = cache.get(`verify_${changedEmail}`);
         if (!cachedOTP) {
             const error = new Error(ERROR_MESSAGES.OTP_EXPIRED);
@@ -133,8 +143,8 @@ export const verifyEmailChangeOtpService = async (userId, otp) => {
         }
 
         user.email = changedEmail;
-        await user.save()
-        return user
+        await user.save();
+        return user;
     } catch (error) {
         console.error(error);
         throw error;

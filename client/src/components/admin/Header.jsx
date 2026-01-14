@@ -1,6 +1,8 @@
 import { ChevronDown } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const Header = () => {
+  const username = useSelector(state => state.admin?.adminData?.fullname)
   return (
     <header className="bg-white h-16 flex items-center justify-end px-8 sticky top-0 z-0 border-b border-gray-100">
       <div className="flex items-center gap-3">
@@ -12,7 +14,7 @@ const Header = () => {
            />
         </div>
         <div className="text-right hidden sm:block">
-          <p className="text-sm font-semibold text-gray-900">Amarnath T</p>
+          <p className="text-sm font-semibold text-gray-900">{username || ""}</p>
           <p className="text-xs text-gray-500">Admin</p>
         </div>
       </div>

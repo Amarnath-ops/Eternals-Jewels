@@ -1,16 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 
-export function SpinnerBadge({content}) {
+export function SpinnerBadge({ content }) {
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white backdrop-blur-sm">
-            <Badge className="gap-2 py-3 px-6 text-base bg-[#000000dd] text-white">
-                <div className="flex space-x-1">
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                    <div className="h-2 w-2 bg-white rounded-full animate-bounce"></div>
-                </div>
-                <span className="ml-2">{content}</span>
-            </Badge>
-        </div>
+        <>
+            <div className="flex flex-col min-h-screen justify-center items-center bg-white">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+            {content}
+            </div>
+        </>
     );
 }

@@ -43,7 +43,7 @@ export const setUserPasswordById = async (id, hashedpassword) => {
 };
 
 export const findUserById = async (id) => {
-    return User.findById(id);
+    return User.findById(id).select("-password");
 };
 
 export const setRefreshTokenByEmail = async (email, refreshToken) => {
@@ -56,7 +56,7 @@ export const setRefreshTokenByEmail = async (email, refreshToken) => {
 export const updateUserById = async (id, data) => {
     return await User.findByIdAndUpdate(id, data, {
         new: true,
-    });
+    }).select("-passsword -refreshToken -__v");
 };
 
 export const findCustomers = async (query, skip, limit) => {

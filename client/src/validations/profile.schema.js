@@ -5,7 +5,8 @@ export const profileDetailsSchema = z.object({
         .string()
         .trim()
         .min(3, { message: "Must be between 4 and 15 characters long." })
-        .max(15, { message: "Must be between 4 and 15 characters long." }),
+        .max(15, { message: "Must be between 4 and 15 characters long." })
+        .regex(/^[A-Za-z\s]+$/, "must contain only letters"),
     email: z
         .email({ message: "Invalid email address. Please check the format." })
         .trim({ message: "Invalid email address. Please check the format." })
@@ -19,5 +20,9 @@ export const profileDetailsSchema = z.object({
     avatar: z
         .any()
         .refine((file) => !file || file instanceof File, "Invalid file.")
-        .refine((file) => !file || file.size <= 2 * 1024 * 1024, "Image must be less than 2MB")
+        .refine((file) => !file || file.size <= 2 * 1024 * 1024, "Image must be less than 2MB.")
+        .refine(
+            (file) => !file || ["image/jpeg", "image/png", "image/webp", "image/jpg"].includes(file.type),
+            "Only image files are allowed (jpg, jpeg, png, webp)."
+        ),
 });

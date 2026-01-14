@@ -5,7 +5,7 @@ import { countCustomers, findCustomers, findUserById, toggleBlockStatus } from "
 export const getAllCustomersService = async ({ search, page, limit, status }) => {
     const query = {
         isAdmin: false,
-        $or: [{ fullname: { $regex: search, $options: "i" } }, { email: { $regex: search, $options: "i" } }],
+        $or: [{ fullname: { $regex: `^${search}`, $options: "i" } }, { email: { $regex: `^${search}`, $options: "i" } }],
     };
     const skip = (page - 1) * limit;
     if (status === "Active" || status === "Blocked") {

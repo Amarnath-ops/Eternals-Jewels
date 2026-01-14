@@ -13,11 +13,6 @@ export const useLoginUser = () => {
     return useMutation({
         mutationFn: authService.login,
         onSuccess: (data) => {
-            if(data.user.isAdmin){
-                toast.error("Login from the admin panel");;
-                return  
-            }
-            console.log(data);
             dispatch(setCredentials({ accessToken: data.token, user: data.user }));
             navigate("/");
             toast.success("You've Login successfully.");

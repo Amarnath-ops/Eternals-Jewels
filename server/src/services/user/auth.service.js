@@ -100,7 +100,16 @@ export const refreshTokenService = async (oldToken) => {
         error.statusCode = STATUS_CODES.FORBIDDEN;
         throw error;
     }
-
+    if (user.isAdmin) {
+        const error = new Error(ERROR_MESSAGES.USE_ADMIN_ENDPOINT);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     verifyToken(oldToken);
 
     const newAccessToken = generateAccessToken(user);
@@ -115,6 +124,7 @@ export const refreshTokenService = async (oldToken) => {
             id: user._id,
             fullname: user.fullname,
             email: user.email,
+            isAdmin: user.isAdmin,
         },
     };
 };
@@ -126,10 +136,15 @@ export const loginService = async (userData) => {
         error.statusCode = STATUS_CODES.UNAUTHORIZED;
         throw error;
     }
-    if(user.isBlocked){
+    if (user.isBlocked) {
         const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
-        error.statusCode = STATUS_CODES.FORBIDDEN
-        throw error
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
+    if (user.isAdmin) {
+        const error = new Error(ERROR_MESSAGES.LOGIN_FROM_ADMIN_PANEL);
+        error.statusCode = STATUS_CODES.BAD_GATEWAY;
+        throw error;
     }
     const validPassword = await bcrypt.compare(userData.password, user.password);
     if (!validPassword) {
@@ -149,7 +164,7 @@ export const loginService = async (userData) => {
             id: user._id,
             fullname: user.fullname,
             email: user.email,
-            isAdmin:user.isAdmin
+            isAdmin: user.isAdmin,
         },
         accessToken,
         refreshToken,
@@ -167,7 +182,11 @@ export const verifyOTPService = async ({ email, otp }) => {
         error.statusCode = STATUS_CODES.USER_NOT_FOUND;
         throw error;
     }
-
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     const cachedOTP = cache.get(`verify_${email}`);
     if (!cachedOTP) {
         const error = new Error(ERROR_MESSAGES.OTP_EXPIRED);
@@ -208,6 +227,11 @@ export const resendOTPService = async (email) => {
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     if (user.isVerified) {
         const error = new Error(ERROR_MESSAGES.ALREADY_VERIFIED);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
@@ -231,6 +255,11 @@ export const forgotPasswordOTPService = async (email) => {
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     const otp = generateOTP();
 
     cache.set(`verify_${email}`, otp, CONSTANTS.OTP_CACHE_TIME);
@@ -249,7 +278,11 @@ export const forgotPasswordVerifyService = async (email, otp) => {
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
-
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     const cachedOTP = cache.get(`verify_${email}`);
     if (!cachedOTP) {
         const error = new Error(ERROR_MESSAGES.OTP_EXPIRED);
@@ -277,7 +310,11 @@ export const resetPasswordService = async (email, password, confirmPassword) => 
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
-
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     if (password !== confirmPassword) {
         const error = new Error(ERROR_MESSAGES.PASSWORD_MISMATCH);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
@@ -306,6 +343,16 @@ export const resetPasswordService = async (email, password, confirmPassword) => 
 };
 
 export const googleCallbackService = async (user) => {
+    if (!user) {
+        const error = new Error(ERROR_MESSAGES.USER_NOT_FOUND);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
     await setRefreshTokenByEmail(user.email, refreshToken);
@@ -333,7 +380,7 @@ export const changePasswordService = async (userId, payload) => {
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
-    return updateUserById(userId,{
-        password:payload.newPassword
-    })
+    return updateUserById(userId, {
+        password: payload.newPassword,
+    });
 };

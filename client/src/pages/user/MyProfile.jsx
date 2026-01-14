@@ -42,7 +42,7 @@ const ProfileDetails = () => {
                         <input
                             disabled={true}
                             type="text"
-                            defaultValue={user?.fullname}
+                            value={user.fullname}
                             className="w-full bg-gray-100 border-none rounded-lg px-4 py-3 text-gray-600 text-sm md:text-base focus:ring-2 focus:ring-black outline-none"
                         />
                     </div>
@@ -53,7 +53,7 @@ const ProfileDetails = () => {
                         <input
                             disabled={true}
                             type="email"
-                            defaultValue={user?.email}
+                            value={user?.email}
                             className="w-full bg-gray-100 border-none rounded-lg px-4 py-3 text-gray-600 text-sm md:text-base focus:ring-2 focus:ring-black outline-none"
                         />
                     </div>
@@ -64,7 +64,7 @@ const ProfileDetails = () => {
                         <input
                             disabled={true}
                             type="tel"
-                            defaultValue={user?.phone}
+                            value={user?.phone}
                             placeholder={!user?.phone ? "No phone number found." : ""}
                             className="w-full bg-gray-100 border-none rounded-lg px-4 py-3 text-gray-600 text-sm md:text-base focus:ring-2 focus:ring-black outline-none"
                         />

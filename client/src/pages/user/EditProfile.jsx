@@ -10,23 +10,22 @@ import EmailOtpModal from "../../components/user/EmailOtpModal";
 import { useCurrentUser } from "@/hooks/tanstack_Queries/user/profile/useCurrentUser";
 import { SpinnerBadge } from "@/components/Spinner";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const EditProfile = () => {
     const [showOtpModal, setShowOtpModal] = useState(false);
     const [pendingEmail, setPendingEmail] = useState(null);
-    
+
     const { data: user, isLoading } = useCurrentUser();
     const [preview, setPreview] = useState(user?.avatar);
-
     const { mutateAsync: updateProfile, isPending: isUpdating } = useUpdateProfile();
     const { mutateAsync: requestEmailOtp, isPending: isRequesting } = useRequestEmailChange();
-    
+
     const {
         handleSubmit,
         register,
-        formState: { errors,isDirty },
+        formState: { errors, isDirty },
         setValue,
-        setError,
     } = useZodForm(profileDetailsSchema, {
         defaultValues: {
             fullname: user?.fullname || "",
@@ -43,6 +42,7 @@ const EditProfile = () => {
                 await requestEmailOtp(data.email);
                 setPendingEmail(data.email);
                 setShowOtpModal(true);
+                return;
             }
             const formData = new FormData();
 
@@ -53,8 +53,7 @@ const EditProfile = () => {
             }
             await updateProfile(formData);
         } catch (error) {
-            console.error(error);
-            setError("email", { message: error.response?.data?.message });
+            toast.error(error.response.data.message)
         }
     };
     if (isLoading) {
@@ -78,7 +77,6 @@ const EditProfile = () => {
             {/* Adjusted padding: p-6 for mobile, p-12 for desktop to fix alignment */}
             <div className="bg-white rounded-3xl shadow-sm p-6 md:p-12">
                 <FormWrapper onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto space-y-6">
-                    
                     {/* --- Profile Photo Section --- */}
                     <div className="flex justify-center mb-6">
                         <div className="relative group">
@@ -114,6 +112,7 @@ const EditProfile = () => {
                             </button>
                         </div>
                     </div>
+                            {errors.avatar && <p className="text-red-500 text-xs mt-1 w-full">{errors.avatar.message}</p>}
                     {/* ---------------------------------- */}
 
                     {/* Full Name Input */}
@@ -131,6 +130,7 @@ const EditProfile = () => {
                     {/* Email Input */}
                     <div className="space-y-2">
                         <FormInput
+                            disabled={user.provider === "google"}
                             label="Email"
                             type="text"
                             name="email"
@@ -156,7 +156,9 @@ const EditProfile = () => {
                     <div className="pt-6 flex justify-center md:justify-end">
                         <button
                             disabled={isRequesting || isUpdating || !isDirty}
-                            className={`w-full md:w-auto bg-black text-white px-12 py-3 rounded-md font-medium text-sm tracking-wide hover:bg-gray-800 transition-colors uppercase disabled:opacity-50 ${!isDirty&& "cursor-not-allowed "}`}
+                            className={`w-full md:w-auto bg-black text-white px-12 py-3 rounded-md font-medium text-sm tracking-wide hover:bg-gray-800 transition-colors uppercase disabled:opacity-50 ${
+                                !isDirty && "cursor-not-allowed "
+                            }`}
                             type="submit"
                         >
                             {isRequesting || isUpdating ? "Updating..." : "Update"}
@@ -164,7 +166,7 @@ const EditProfile = () => {
                     </div>
                 </FormWrapper>
             </div>
-            {showOtpModal && <EmailOtpModal email={pendingEmail} onClose={() => setShowOtpModal(false)} />}
+            {showOtpModal && <EmailOtpModal email={pendingEmail} onClose={setShowOtpModal} />}
         </div>
     );
 };

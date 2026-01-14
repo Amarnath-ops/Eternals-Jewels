@@ -1,3 +1,4 @@
+
 export const CONSTANTS = Object.freeze({
     OTP_CACHE_TIME: 120,
     OTP_VERIFIED: "OTP verified successfully.",
@@ -11,5 +12,7 @@ export const CONSTANTS = Object.freeze({
     ADDRESS_FETCHED:"Addresses fetched successfully.",
     ADDRESS_UPDATED:"Address updated successfully.",
     ADDRESS_DELETED:"Address is deleted.",
-    CUSTOMERS_FETCHED:"Customers details fetched successfully."
+    CUSTOMERS_FETCHED:"Customers details fetched successfully.",
+    ADMIN_LOGIN: "Admin logged in successfully.",
+    ADMIN_LOGOUT:"Admin Logged out successfully."
 });

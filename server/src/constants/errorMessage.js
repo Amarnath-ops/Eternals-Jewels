@@ -16,5 +16,9 @@ export const ERROR_MESSAGES = Object.freeze({
     ACCESS_TOKEN_MISSING: "Access token is missing.",
     EMAIL_IN_USE :"An account with this email already exists.",
     ADDRESS_NOT_FOUND:"Address is not found.",
-    EMAIL_CANNOT_BE_CHANGED_FOR_GOOGLE:"Email cannot be changed for Google-authenticated accounts"
+    EMAIL_CANNOT_BE_CHANGED_FOR_GOOGLE:"Email cannot be changed for Google-authenticated accounts",
+    ADMIN_ONLY: "Admin access only.",
+    ACCESS_DENIED:"Access denied.",
+    LOGIN_FROM_ADMIN_PANEL :"Login from admin panel.",
+    USE_ADMIN_ENDPOINT: "Error : Use admin endpoint."
 })

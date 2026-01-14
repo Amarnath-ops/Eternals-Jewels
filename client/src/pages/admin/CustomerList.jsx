@@ -3,11 +3,12 @@ import { Search, ChevronLeft, ChevronRight, X, Loader } from "lucide-react";
 import { useCustomers } from "@/hooks/tanstack_Queries/admin/customers/useCustomers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useToggleBlockUser } from "@/hooks/tanstack_Queries/admin/customers/useToggleBlockUser";
+import { toast } from "sonner";
 
 const CustomerList = () => {
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
-    const limit = 10
+    const limit = 7
     const [statusFilter, setStatusFilter] = useState("All");
     const debouncedSearch = useDebounce(search, 500);
     
@@ -31,10 +32,11 @@ const CustomerList = () => {
         }
     };
 
-    const handleToggle = (customer) => {
+    const handleToggle = async (customer) => {
         const confirm = window.confirm(`Are you sure you want to ${customer.isBlocked ? "unblock" : "block"} this user?`);
         if (!confirm) return;
-        toggleBlock(customer._id);
+        await toggleBlock(customer._id);
+        toast.success(`User ${customer.isBlocked ? "unblocked" : "blocked"} successfully.`)
     };
 
     const formatDate = (dateString) => {

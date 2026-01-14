@@ -1,9 +1,9 @@
-import { useLogoutUser } from "@/hooks/tanstack_Queries/user/auth/useLogoutUser";
+import { useLogoutAdmin } from "@/hooks/tanstack_Queries/admin/auth/useAdminLogout";
 import { Box, DollarSign, Grid, ImageIcon, LayoutDashboard, List, Tag, Users, LogOut} from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Sidebar = () => {
-  const {mutateAsync} = useLogoutUser()
+  const {mutateAsync} = useLogoutAdmin()
   const handleLogOut = async()=>{
     await mutateAsync()
   }

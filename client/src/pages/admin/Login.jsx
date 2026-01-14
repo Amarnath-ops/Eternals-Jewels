@@ -4,13 +4,13 @@ import useZodForm from '@/hooks/useZodForm';
 import { loginSchema } from '@/validations/auth.schema';
 import FormWrapper from '@/components/form/Form';
 import FormInput from '@/components/form/FormInput';
-import { useLoginAdmin } from '@/hooks/tanstack_Queries/user/auth/useLoginAdmin';
 import { SpinnerBadge } from '@/components/Spinner';
+import { useAdminLogin } from '@/hooks/tanstack_Queries/admin/auth/useAdminLogin';
 
 const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const {handleSubmit,register , formState:{errors}} = useZodForm(loginSchema);
-  const {mutateAsync:login,isPending} = useLoginAdmin()
+  const {mutateAsync:login,isPending} = useAdminLogin()
   const onSubmit = async (data)=>{
     await login(data)
   }

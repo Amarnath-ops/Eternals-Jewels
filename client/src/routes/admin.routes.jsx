@@ -6,8 +6,7 @@ import { useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 const AdminRoutes = () => {
-    const accessToken = useSelector((state) => state.user.accessToken);
-
+    const accessToken = useSelector((state) => state.admin?.accessToken);
     return (
         <>
             <Routes>

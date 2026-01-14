@@ -1,7 +1,6 @@
 import { ERROR_MESSAGES } from "../constants/errorMessage.js";
 import { STATUS_CODES } from "../constants/statusCode.js";
 import jwt from "jsonwebtoken";
-import { findUserById } from "../repositories/user.repo.js";
 export const protect = async (req, res,next) => {
     try {
         const authHeader = req.headers.authorization;

@@ -343,6 +343,16 @@ export const resetPasswordService = async (email, password, confirmPassword) => 
 };
 
 export const googleCallbackService = async (user) => {
+    if (!user) {
+        const error = new Error(ERROR_MESSAGES.USER_NOT_FOUND);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
     await setRefreshTokenByEmail(user.email, refreshToken);
@@ -374,5 +384,3 @@ export const changePasswordService = async (userId, payload) => {
         password: payload.newPassword,
     });
 };
-
-

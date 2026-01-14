@@ -16,11 +16,6 @@ passport.use(
             try {
                 console.log(profile);
                 let user = await findUserByEmail(profile.emails[0].value);
-                if (user.isBlocked) {
-                    const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
-                    error.statusCode = STATUS_CODES.FORBIDDEN;
-                    throw error;
-                }
                 profile.password = bcrypt.hashSync(Math.random().toString(36), 10);
 
                 let referalCode;
@@ -44,6 +39,7 @@ passport.use(
                             provider: profile.provider,
                         },
                         isVerified: true,
+                        isBlocked:user.isBlocked,
                         referralCode: referalCode,
                         provider: profile.provider,
                     });

@@ -13,13 +13,13 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
     (config) => {
-        const isAdminRoute = config.url.includes("/admin")
-        const state = store.getState()
+        const url = config.url.replace(import.meta.env.VITE_BACKEND_URL,"") 
+        const isAdminRoute = url.startsWith(`admin`);
+        const state = store.getState();
 
-        const token = isAdminRoute? state.admin.accessToken : state.user.accessToken
-
-        if(token){
-            config.headers['Authorization'] = `Bearer ${token}`
+        const token = isAdminRoute ? state.admin.accessToken : state.user.accessToken;
+        if (token) {
+            config.headers["Authorization"] = `Bearer ${token}`;
         }
         return config;
     },
@@ -30,15 +30,20 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes("/auth/refresh")) {
+        if (
+            error.response?.status === 401 &&
+            !originalRequest._retry &&
+            !originalRequest.url.includes("/auth/refresh") &&
+            !originalRequest.url.includes("/admin/auth/refresh")
+        ) {
             originalRequest._retry = true;
 
-            const isAdminRoute = originalRequest.url.includes('/admin')
+            const isAdminRoute = originalRequest.url.includes("/admin");
             try {
-                const refreshEndPoint = isAdminRoute ?"/admin/auth/refresh":"auth/refresh"
+                const refreshEndPoint = isAdminRoute ? "/admin/auth/refresh" : "auth/refresh";
                 const res = await axiosInstance.post(refreshEndPoint);
                 const { accessToken, user } = res.data.data;
-
+                console.log(accessToken);
                 if (isAdminRoute) {
                     store.dispatch(setAdminCredentials({ accessToken, adminData: user }));
                 } else {
@@ -47,14 +52,15 @@ axiosInstance.interceptors.response.use(
                 originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
                 return axiosInstance(originalRequest);
             } catch (error) {
-                console.log(error)
-                toast.error(error)
-                if(isAdminRoute){
-                    store.dispatch(adminLogout())
-                    window.location.href = "/admin/login";  
-                }else{
-                    store.dispatch(logOut())
-                    window.location.href = "/login"
+                console.log(error);
+                toast.error(error);
+                if (isAdminRoute) {
+                    store.dispatch(adminLogout());
+                    window.location.href = "/admin/login";
+                } else {
+                    console.log("ahh");
+                    store.dispatch(logOut());
+                    window.location.href = "/login";
                 }
             }
         }

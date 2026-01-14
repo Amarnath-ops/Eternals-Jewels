@@ -241,9 +241,7 @@ export const googleCallback = async (req, res) => {
         });
         res.redirect(`${process.env.FRONTEND_URL}/google-success?token=${accessToken}`);
     } catch (error) {
-        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        });
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=${error.message}.`)
     }
 };
 

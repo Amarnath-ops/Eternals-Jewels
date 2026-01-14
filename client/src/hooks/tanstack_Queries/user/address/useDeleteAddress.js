@@ -7,13 +7,8 @@ export const useDeleteAddress = ()=>{
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn:addressServices.deleteAddress,
-    onSuccess:(_,addressId)=>{
-      queryClient.setQueryData(
-        QUERY_KEYS.ADDRESS_KEY,
-        (oldAddresses=[])=>{
-         return   oldAddresses.filter((addr)=>addr._id !== addressId)
-        }
-      )
+    onSuccess:()=>{
+      queryClient.invalidateQueries(QUERY_KEYS.ADDRESS_KEY)
       toast.success("Address deleted successfully");
     },
     onError:(error)=>{

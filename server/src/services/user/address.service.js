@@ -23,22 +23,22 @@ export const addAddressService = async (userId, payload) => {
         throw error;
     }
     const userAddresses = await findAddressesByUser(userId);
-    if(userAddresses.length === 0){
-        payload.isDefault = true
+    if (userAddresses.length === 0) {
+        payload.isDefault = true;
     }
-    if(payload.isDefault){
-        await clearDefaultAddresses(userId)
+    if (payload.isDefault) {
+        await clearDefaultAddresses(userId);
     }
     return createAddress({
         fullname: payload.fullname,
-        phone:payload.phone,
-        address:payload.address,
-        state:payload.state,
-        district:payload.district,
-        city:payload.city,
-        pincode:payload.pincode,
-        landmark:payload.landmark,
-        isDefault:payload.isDefault,
+        phone: payload.phone,
+        address: payload.address,
+        state: payload.state,
+        district: payload.district,
+        city: payload.city,
+        pincode: payload.pincode,
+        landmark: payload.landmark,
+        isDefault: payload.isDefault,
         userId,
     });
 };
@@ -72,22 +72,22 @@ export const updateAddressService = async (userId, addressId, payload) => {
         error.statusCode = STATUS_CODES.UNAUTHORIZED;
         throw error;
     }
-    if(address.length === 0){
-        payload.isDefault=true
+    if (address.length === 0) {
+        payload.isDefault = true;
     }
-    if(payload.isDefault){
-        await clearDefaultAddresses(userId)
+    if (payload.isDefault) {
+        await clearDefaultAddresses(userId);
     }
     const updatedAddress = await updateAddressById(addressId, {
-        fullname:payload.fullname,
-        phone:payload.phone,
-        address:payload.address,
-        state:payload.state,
-        district:payload.district,
-        city:payload.city,
-        pincode:payload.pincode,
-        landmark:payload.landmark,
-        isDefault:payload.isDefault
+        fullname: payload.fullname,
+        phone: payload.phone,
+        address: payload.address,
+        state: payload.state,
+        district: payload.district,
+        city: payload.city,
+        pincode: payload.pincode,
+        landmark: payload.landmark,
+        isDefault: payload.isDefault,
     });
 
     return updatedAddress;
@@ -106,6 +106,13 @@ export const deleteAddressService = async (userId, addressId) => {
         error.statusCode = STATUS_CODES.UNAUTHORIZED;
         throw error;
     }
+    const deletedAddress = await deleteAddressById(addressId);
 
-    return deleteAddressById(addressId)
+
+    const addresses = await findAddressesByUser(userId);
+    addresses[0].isDefault = true;
+    console.log(addresses);
+    await addresses[0].save();
+
+    return deletedAddress
 };

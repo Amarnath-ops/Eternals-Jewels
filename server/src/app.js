@@ -27,4 +27,6 @@ app.use("/api/v1/users",userRoutes);
 app.use("/api/v1/admin/auth",adminAuthRoutes)
 app.use("/api/v1/admin/customers",adminCustomersRoutes);
 
+
+
 export default app

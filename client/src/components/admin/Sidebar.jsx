@@ -1,14 +1,15 @@
 import { useLogoutAdmin } from "@/hooks/tanstack_Queries/admin/auth/useAdminLogout";
 import { Box, DollarSign, Grid, ImageIcon, LayoutDashboard, List, Tag, Users, LogOut} from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
+  const location = useLocation()
   const {mutateAsync} = useLogoutAdmin()
   const handleLogOut = async()=>{
     await mutateAsync()
   }
   const menuItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, active: true, path:"dashboard"},
+    { name: 'Dashboard', icon: LayoutDashboard, path:"dashboard"},
     { name: 'Products', icon: Box, active: false, path:"products"},
     { name: 'Order List', icon: List, active: false, path:"orders"},
     { name: 'Customer', icon: Users, active: false, path:"customers"},
@@ -18,6 +19,7 @@ const Sidebar = () => {
     { name: 'Banner', icon: ImageIcon, active: false, path:"banners" },
   ];
 
+  const isActive = (path)=> location.pathname.includes(path)
   return (
     <aside className="w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col justify-between z-10">
       <div>
@@ -28,20 +30,23 @@ const Sidebar = () => {
 
         {/* Menu Items */}
         <nav className="mt-2 px-4 space-y-2">
-          {menuItems.map((item, index) => (
+          {menuItems.map((item, index) =>{
+            const active = isActive(item.path)
+            return (
             <Link
             to={`/admin/${item.path}`}
               key={index}
               className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                item.active
+                active
                   ? 'bg-white shadow-sm border border-gray-100 text-gray-900'
                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <item.icon className={`w-5 h-5 mr-3 ${item.active ? 'text-gray-900' : 'text-gray-400'}`} />
+              <item.icon className={`w-5 h-5 mr-3 ${active ? 'text-gray-900' : 'text-gray-400'}`} />
               {item.name}
             </Link>
-          ))}
+          )
+          } )}
         </nav>
       </div>
 

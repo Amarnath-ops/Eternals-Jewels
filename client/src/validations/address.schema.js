@@ -1,16 +1,9 @@
 import z from "zod";
+import { fullnameSchema, phoneSchema } from "./common.schema";
 
 export const addressSchema = z.object({
-    fullname: z
-        .string()
-        .trim()
-        .min(3, { message: "Must be between 4 and 15 characters long." })
-        .max(15, { message: "Must be between 4 and 15 characters long." })
-        .regex(/^[A-Za-z\s]+$/, "must contain only letters"),
-    phone: z
-        .string()
-        .trim()
-        .regex(/^[0-9]{10}$/, { message: "Phone number must be exactly 10 digits." }),
+    fullname: fullnameSchema,
+    phone:phoneSchema,
     address: z
         .string()
         .trim()

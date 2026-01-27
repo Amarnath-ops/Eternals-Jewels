@@ -13,8 +13,8 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
     (config) => {
-        const url = config.url.replace(import.meta.env.VITE_BACKEND_URL,"") 
-        const isAdminRoute = url.startsWith(`admin`);
+        const url = config.url.replace(import.meta.env.VITE_BACKEND_URL, "");
+        const isAdminRoute = url.startsWith(`/admin`);
         const state = store.getState();
 
         const token = isAdminRoute ? state.admin.accessToken : state.user.accessToken;
@@ -40,7 +40,7 @@ axiosInstance.interceptors.response.use(
 
             const isAdminRoute = originalRequest.url.includes("/admin");
             try {
-                const refreshEndPoint = isAdminRoute ? "/admin/auth/refresh" : "auth/refresh";
+                const refreshEndPoint = isAdminRoute ? "/admin/auth/refresh" : "/auth/refresh";
                 const res = await axiosInstance.post(refreshEndPoint);
                 const { accessToken, user } = res.data.data;
                 console.log(accessToken);
@@ -53,12 +53,11 @@ axiosInstance.interceptors.response.use(
                 return axiosInstance(originalRequest);
             } catch (error) {
                 console.log(error);
-                toast.error(error);
+                toast.error(error.message);
                 if (isAdminRoute) {
                     store.dispatch(adminLogout());
                     window.location.href = "/admin/login";
                 } else {
-                    console.log("ahh");
                     store.dispatch(logOut());
                     window.location.href = "/login";
                 }

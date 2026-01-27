@@ -85,11 +85,6 @@ export const requestEmailChangeService = async (userId, email) => {
             throw error;
         }
         const user = await findUserById(userId);
-        if (user.provider === "google") {
-            const error = new Error(ERROR_MESSAGES.EMAIL_CANNOT_BE_CHANGED_FOR_GOOGLE);
-            error.statusCode = STATUS_CODES.CONFLICT;
-            throw error;
-        }
         if (!user) {
             const error = new Error(ERROR_MESSAGES.USER_NOT_FOUND);
             error.statusCode = STATUS_CODES.NOT_FOUND;

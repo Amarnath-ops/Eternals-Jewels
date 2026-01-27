@@ -26,6 +26,7 @@ const EditProfile = () => {
         register,
         formState: { errors, isDirty },
         setValue,
+        trigger,
     } = useZodForm(profileDetailsSchema, {
         defaultValues: {
             fullname: user?.fullname || "",
@@ -53,7 +54,7 @@ const EditProfile = () => {
             }
             await updateProfile(formData);
         } catch (error) {
-            toast.error(error.response.data.message)
+            toast.error(error.response.data.message);
         }
     };
     if (isLoading) {
@@ -95,14 +96,17 @@ const EditProfile = () => {
                                 <Pencil size={16} />
                                 {/* File Input - Fully covers the button for better clickability */}
                                 <input
-                                    onChange={(e) => {
+                                    onChange={async (e) => {
                                         const file = e.target.files[0];
                                         if (file) {
                                             setValue("avatar", file, {
                                                 shouldDirty: true,
                                                 shouldValidate: true,
                                             });
-                                            setPreview(URL.createObjectURL(file));
+                                            const isValid = await trigger("avatar");
+                                            if (isValid) {
+                                                setPreview(URL.createObjectURL(file));
+                                            }
                                         }
                                     }}
                                     type="file"
@@ -112,7 +116,7 @@ const EditProfile = () => {
                             </button>
                         </div>
                     </div>
-                            {errors.avatar && <p className="text-red-500 text-xs mt-1 w-full">{errors.avatar.message}</p>}
+                    {errors.avatar && <p className="text-red-500 text-xs mt-1 w-full">{errors.avatar.message}</p>}
                     {/* ---------------------------------- */}
 
                     {/* Full Name Input */}
@@ -130,7 +134,6 @@ const EditProfile = () => {
                     {/* Email Input */}
                     <div className="space-y-2">
                         <FormInput
-                            disabled={user.provider === "google"}
                             label="Email"
                             type="text"
                             name="email"

@@ -18,10 +18,10 @@ const Sidebar = ({ user }) => {
     // Helper to determine active state
     const isActive = (path) => path.includes(location.pathname);
     return (
-        <div className="w-25 lg:w-80 flex-shrink-0 bg-white rounded-3xl shadow-sm py-7.5 px-5 md:p-12 lg:p-6 h-fit transition-all duration-300 ease-in-out">
+        <div className="w-25 lg:w-80 shrink-0 bg-white rounded-3xl shadow-sm py-7.5 px-5 md:p-12 lg:p-6 h-fit transition-all duration-300 ease-in-out">
             {/* Profile Header */}
             <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
-                <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-full flex-shrink-0 flex items-center justify-center">
+                <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-full shrink-0 flex items-center justify-center">
                     <img
                         src={user?.avatar || "https://via.placeholder.com/150"}
                         alt="Profile"

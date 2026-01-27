@@ -4,6 +4,7 @@ import { useCustomers } from "@/hooks/tanstack_Queries/admin/customers/useCustom
 import { useDebounce } from "@/hooks/useDebounce";
 import { useToggleBlockUser } from "@/hooks/tanstack_Queries/admin/customers/useToggleBlockUser";
 import { toast } from "sonner";
+import { formatDate } from "@/lib/formatDate";
 
 const CustomerList = () => {
     const [search, setSearch] = useState("");
@@ -37,15 +38,6 @@ const CustomerList = () => {
         if (!confirm) return;
         await toggleBlock(customer._id);
         toast.success(`User ${customer.isBlocked ? "unblocked" : "blocked"} successfully.`)
-    };
-
-    const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
-        return new Date(dateString).toLocaleDateString('en-GB', {
-            day: '2-digit', 
-            month: 'short', 
-            year: 'numeric'
-        });
     };
 
     return (

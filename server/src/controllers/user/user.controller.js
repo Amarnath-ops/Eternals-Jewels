@@ -31,7 +31,6 @@ export const getUserData = async (req, res) => {
 export const updateProfile = async (req, res) => {
     try {
         const { fullname, phone } = req.body;
-        console.log(req.file);
         const updatedUser = await updateProfileService(req.user._id, { fullname, phone }, req.file);
         return res.status(STATUS_CODES.OK).json({
             success: true,

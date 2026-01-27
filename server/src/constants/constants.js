@@ -1,6 +1,6 @@
 
 export const CONSTANTS = Object.freeze({
-    OTP_CACHE_TIME: 120,
+    OTP_CACHE_TIME: 300,
     OTP_VERIFIED: "OTP verified successfully.",
     OTP_RESEND: "We've sent the OTP to your email again.",
     OTP_SEND: "Otp sent to email.",
@@ -14,5 +14,15 @@ export const CONSTANTS = Object.freeze({
     ADDRESS_DELETED:"Address is deleted.",
     CUSTOMERS_FETCHED:"Customers details fetched successfully.",
     ADMIN_LOGIN: "Admin logged in successfully.",
-    ADMIN_LOGOUT:"Admin Logged out successfully."
+    ADMIN_LOGOUT:"Admin Logged out successfully.",
+    CATEGORY_ADDED:"Category added successfully.",
+    CATEGORY_FETCHED_SUCCESSFULLY:"Category fetched successfully.",
+    CATEGORY_UPDATED:"Category updated successfully.",
+    CATEGORY_LIST_TOGGLED:"Category list toggled.",
+    CATEGORY_DELETED :"Category is deleted.",
+    PRODUCT_ADDED: "Product added successfully.",
+    PRODUCT_UPDATED: "Product updated successfully.",
+    PRODUCT_DELETED: "Product deleted successfully.",
+    PRODUCT_FETCHED_SUCCESSFULLY: "Product fetched successfully.",
+    PRODUCT_LIST_TOGGLED: "Product status toggled."
 });

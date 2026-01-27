@@ -29,11 +29,11 @@ export const generateRefreshToken = (user) => {
 };
 
 export const verifyToken = (token) => {
-    return jwt.verify(token, process.env.JWT_SECRET,(err,decoded)=>{
-        if(err){
-            const error = new Error(ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
-            error.statusCode = STATUS_CODES.FORBIDDEN;
-            throw error
-        }
-    });
-};
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+        const error = new Error(ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
+};  

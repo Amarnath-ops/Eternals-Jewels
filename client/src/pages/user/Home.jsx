@@ -3,30 +3,9 @@ import Navbar from "../../components/Navbar";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
+import { SpinnerBadge } from "@/components/Spinner";
+import useGetLandingCategories from "@/hooks/tanstack_Queries/user/categories/useGetLandingCategories";
 // --- Data Constants ---
-
-const CATEGORIES = [
-    {
-        name: "Necklace",
-        image: "asset/Necklace.png",
-    },
-    {
-        name: "Earrings",
-        image: "asset/Earrings.png",
-    },
-    {
-        name: "Bracelets",
-        image: "asset/Bracelets.png",
-    },
-    {
-        name: "Rings",
-        image: "asset/Rings.png",
-    },
-    {
-        name: "Charms",
-        image: "asset/Charms.png",
-    },
-];
 
 const FEATURED_PRODUCTS = [
     {
@@ -88,6 +67,9 @@ const FAQS = [
 const HomePage = () => {
     const accessToken = useSelector((state) => state.user);
     console.log(accessToken);
+
+    const {data,isLoading} = useGetLandingCategories()
+    if(isLoading) return <SpinnerBadge content={"Loading..."}/>
     return (
         <>
             <div className="w-full bg-white font-sans text-gray-900">
@@ -129,16 +111,16 @@ const HomePage = () => {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
-                        {CATEGORIES.map((cat, index) => (
+                        {data?.data?.map((cat, index) => (
                             <div key={index} className="flex flex-col items-center group cursor-pointer">
                                 <div className="w-full aspect-square overflow-hidden mb-4">
                                     <img
-                                        src={cat.image}
-                                        alt={cat.name}
+                                        src={cat.thumbnail?.image_url}
+                                        alt={cat.categoryName}
                                         className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
                                     />
                                 </div>
-                                <span className="font-serif text-gray-700 text-lg group-hover:text-black">{cat.name}</span>
+                                <span className="font-cormorant  text-gray-700 text-lg group-hover:text-black">{cat.categoryName}</span>
                             </div>
                         ))}
                     </div>

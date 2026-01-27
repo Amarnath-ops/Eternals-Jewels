@@ -29,7 +29,9 @@ export const findUserByRefreshToken = async (token) => {
 // To remove the refresh token
 
 export const clearRefreshTokenByRefreshToken = async (refreshToken) => {
-    const user = await User.findOne({ refreshToken: refreshToken });
+    console.log(refreshToken)
+    const user = await User.findOne({ refreshToken });
+    console.log(user)
     user.refreshToken = null;
     await user.save();
     return user;

@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import AboutUsPage from "@/pages/user/About";
 import ContactPage from "@/pages/user/ContactUs";
 import ShopPage from "@/pages/user/Shop";
+import ProductDetails from "@/pages/user/ProductDetails";
 import OtpVerification from "@/pages/user/OtpVerify";
 import ForgotPasswordPage from "@/pages/user/ForgotPassword";
 import ResetPassword from "@/pages/user/ResetPassword";
@@ -50,6 +51,7 @@ const UserRoutes = () => {
                 <Route path="/about" element={<AboutUsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/shop" element={<ShopPage />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/verify-otp" element={accessToken ? <Navigate to="/" replace /> : <OtpVerification />} />
                 <Route
                     path="/forgot-password"

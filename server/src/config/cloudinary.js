@@ -6,4 +6,15 @@ cloudinary.config({
   api_secret:process.env.CLOUDINARY_API_SECRET
 })
 
+export const uploadBuffer = (buffer,folder)=>{
+  return new Promise((resolve,reject)=>{
+    cloudinary.uploader.upload_stream({folder},(error,result)=>{
+      if(error){
+        return reject(error)
+      }
+      resolve(result)
+    }).end(buffer)
+  })
+}
+
 export default cloudinary

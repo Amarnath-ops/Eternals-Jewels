@@ -3,8 +3,8 @@ import { STATUS_CODES } from "../constants/statusCode.js";
 import jwt from "jsonwebtoken";
 export const protect = async (req, res,next) => {
     try {
-        const authHeader = req.headers.authorization;
-
+        const authHeader = req.headers?.authorization;
+        console.log(authHeader)
         if (!authHeader || !authHeader.startsWith("Bearer")) {
             return res.status(STATUS_CODES.UNAUTHORIZED).json({
                 success:false,

@@ -43,9 +43,8 @@ export const adminLogin = async (req, res) => {
 
 export const adminLogout = async (req, res) => {
     try {
-        const { refreshToken } = req.cookies;
-        console.log(refreshToken);
-        await adminLogoutService(refreshToken);
+        const { adminRefreshToken } = req.cookies;
+        await adminLogoutService(adminRefreshToken);
         res.clearCookie("adminRefreshToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",

@@ -20,5 +20,13 @@ export const ERROR_MESSAGES = Object.freeze({
     ADMIN_ONLY: "Admin access only.",
     ACCESS_DENIED:"Access denied.",
     LOGIN_FROM_ADMIN_PANEL :"Login from admin panel.",
-    USE_ADMIN_ENDPOINT: "Error : Use admin endpoint."
+    USE_ADMIN_ENDPOINT: "Error : Use admin endpoint.",
+    CATEGORY_IMAGE_REQUIRED:"Category image is required",
+    INVALID_IMAGE_FORMAT:"Invalid image format.",
+    CATEGORY_ALREADY_EXIST:"This category already exists.",
+    PRODUCT_ALREADY_EXISTS: "Product already exists.",
+    IMAGE_REQUIRED: "Thumbnail image is required",
+    PRODUCT_NOT_FOUND: "Product not found.",
+    ATLEAST_TWO_IMAGES_REQUIRED:"At least 2 additional images are required",
+    MAXIMUM_FOUR_IMAGES_ALLOWED :"Maximum 4 product images allowed"
 })

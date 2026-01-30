@@ -1,4 +1,5 @@
 import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
+import { STATUS_CODES } from "../../constants/statusCode.js";
 import { productRepository } from "../../repositories/product.repo.js";
 
 export const getProducts = async (query) => {
@@ -7,18 +8,17 @@ export const getProducts = async (query) => {
     // Ensure we only fetch listed products for the user side
     const isListed = true;
 
-    const [products, total] = await productRepository.findAll({
+    let [products, total] = await productRepository.findAll({
         search,
         category,
         page: Number(page),
         limit: Number(limit),
         sort,
         isListed,
-        minPrice: Number(minPrice),
-        maxPrice: Number(maxPrice),
+        minPrice: (minPrice !== undefined && minPrice !== "") ? Number(minPrice) : undefined,
+        maxPrice: (maxPrice !== undefined && maxPrice !== "") ? Number(maxPrice) : undefined,
         material
     });
-
     return {
         products,
         total,
@@ -29,10 +29,17 @@ export const getProducts = async (query) => {
 
 export const getProductById = async (id) => {
     const product = await productRepository.findByIdListed(id);
+
     if (!product) {
         const error = new Error(ERROR_MESSAGES.PRODUCT_NOT_FOUND);
-        error.statusCode = 404;
+        error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
+    }
+    console.log(product)
+    if(!product.category.isListed){
+        const error = new Error(ERROR_MESSAGES.PRODUCT_CATEGORY_IS_NOT_LISTED);
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error
     }
     return product;
 };

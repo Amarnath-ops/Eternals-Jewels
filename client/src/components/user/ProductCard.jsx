@@ -10,14 +10,19 @@ const ProductCard = ({ product }) => {
     currency: 'INR',
   }).format(price);
 
+  // Use first variant's first image if available, otherwise use thumbnail
+  const displayImage = variants && variants[0]?.images && variants[0].images.length > 0
+    ? variants[0].images[0].image_url
+    : thumbnail?.image_url;
+
   return (
     <div className="group relative bg-[#FDF8F5] pb-4 rounded-sm shadow-sm transition-shadow hover:shadow-md">
         {/* Image Container with Padding */}
         <div className="p-3 pb-0">
              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-sm bg-white">
-                {thumbnail?.image_url ? (
+                {displayImage ? (
                     <img
-                        src={thumbnail.image_url}
+                        src={displayImage}
                         alt={productName}
                         className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                     />

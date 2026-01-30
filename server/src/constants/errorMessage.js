@@ -25,8 +25,9 @@ export const ERROR_MESSAGES = Object.freeze({
     INVALID_IMAGE_FORMAT:"Invalid image format.",
     CATEGORY_ALREADY_EXIST:"This category already exists.",
     PRODUCT_ALREADY_EXISTS: "Product already exists.",
-    IMAGE_REQUIRED: "Thumbnail image is required",
+    IMAGE_REQUIRED: "Thumbnail image is required.",
     PRODUCT_NOT_FOUND: "Product not found.",
-    ATLEAST_TWO_IMAGES_REQUIRED:"At least 2 additional images are required",
-    MAXIMUM_FOUR_IMAGES_ALLOWED :"Maximum 4 product images allowed"
+    ATLEAST_TWO_IMAGES_REQUIRED:"At least 2 additional images are required.",
+    MAXIMUM_FOUR_IMAGES_ALLOWED :"Maximum 4 product images allowed.",
+    PRODUCT_CATEGORY_IS_NOT_LISTED:"Product category is not listed."
 })

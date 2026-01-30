@@ -12,8 +12,7 @@ export const uploadCategoryImage = multer({
 
 export const uploadProductImage = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 5 * 1024 * 1024 },
 }).fields([
-    { name: "thumbnail", maxCount: 1 },
-    { name: "productImages", maxCount: 4 },
+    { name: "variantImages", maxCount: 40 }, 
 ]);

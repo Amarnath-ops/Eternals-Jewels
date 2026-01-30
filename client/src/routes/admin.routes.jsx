@@ -35,12 +35,12 @@ const AdminRoutes = () => {
         <>
             <Routes>
                 <Route path="login" element={accessToken ? <Navigate to="/admin/dashboard" /> : <AdminLogin />} />
-                <Route path="" element={accessToken ? <AdminLayout /> : <AdminLogin />}>
+                <Route  path=""  element={accessToken ? <AdminLayout /> : <AdminLogin />}>
                     <Route index path="dashboard" element={<Dashboard />} />
                     <Route path="customers" element={<CustomerList />} />
                     <Route path="categories" element={<CategoryPage/> }/>
                     <Route path="categories/add-categories" element={<AddCategory/>}/>
-                    <Route path="categories/edit-category/:id" element={<UpdateCategory/>}/>
+                    <Route path="categories/edit-category/:categoryId" element={<UpdateCategory/>}/>
                     <Route path="products" element={<ProductList />} />
                     <Route path="products/add-product" element={<AddProduct />} />
                     <Route path="products/edit-product/:id" element={<EditProduct />} />

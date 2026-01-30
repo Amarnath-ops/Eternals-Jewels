@@ -260,6 +260,11 @@ export const forgotPasswordOTPService = async (email) => {
         error.statusCode = STATUS_CODES.FORBIDDEN;
         throw error;
     }
+    if (user.provider === "google") {
+        const error = new Error(ERROR_MESSAGES.EMAIL_CANNOT_BE_CHANGED_FOR_GOOGLE);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     const otp = generateOTP();
 
     cache.set(`verify_${email}`, otp, CONSTANTS.OTP_CACHE_TIME);

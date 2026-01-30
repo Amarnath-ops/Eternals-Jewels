@@ -1,33 +1,33 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Image, ChevronRight, X, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, X, Plus, Trash2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import useZodForm from "@/hooks/useZodForm";
 import { updateProductSchema } from "@/validations/product.schema";
+import { imageSchema } from "@/validations/common.schema";
 import FormWrapper from "@/components/form/Form";
 import FormInput from "@/components/form/FormInput";
 import { useUpdateProduct } from "@/hooks/tanstack_Queries/admin/products/useUpdateProduct";
 import { useGetProductById } from "@/hooks/tanstack_Queries/admin/products/useGetProductById";
 import { useGetCategories } from "@/hooks/tanstack_Queries/admin/categories/useGetCategories";
+import { useFieldArray } from "react-hook-form";
+import { SpinnerBadge } from "@/components/Spinner";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImage } from "@/lib/cropUtils";
-import { useFieldArray } from "react-hook-form";
-import { SpinnerBadge } from "@/components/Spinner";
 
 const EditProduct = () => {
     const { id } = useParams();
     const [status, setStatus] = useState("Listed");
-    const [preview, setPreview] = useState(null);
     const [src, setSrc] = useState(null);
     const [crop, setCrop] = useState({ unit: "%", width: 50, aspect: 1 });
     const [completedCrop, setCompletedCrop] = useState(null);
-    const imageInputRef = useRef(null);
     const imgRef = useRef(null);
     const canvasRef = useRef(null);
 
-    const [galleryPreviews, setGalleryPreviews] = useState([]);
-    const [existingGalleryImages, setExistingGalleryImages] = useState([]);
-    const galleryInputRef = useRef(null);
+    // Variant images state
+    const [variantImages, setVariantImages] = useState({});
+    const [currentVariantIndex, setCurrentVariantIndex] = useState(null);
+    const [variantCropQueue, setVariantCropQueue] = useState([]);
 
     const { data: productData, isLoading: isLoadingProduct } = useGetProductById(id);
     const { mutateAsync: updateProduct, isPending } = useUpdateProduct();
@@ -36,12 +36,12 @@ const EditProduct = () => {
     const {
         handleSubmit,
         register,
-        setError,
         setValue,
-        control,
+        getValues,
         watch,
+        control,
         reset,
-        formState: { errors },
+        formState: { errors, isDirty },
     } = useZodForm(updateProductSchema, {
         defaultValues: {
             variants: [],
@@ -54,6 +54,8 @@ const EditProduct = () => {
         name: "variants",
     });
 
+    const watchedVariants = watch("variants");
+
     useEffect(() => {
         if (productData) {
             reset({
@@ -65,141 +67,156 @@ const EditProduct = () => {
             });
             setStatus(productData.isListed ? "Listed" : "Unlisted");
             
-            if (productData.thumbnail?.image_url) {
-                setPreview(productData.thumbnail.image_url);
-                setValue("thumbnail", "EXISTING_IMAGE");
-            }
-
-            if (productData.productImages) {
-                setExistingGalleryImages(productData.productImages);
-                setGalleryPreviews(productData.productImages.map(img => img.image_url));
+            // Initialize variant images from existing product data
+            if (productData.variants) {
+                const existingImages = {};
+                productData.variants.forEach((variant, idx) => {
+                    if (variant.images && variant.images.length > 0) {
+                        // Store existing images in a way that doesn't interfere with new uploads
+                        existingImages[`existing_${idx}`] = variant.images;
+                    }
+                });
+                // Note: We'll handle existing images separately in submission
             }
         }
     }, [productData, reset, setValue]);
 
-    
-    const [activeCropIndex, setActiveCropIndex] = useState(null);
-
-    const handleFile = (file) => {
-        if (!file) return;
-        if (!file.type.startsWith("image/")) {
-            setError("thumbnail", { message: "Please upload an image file." });
-            return;
-        }
-        setSrc(URL.createObjectURL(file));
-        setActiveCropIndex(null);
-    };
-
     const handleCropImage = async () => {
         const croppedFile = await getCroppedImage(imgRef.current, completedCrop, canvasRef.current);
-        if (croppedFile) {
-            const previewURL = URL.createObjectURL(croppedFile);
+
+        if (!croppedFile) return;
+
+        // Handle variant image cropping
+        if (currentVariantIndex !== null) {
+            const variantIdx = currentVariantIndex;
+            const currentImages = variantImages[variantIdx] || [];
+            setVariantImages(prev => ({
+                ...prev,
+                [variantIdx]: [...currentImages, croppedFile]
+            }));
+
+            // Process next image in queue
+            setVariantCropQueue(prev => {
+                const [, ...rest] = prev;
+                if (rest.length > 0) {
+                    const next = rest[0];
+                    setTimeout(() => {
+                        setSrc(URL.createObjectURL(next));
+                    }, 0);
+                } else {
+                    setSrc(null);
+                    setCurrentVariantIndex(null);
+                }
+                return rest;
+            });
+        }
+    };
+
+    const handleRemoveVariant = (index) => {
+        // Remove from form
+        remove(index);
+
+        // Update variant images state
+        setVariantImages(prev => {
+            const newState = { ...prev };
+            // Delete the removed index
+            delete newState[index];
             
-            if (activeCropIndex === null) {
-                 setPreview(previewURL);
-                 setValue("thumbnail", croppedFile, { shouldValidate: true });
-            } else {
-                const currentFiles = watch("productImages") || [];
-                const newFiles = [...currentFiles];
-                newFiles[activeCropIndex] = croppedFile;
-                setValue("productImages", newFiles, { shouldValidate: true });
-            }
-           
-            setSrc(null);
-            setActiveCropIndex(null);
-        }
+            // Shift remaining indices down
+            // For example, if we remove index 1, what was at index 2 becomes index 1
+            const shiftedState = {};
+            Object.keys(newState).forEach(key => {
+                const keyNum = parseInt(key);
+                if (keyNum < index) {
+                    shiftedState[keyNum] = newState[keyNum];
+                } else if (keyNum > index) {
+                    shiftedState[keyNum - 1] = newState[keyNum];
+                }
+            });
+            return shiftedState;
+        });
     };
 
-    const handleEditThumbnail = () => {
-        setPreview(null);
-        setValue("thumbnail", null); 
-        setSrc(null);
-        setActiveCropIndex(null);
-        imageInputRef.current.click();
-    };
-
-    const handleCropNewGalleryImage = (index) => {
-        const currentFiles = watch("productImages") || [];
-        const file = currentFiles[index];
-        if (file) {
-            const fileUrl = URL.createObjectURL(file);
-            setSrc(fileUrl);
-            setActiveCropIndex(index);
-        }
-    };
-
-    const handleGalleryFiles = (files) => {
+    const handleVariantImages = (variantIndex, files) => {
         if (!files || files.length === 0) return;
-        
-        const currentNewFiles = Array.isArray(watch("productImages")) ? watch("productImages") : []; 
-        
-        const validFiles = Array.from(files).filter(file => file.type.startsWith("image/"));
-        
-        const totalCount = existingGalleryImages.length + currentNewFiles.length + validFiles.length;
 
-        if (totalCount > 4) {
-             setError("productImages", { message: "Maximum 4 images total allowed." });
-             return;
+        const validFiles = [];
+        for (const file of files) {
+            const result = imageSchema.safeParse(file);
+            if (!result.success) {
+                const errorMsg = result.error.errors[0].message;
+                alert(`Error with file ${file.name}: ${errorMsg}`);
+                continue;
+            }
+            validFiles.push(file);
+        }
+        
+        const currentImages = variantImages[variantIndex] || [];
+        const existingImages = getValues(`variants.${variantIndex}.images`) || [];
+        const totalImages = currentImages.length + existingImages.length + validFiles.length;
+        
+        if (totalImages > 4) {
+            alert("Maximum 4 images per variant");
+            return;
         }
 
-        const newPreviews = validFiles.map(file => URL.createObjectURL(file));
-        setGalleryPreviews(prev => [...prev, ...newPreviews]); 
+        setCurrentVariantIndex(variantIndex);
+        setVariantCropQueue(validFiles);
         
-        const combinedFiles = [...currentNewFiles, ...validFiles]; 
-        
-        setValue("productImages", combinedFiles, { shouldValidate: true });
-
         if (validFiles.length > 0) {
-            const lastFile = validFiles[validFiles.length - 1]; 
-            const lastIndex = combinedFiles.length - 1;
-            setSrc(URL.createObjectURL(lastFile));
-            setActiveCropIndex(lastIndex);
+            setSrc(URL.createObjectURL(validFiles[0]));
         }
     };
 
-    const removeGalleryImage = (index) => {
-        return;
+    const handleRemoveExistingImage = (variantIndex, imageIndex) => {
+        const currentVariants = getValues("variants");
+        const currentImages = currentVariants[variantIndex].images || [];
+        const updatedImages = currentImages.filter((_, idx) => idx !== imageIndex);
+        
+        const updatedVariants = [...currentVariants];
+        updatedVariants[variantIndex] = {
+            ...updatedVariants[variantIndex],
+            images: updatedImages
+        };
+        
+        setValue("variants", updatedVariants, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
     };
 
-    const removeExistingImage = (publicId) => {
-        const newList = existingGalleryImages.filter(img => img.publicId !== publicId);
-        setExistingGalleryImages(newList);
+    const removeVariantImage = (variantIndex, imageIndex) => {
+        setVariantImages(prev => {
+            const current = prev[variantIndex] || [];
+            return {
+                ...prev,
+                [variantIndex]: current.filter((_, idx) => idx !== imageIndex)
+            };
+        });
     };
 
-    const removeNewImage = (index) => {
-        const currentFiles = watch("productImages") || [];
-        const newFiles = currentFiles.filter((_, i) => i !== index);
-        setValue("productImages", newFiles, { shouldValidate: true });
-    };
+
 
     const onSubmit = async (data) => {
         try {
-            const totalImages = existingGalleryImages.length + (data.productImages?.length || 0);
-            if (totalImages < 2) {
-                setError("productImages", { message: "At least 2 additional images are required" });
-                return;
-            }
-
+            
             const formData = new FormData();
             formData.append("productName", data.productName);
             formData.append("description", data.description);
             formData.append("category", data.category);
             formData.append("isListed", data.isListed);
-            
-            if (data.thumbnail instanceof File) {
-                formData.append("thumbnail", data.thumbnail);
-            }
 
-            existingGalleryImages.forEach(img => {
-                formData.append("existingImages", img.publicId);
+            
+            const variantImageMappings = [];
+            Object.entries(variantImages).forEach(([variantIdx, images]) => {
+                images.forEach(() => {
+                    variantImageMappings.push([parseInt(variantIdx)]);
+                });
             });
 
-            if (data.productImages && Array.isArray(data.productImages)) {
-                data.productImages.forEach((file) => {
-                    if (file instanceof File) {
-                        formData.append("productImages", file);
-                    }
-                });
+            Object.values(variantImages).flat().forEach(file => {
+                formData.append("variantImages", file);
+            });
+
+            if (variantImageMappings.length > 0) {
+                formData.append("variantImageMappings", JSON.stringify(variantImageMappings));
             }
 
             formData.append("variants", JSON.stringify(data.variants));
@@ -278,7 +295,7 @@ const EditProduct = () => {
                                             checked={status === "Listed"}
                                             onChange={() => {
                                                 setStatus("Listed");
-                                                setValue("isListed", true);
+                                                setValue("isListed", true, { shouldDirty: true });
                                             }}
                                             className="hidden"
                                         />
@@ -294,7 +311,7 @@ const EditProduct = () => {
                                             checked={status === "Unlisted"}
                                             onChange={() => {
                                                 setStatus("Unlisted");
-                                                setValue("isListed", false);
+                                                setValue("isListed", false, { shouldDirty: true });
                                             }}
                                             className="hidden"
                                         />
@@ -305,104 +322,6 @@ const EditProduct = () => {
                                     </label>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                        <h2 className="text-xl font-bold mb-6 text-gray-800">Edit Product Image</h2>
-                        
-                        <div className="mb-8">
-                            <p className="text-gray-600 font-medium mb-3">Main Photo</p>
-                            <input type="file" ref={imageInputRef} hidden accept="image/*" onChange={(e) => handleFile(e.target.files[0])} />
-                            
-                            {src && (
-                                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-                                    <div className="bg-white p-4 rounded-xl w-full max-w-2xl shadow-lg flex flex-col max-h-[90vh]">
-                                        <h3 className="text-lg font-bold mb-4">Crop Image</h3>
-                                        <div className="flex-1 overflow-auto flex justify-center bg-gray-100 rounded p-4">
-                                            <ReactCrop crop={crop} onChange={setCrop} onComplete={setCompletedCrop} aspect={1}>
-                                                <img ref={imgRef} src={src} alt="Crop target" className="max-w-full" />
-                                            </ReactCrop>
-                                        </div>
-                                        <div className="flex justify-end gap-3 mt-4">
-                                            <button type="button" onClick={() => setSrc(null)} className="px-4 py-2 bg-gray-200 rounded text-sm hover:bg-gray-300">Cancel</button>
-                                            <button type="button" onClick={handleCropImage} className="px-4 py-2 bg-black text-white rounded text-sm hover:bg-gray-800">Crop & Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {preview ? (
-                                <div className="relative w-full md:w-1/2 aspect-video bg-gray-50 rounded-xl border border-dashed border-gray-300 flex items-center justify-center overflow-hidden group">
-                                     <img src={preview} alt="Thumbnail" className="w-full h-full object-contain" />
-                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                         <button type="button" onClick={handleEditThumbnail} className="bg-white text-black px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-100">Change Image</button>
-                                     </div>
-                                </div>
-                            ) : (
-                                <div onClick={() => imageInputRef.current.click()} className="w-full md:w-1/2 aspect-video bg-[#Fbfbfe] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition">
-                                    <div className="bg-[#ecedfd] p-3 rounded-lg text-[#5d60ef] mb-3">
-                                        <Image size={24} />
-                                    </div>
-                                    <p className="text-sm text-gray-500 mb-3">Drag and drop image here, or click add image</p>
-                                    <button type="button" className="bg-[#ecedfd] text-[#5d60ef] px-4 py-2 rounded-lg text-sm font-bold">Add Image</button>
-                                </div>
-                            )}
-                            {errors.thumbnail && !preview && <p className="text-red-500 text-xs mt-2">{errors.thumbnail.message}</p>}
-                        </div>
-
-                        <div>
-                            <p className="text-gray-600 font-medium mb-3">Additional (Max 4)</p>
-                            <input type="file" ref={galleryInputRef} hidden accept="image/*" multiple onChange={(e) => handleGalleryFiles(e.target.files)} />
-                            
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {existingGalleryImages.map((img) => (
-                                    <div key={img.publicId} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group">
-                                         <img src={img.image_url} alt="Existing" className="w-full h-full object-cover" />
-                                         <button 
-                                            type="button" 
-                                            onClick={() => removeExistingImage(img.publicId)} 
-                                            className="absolute top-2 right-2 bg-white/80 p-1.5 rounded-full text-red-500 hover:bg-white transition opacity-0 group-hover:opacity-100"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                ))}
-
-                                {Array.isArray(watch("productImages")) && watch("productImages").map((file, idx) => (
-                                    <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group">
-                                         <img src={URL.createObjectURL(file)} alt="New" className="w-full h-full object-cover" />
-                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-                                             <button 
-                                                type="button" 
-                                                onClick={() => handleCropNewGalleryImage(idx)}
-                                                className="bg-white p-1.5 rounded-full text-gray-700 hover:text-black hover:bg-gray-100 transition"
-                                                title="Crop Image"
-                                            >
-                                                <Image size={16} />
-                                            </button>
-                                            <button 
-                                                type="button" 
-                                                onClick={() => removeNewImage(idx)} 
-                                                className="bg-white p-1.5 rounded-full text-red-500 hover:bg-red-50 transition"
-                                                title="Remove Image"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                         </div>
-                                    </div>
-                                ))}
-
-                                {(existingGalleryImages.length + (Array.isArray(watch("productImages")) ? watch("productImages").length : 0)) < 4 && (
-                                     <div onClick={() => galleryInputRef.current.click()} className="aspect-square bg-[#Fbfbfe] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition">
-                                        <div className="bg-[#ecedfd] p-2 rounded-lg text-[#5d60ef] mb-2">
-                                            <Plus size={20} />
-                                        </div>
-                                        <p className="text-xs text-center text-gray-400 px-2">Click to add</p>
-                                    </div>
-                                )}
-                            </div>
-                            {errors.productImages && <p className="text-red-500 text-xs mt-2">{errors.productImages.message}</p>}
                         </div>
                     </div>
 
@@ -418,7 +337,7 @@ const EditProduct = () => {
                              {fields.map((field, index) => (
                                 <div key={field.id} className="p-4 bg-gray-50 rounded-xl relative border border-gray-100">
                                     {fields.length > 1 && (
-                                        <button type="button" onClick={() => remove(index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600">
+                                        <button type="button" onClick={() => handleRemoveVariant(index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 z-10 bg-white rounded-full p-1 shadow-sm">
                                             <X size={18} />
                                         </button>
                                     )}
@@ -444,6 +363,74 @@ const EditProduct = () => {
                                             <FormInput type="number" step="0.01" name={`variants.${index}.salePrice`} register={register} className="w-full bg-white rounded-lg px-3 py-2 border border-gray-200 text-sm" error={errors.variants?.[index]?.salePrice} />
                                         </div>
                                     </div>
+
+                                    {/* Variant Images Section */}
+                                    <div className="mt-4">
+                                        <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">
+                                            Variant Images (3-4 Required)
+                                        </label>
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            multiple
+                                            accept="image/*"
+                                            id={`variant-images-${index}`}
+                                            onClick={(e) => (e.target.value = null)}
+                                            onChange={(e) => handleVariantImages(index, e.target.files)}
+                                        />
+                                        <div className="grid grid-cols-4 gap-3">
+                                            {/* Show existing images */}
+                                            {/* Show existing images from form state */}
+                                            {watchedVariants?.[index]?.images?.map((img, imgIdx) => (
+                                                <div key={`existing-${imgIdx}`} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
+                                                    <img
+                                                        src={img.image_url}
+                                                        alt={`Existing ${imgIdx}`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <div className="absolute top-1 left-1 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded opacity-70 group-hover:opacity-100 transition">
+                                                        Existing
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveExistingImage(index, imgIdx)}
+                                                        className="absolute top-1 right-1 bg-white/90 p-1.5 rounded-full text-red-500 hover:bg-white hover:text-red-600 opacity-0 group-hover:opacity-100 transition shadow-sm z-10"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            
+                                            {/* Show new uploaded images */}
+                                            {(variantImages[index] || []).map((file, imgIdx) => (
+                                                <div key={imgIdx} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
+                                                    <img
+                                                        src={URL.createObjectURL(file)}
+                                                        alt={`Variant ${index} - Image ${imgIdx}`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeVariantImage(index, imgIdx)}
+                                                        className="absolute top-1 right-1 bg-white/80 p-1 rounded-full text-red-500 hover:bg-white opacity-0 group-hover:opacity-100 transition"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            
+                                            {/* Add button if under limit */}
+                                            {((variantImages[index] || []).length + (watchedVariants?.[index]?.images?.length || 0)) < 4 && (
+                                                <label
+                                                    htmlFor={`variant-images-${index}`}
+                                                    className="aspect-square bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition"
+                                                >
+                                                    <Plus size={20} className="text-gray-400" />
+                                                    <span className="text-[10px] text-gray-400 mt-1">Add Image</span>
+                                                </label>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -456,12 +443,48 @@ const EditProduct = () => {
                         </Link>
                         <button
                             type="submit"
-                            disabled={isPending}
+                            disabled={isPending || (!isDirty && !Object.values(variantImages).some(imgs => imgs?.length > 0))}
                             className="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isPending ? "UPDATING..." : "UPDATE PRODUCT"}
                         </button>
                     </div>
+
+                    {/* Cropping Modal for Variant Images */}
+                    {src && (
+                        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+                            <div className="bg-white p-4 rounded-xl w-full max-w-2xl shadow-lg flex flex-col max-h-[90vh]">
+                                <h3 className="text-lg font-bold mb-4">Crop Image</h3>
+                                <div className="flex-1 overflow-auto flex justify-center bg-gray-100 rounded p-4">
+                                    <ReactCrop
+                                        crop={crop}
+                                        onChange={setCrop}
+                                        onComplete={setCompletedCrop}
+                                        aspect={1}
+                                    >
+                                        <img ref={imgRef} src={src} alt="Crop target" className="max-w-full" />
+                                    </ReactCrop>
+                                </div>
+                                <div className="flex justify-end gap-3 mt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setSrc(null)}
+                                        className="px-4 py-2 bg-gray-200 rounded text-sm hover:bg-gray-300"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleCropImage}
+                                        className="px-4 py-2 bg-black text-white rounded text-sm hover:bg-gray-800"
+                                    >
+                                        Crop & Save
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <canvas ref={canvasRef} className="hidden" />
                 </FormWrapper>
             </div>

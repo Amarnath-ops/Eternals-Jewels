@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Eye, Edit, Trash2, ChevronRight, ChevronLeft, Search, Loader } from "lucide-react";
+import { Eye, Edit, Trash2, ChevronRight, ChevronLeft, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDebounce } from "@/hooks/useDebounce";
 import { SpinnerBadge } from "@/components/Spinner";
@@ -15,11 +15,11 @@ const ProductList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [productId, setProductId] = useState(null);
     const [openConfirmModal, setOpenConfirmModal] = useState(false);
-    
+
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [openDetailsModal, setOpenDetailsModal] = useState(false);
 
-    const [sort, setSort] = useState("createdAt"); 
+    const [sort, setSort] = useState("createdAt");
     const [selectedCategory, setSelectedCategory] = useState("");
     const limit = 5;
     const debouncedSearch = useDebounce(searchTerm, 500);
@@ -28,13 +28,13 @@ const ProductList = () => {
         page: currentPage,
         limit,
         search: debouncedSearch,
-        sort: sort === 'priceHigh' ? '-variants.0.salePrice' : sort === 'priceLow' ? 'variants.0.salePrice' : '-createdAt',
+        sort: sort === "priceHigh" ? "-variants.0.salePrice" : sort === "priceLow" ? "variants.0.salePrice" : "-createdAt",
         category: selectedCategory,
     });
 
     const { data: categoriesData } = useGetCategories({
         page: 1,
-        limit: 100, 
+        limit: 100,
         sort: "categoryName",
     });
 
@@ -59,7 +59,7 @@ const ProductList = () => {
         setProductId(product._id);
         setOpenConfirmModal(true);
     };
-    
+
     const handleViewDetails = (product) => {
         setSelectedProduct(product);
         setOpenDetailsModal(true);
@@ -93,7 +93,7 @@ const ProductList = () => {
                             Products
                         </h1>
                         <div className="flex items-center text-sm text-gray-500 mt-2">
-                             <Link to="/admin/dashboard" className="hover:text-gray-800">
+                            <Link to="/admin/dashboard" className="hover:text-gray-800">
                                 Dashboard
                             </Link>
                             <ChevronRight size={16} className="mx-1" />
@@ -111,26 +111,35 @@ const ProductList = () => {
                 </div>
 
                 <div className="flex flex-col xl:flex-row justify-between items-center mb-6 gap-4">
-                     <div className="flex items-center w-full xl:w-auto text-sm">
-                        <span className="font-bold text-gray-900 whitespace-nowrap border border-gray-300 border-r-0 px-4 py-2.5 rounded-l-lg bg-gray-50">Filter By</span>
-                        
+                    <div className="flex items-center w-full xl:w-auto text-sm">
+                        <span className="font-bold text-gray-900 whitespace-nowrap border border-gray-300 border-r-0 px-4 py-2.5 rounded-l-lg bg-gray-50">
+                            Filter By
+                        </span>
+
                         <div className="relative">
-                            <select 
+                            <select
                                 className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2.5 px-4 pr-8 rounded-r-lg focus:outline-none focus:bg-white focus:border-gray-500"
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
                             >
                                 <option value="">All</option>
                                 {categoriesData?.categories?.map((cat) => (
-                                    <option key={cat._id} value={cat._id}>{cat.categoryName}</option>
+                                    <option key={cat._id} value={cat._id}>
+                                        {cat.categoryName}
+                                    </option>
                                 ))}
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                <svg
+                                    className="fill-current h-4 w-4"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                </svg>
                             </div>
                         </div>
                     </div>
-
 
                     <div className="relative w-full xl:w-96">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -146,22 +155,24 @@ const ProductList = () => {
                     </div>
 
                     <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white text-sm font-medium shadow-sm">
-                        <span className="px-4 py-2.5 bg-gray-50 text-gray-900 border-r border-gray-300 font-bold">Sort</span>
+                        <span className="px-4 py-2.5 bg-gray-50 text-gray-900 border-r border-gray-300 font-bold">
+                            Sort
+                        </span>
                         <button
-                            className={`py-2.5 px-4 text-gray-600 hover:text-green-700 hover:bg-gray-50 transition border-r border-gray-300 ${sort === 'priceHigh' && "bg-gray-100 text-green-700 font-bold"}`}
-                            onClick={() => setSort('priceHigh')}
+                            className={`py-2.5 px-4 text-gray-600 hover:text-green-700 hover:bg-gray-50 transition border-r border-gray-300 ${sort === "priceHigh" && "bg-gray-100 text-green-700 font-bold"}`}
+                            onClick={() => setSort("priceHigh")}
                         >
                             Price High - Low
                         </button>
                         <button
-                            className={`py-2.5 px-4 text-gray-600 hover:text-green-700 hover:bg-gray-50 transition border-r border-gray-300 ${sort === 'priceLow' && "bg-gray-100 text-green-700 font-bold"}`}
-                            onClick={() => setSort('priceLow')}
+                            className={`py-2.5 px-4 text-gray-600 hover:text-green-700 hover:bg-gray-50 transition border-r border-gray-300 ${sort === "priceLow" && "bg-gray-100 text-green-700 font-bold"}`}
+                            onClick={() => setSort("priceLow")}
                         >
                             Price Low - High
                         </button>
                         <button
-                            className={`py-2.5 px-4 text-gray-600 hover:text-green-700 hover:bg-gray-50 transition ${sort === 'createdAt' && "bg-gray-100 text-green-700 font-bold"}`}
-                            onClick={() => setSort('createdAt')}
+                            className={`py-2.5 px-4 text-gray-600 hover:text-green-700 hover:bg-gray-50 transition ${sort === "createdAt" && "bg-gray-100 text-green-700 font-bold"}`}
+                            onClick={() => setSort("createdAt")}
                         >
                             Last added first
                         </button>
@@ -193,7 +204,6 @@ const ProductList = () => {
                                 <>
                                     {productsData?.products?.length > 0 ? (
                                         productsData.products.map((item) => {
-                                            const primaryVariant = item.variants && item.variants.length > 0 ? item.variants[0] : {};
                                             return (
                                                 <tr
                                                     key={item._id}
@@ -201,9 +211,9 @@ const ProductList = () => {
                                                 >
                                                     <td className="p-4 border-l border-r border-gray-100">
                                                         <div className="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center border border-gray-200">
-                                                            {item.thumbnail?.image_url ? (
+                                                            {item.variants?.[0]?.images?.[0]?.image_url ? (
                                                                 <img
-                                                                    src={item.thumbnail.image_url}
+                                                                    src={item.variants[0].images[0].image_url}
                                                                     alt={item.productName}
                                                                     className="w-full h-full object-cover"
                                                                 />
@@ -224,9 +234,9 @@ const ProductList = () => {
                                                     </td>
 
                                                     <td className="p-4 text-center border-r border-gray-100">
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleViewDetails(item)}
-                                                            className="flex items-center justify-center gap-2 text-gray-500 hover:text-blue-600 transition p-2 rounded-full hover:bg-blue-50 cursor-pointer w-full" 
+                                                            className="flex items-center justify-center gap-2 text-gray-500 hover:text-blue-600 transition p-2 rounded-full hover:bg-blue-50 cursor-pointer w-full"
                                                             title="View Details"
                                                         >
                                                             <Eye size={18} />
@@ -241,8 +251,10 @@ const ProductList = () => {
                                                                     disabled={isToggling}
                                                                     className="bg-[#6BCB37] relative inline-flex h-8 w-24 items-center justify-between rounded-full transition-colors focus:outline-none px-1"
                                                                 >
-                                                                     <span className="text-[10px] font-bold text-white uppercase tracking-wider ml-2">Unlist</span>
-                                                                     <span className="inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform"/>
+                                                                    <span className="text-[10px] font-bold text-white uppercase tracking-wider ml-2">
+                                                                        Unlist
+                                                                    </span>
+                                                                    <span className="inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform" />
                                                                 </button>
                                                             ) : (
                                                                 <button
@@ -250,8 +262,10 @@ const ProductList = () => {
                                                                     disabled={isToggling}
                                                                     className="bg-red-500 relative inline-flex h-8 w-24 items-center justify-between rounded-full transition-colors focus:outline-none px-1"
                                                                 >
-                                                                    <span className="inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform"/>
-                                                                    <span className="text-[10px] font-bold text-white uppercase tracking-wider mr-4">List</span>
+                                                                    <span className="inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform" />
+                                                                    <span className="text-[10px] font-bold text-white uppercase tracking-wider mr-4">
+                                                                        List
+                                                                    </span>
                                                                 </button>
                                                             )}
                                                         </div>
@@ -296,7 +310,7 @@ const ProductList = () => {
                 </div>
 
                 <div className="px-6 py-4 mt-4 flex items-center justify-between">
-                     <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500">
                         Showing {totalProducts === 0 ? 0 : startItem}-{endItem} from {totalProducts}
                     </span>
 
@@ -310,7 +324,7 @@ const ProductList = () => {
                         </button>
 
                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                             let pageNum;
+                            let pageNum;
                             if (totalPages <= 5) pageNum = i + 1;
                             else if (currentPage <= 3) pageNum = i + 1;
                             else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
@@ -331,7 +345,7 @@ const ProductList = () => {
                             );
                         })}
 
-                         {totalPages > 5 && <span className="px-2 text-gray-400">...</span>}
+                        {totalPages > 5 && <span className="px-2 text-gray-400">...</span>}
 
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
@@ -358,7 +372,7 @@ const ProductList = () => {
                         </p>
                     </div>
                     <div className="flex gap-3 justify-center">
-                         <button
+                        <button
                             className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                             onClick={() => setOpenConfirmModal(false)}
                         >
@@ -375,10 +389,10 @@ const ProductList = () => {
                 </div>
             </ConfirmModal>
 
-            <ProductDetailsModal 
-                open={openDetailsModal} 
-                onClose={() => setOpenDetailsModal(false)} 
-                product={selectedProduct} 
+            <ProductDetailsModal
+                open={openDetailsModal}
+                onClose={() => setOpenDetailsModal(false)}
+                product={selectedProduct}
             />
         </>
     );

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { Image, ChevronRight } from "lucide-react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import useZodForm from "@/hooks/useZodForm";
@@ -68,6 +68,7 @@ const UpdateCategory = () => {
             formData.append("categoryDescription", data.categoryDescription);
             formData.append("categoryOffer", data.categoryOffer);
             formData.append("maxRedeem", data.maxRedeem);
+            console.log(categoryId)
             await mutateAsync({ categoryId, data: formData });
         } catch (error) {
             console.log(error);

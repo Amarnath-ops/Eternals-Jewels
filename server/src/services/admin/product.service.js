@@ -11,55 +11,50 @@ export const addProductService = async (data, files) => {
         throw error;
     }
 
-    if (!files || !files.thumbnail || files.thumbnail.length === 0) {
-        const error = new Error(ERROR_MESSAGES.IMAGE_REQUIRED);
-        error.statusCode = STATUS_CODES.BAD_REQUEST;
-        throw error;
-    }
+    // Variant image validation handled by frontend and schema
 
-    const thumbFile = files.thumbnail[0];
-    if (!thumbFile.mimetype.startsWith("image/")) {
-        const error = new Error(ERROR_MESSAGES.INVALID_IMAGE_FORMAT);
-        error.statusCode = STATUS_CODES.BAD_REQUEST;
-        throw error;
-    }
-    const uploadedThumb = await uploadBuffer(thumbFile.buffer, "products/thumbnails");
-    data.thumbnail = {
-        image_url: uploadedThumb.secure_url,
-        publicId: uploadedThumb.public_id,
-    };
 
-    data.productImages = [];
-    if (!files || !files.productImages || files.productImages.length < 2) {
-        const error = new Error(ERROR_MESSAGES.ATLEAST_TWO_IMAGES_REQUIRED);
-        error.statusCode = STATUS_CODES.BAD_REQUEST;
-        throw error;
-    }
+    // Process variant-specific images
+    if (files.variantImages && files.variantImages.length > 0) {
+        const mappings = data.variantImageMappings || [];
+        const variantImagesMap = {};
 
-    if (files.productImages && files.productImages.length > 0) {
-        if (files.productImages.length < 2) {
-            const error = new Error(ERROR_MESSAGES.ATLEAST_TWO_IMAGES_REQUIRED);
-            error.statusCode = STATUS_CODES.BAD_REQUEST;
-            throw error;
-        }
-        if (files.productImages.length > 4) {
-            const error = new Error(ERROR_MESSAGES.MAXIMUM_FOUR_IMAGES_ALLOWED);
-            error.statusCode = STATUS_CODES.BAD_REQUEST;
-            throw error;
-        }
-
-        const uploadPromises = files.productImages.map(async (file) => {
-            if (!file.mimetype.startsWith("image/")) {
-                throw new Error(ERROR_MESSAGES.INVALID_IMAGE_FORMAT);
+        // Group images by variant index
+        for (let i = 0; i < files.variantImages.length; i++) {
+            const file = files.variantImages[i];
+            const [variantIdx] = mappings[i] || [];
+            
+            if (variantIdx !== undefined) {
+                if (!variantImagesMap[variantIdx]) {
+                    variantImagesMap[variantIdx] = [];
+                }
+                variantImagesMap[variantIdx].push(file);
             }
-            const uploaded = await uploadBuffer(file.buffer, "products/gallery");
-            return {
-                image_url: uploaded.secure_url,
-                publicId: uploaded.public_id,
-            };
-        });
-        data.productImages = await Promise.all(uploadPromises);
+        }
+
+        // Upload images for each variant
+        for (const [variantIdx, imageFiles] of Object.entries(variantImagesMap)) {
+            const uploadPromises = imageFiles.map(async (file) => {
+                if (!file.mimetype.startsWith("image/")) {
+                    throw new Error(ERROR_MESSAGES.INVALID_IMAGE_FORMAT);
+                }
+                const uploaded = await uploadBuffer(file.buffer, "products/variants");
+                return {
+                    image_url: uploaded.secure_url,
+                    publicId: uploaded.public_id,
+                };
+            });
+
+            const uploadedImages = await Promise.all(uploadPromises);
+            
+            if (data.variants[variantIdx]) {
+                data.variants[variantIdx].images = uploadedImages;
+            }
+        }
     }
+
+    // Clean up temporary field
+    delete data.variantImageMappings;
 
     return await productRepository.create(data);
 };
@@ -108,72 +103,68 @@ export const updateProductService = async (id, data, files) => {
         }
     }
 
-    if (files && files.thumbnail && files.thumbnail.length > 0) {
-        const thumbFile = files.thumbnail[0];
-        if (!thumbFile.mimetype.startsWith("image/")) {
-            const error = new Error(ERROR_MESSAGES.INVALID_IMAGE_FORMAT);
-            error.statusCode = STATUS_CODES.BAD_REQUEST;
-            throw error;
-        }
 
-        if (product.thumbnail && product.thumbnail.publicId) {
-            await cloudinary.uploader.destroy(product.thumbnail.publicId);
-        }
 
-        const uploadedThumb = await uploadBuffer(thumbFile.buffer, "products/thumbnails");
-        data.thumbnail = {
-            image_url: uploadedThumb.secure_url,
-            publicId: uploadedThumb.public_id,
-        };
-    }
+    // Process variant-specific images
+    if (files && files.variantImages && files.variantImages.length > 0) {
+        const mappings = data.variantImageMappings || [];
+        const variantImagesMap = {};
 
-    let finalImages = [...product.productImages];
-
-    if (data.existingImages) {
-        const keepIds = Array.isArray(data.existingImages) ? data.existingImages : [data.existingImages];
-
-        const toDelete = product.productImages.filter((img) => !keepIds.includes(img.publicId));
-
-        await Promise.all(toDelete.map((img) => cloudinary.uploader.destroy(img.publicId)));
-
-        finalImages = product.productImages.filter((img) => keepIds.includes(img.publicId));
-    }
-
-    if (files && files.productImages && files.productImages.length > 0) {
-        if (finalImages.length + files.productImages.length > 4) {
-            const error = new Error(
-                `Cannot have more than 4 images. You have ${finalImages.length} and are trying to add ${files.productImages.length}.`,
-            );
-            error.statusCode = STATUS_CODES.BAD_REQUEST;
-            throw error;
-        }
-
-        const uploadPromises = files.productImages.map(async (file) => {
-            if (!file.mimetype.startsWith("image/")) {
-                throw new Error(ERROR_MESSAGES.INVALID_IMAGE_FORMAT);
+        // Group images by variant index
+        for (let i = 0; i < files.variantImages.length; i++) {
+            const file = files.variantImages[i];
+            const [variantIdx] = mappings[i] || [];
+            
+            if (variantIdx !== undefined) {
+                if (!variantImagesMap[variantIdx]) {
+                    variantImagesMap[variantIdx] = [];
+                }
+                variantImagesMap[variantIdx].push(file);
             }
-            const uploaded = await uploadBuffer(file.buffer, "products/gallery");
-            return {
-                image_url: uploaded.secure_url,
-                publicId: uploaded.public_id,
-            };
-        });
-        const newImages = await Promise.all(uploadPromises);
-        finalImages = [...finalImages, ...newImages];
+        }
+
+        // Upload images for each variant
+        for (const [variantIdx, imageFiles] of Object.entries(variantImagesMap)) {
+            const variantIdxNum = Number(variantIdx);
+            
+            // Note: We do NOT strictly delete old images here because data.variants usually contains 
+            // the existing images we want to keep. Deletion of specific images should be handled 
+            // by a separate "remove image" action or by filtering them out of data.variants before update,
+            // followed by a periodic cleanup or specific delete request. 
+            // For now, we assume we are ADDING images to the variant.
+
+            const uploadPromises = imageFiles.map(async (file) => {
+                if (!file.mimetype.startsWith("image/")) {
+                    throw new Error(ERROR_MESSAGES.INVALID_IMAGE_FORMAT);
+                }
+                const uploaded = await uploadBuffer(file.buffer, "products/variants");
+                return {
+                    image_url: uploaded.secure_url,
+                    publicId: uploaded.public_id,
+                };
+            });
+
+            const uploadedImages = await Promise.all(uploadPromises);
+            
+            if (!data.variants) {
+                // If variants data wasn't sent, we can't easily merge without fetching logic, 
+                // but usually it IS sent. If not, we copy from product.variants.
+                data.variants = [...product.variants];
+            }
+            
+            if (data.variants[variantIdxNum]) {
+                const existingImages = data.variants[variantIdxNum].images || [];
+                data.variants[variantIdxNum].images = [...existingImages, ...uploadedImages];
+            }
+        }
     }
 
-    if (finalImages.length < 2) {
-        const error = new Error(ERROR_MESSAGES.ATLEAST_TWO_IMAGES_REQUIRED);
-        error.statusCode = STATUS_CODES.BAD_REQUEST;
-        throw error;
-    }
+    // Clean up temporary field
+    delete data.variantImageMappings;
 
-    data.productImages = finalImages;
-    delete data.existingImages;
-
-    return await productRepository.updateById(id, data);
+    const result = await productRepository.updateById(id, data);
+    return result;
 };
-
 export const deleteProductService = async (id) => {
     const product = await productRepository.findById(id);
     if (!product) {

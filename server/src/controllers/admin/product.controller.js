@@ -32,6 +32,14 @@ const parseBody = (body) => {
             data.existingImages = [data.existingImages];
         }
     }
+    if (data.variantImageMappings && typeof data.variantImageMappings === "string") {
+        try {
+            data.variantImageMappings = JSON.parse(data.variantImageMappings);
+        } catch (error) {
+            console.log(error);
+            data.variantImageMappings = [];
+        }
+    }
     return data;
 };
 
@@ -43,11 +51,10 @@ export const addProduct = async (req, res) => {
         const result = await addProductService(validData.data, req.files);
         return res.status(STATUS_CODES.CREATED).json({
             success: true,
-            message: CONSTANTS.PRODUCT_ADDED ,
+            message: CONSTANTS.PRODUCT_ADDED,
             data: { product: result },
         });
     } catch (error) {
-        console.error(error);
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
@@ -60,7 +67,7 @@ export const getProducts = async (req, res) => {
         const data = await getProductService(req.query);
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: CONSTANTS.PRODUCT_FETCHED_SUCCESSFULLY ,
+            message: CONSTANTS.PRODUCT_FETCHED_SUCCESSFULLY,
             data,
         });
     } catch (error) {
@@ -96,11 +103,10 @@ export const updateProduct = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: CONSTANTS.PRODUCT_UPDATED ,
+            message: CONSTANTS.PRODUCT_UPDATED,
             data: { product: result },
         });
     } catch (error) {
-        console.error(error);
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
@@ -113,7 +119,7 @@ export const toggleProduct = async (req, res) => {
         const product = await toggleProductService(req.params.id);
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: CONSTANTS.PRODUCT_LIST_TOGGLED ,
+            message: CONSTANTS.PRODUCT_LIST_TOGGLED,
             data: { product },
         });
     } catch (error) {
@@ -129,7 +135,7 @@ export const deleteProduct = async (req, res) => {
         await deleteProductService(req.params.id);
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: CONSTANTS.PRODUCT_DELETED ,
+            message: CONSTANTS.PRODUCT_DELETED,
         });
     } catch (error) {
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({

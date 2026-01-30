@@ -13,7 +13,6 @@ export const productRepository = {
             data,
             { new: true }
         ).populate("category"),
-
     softDelete: (id) =>
         Product.findOneAndUpdate(
             { _id: id, isDeleted: false },
@@ -31,6 +30,7 @@ export const productRepository = {
     findAll: ({ search, page, limit, sort, category, isListed, minPrice, maxPrice, material }) => {
         const query = {
             isDeleted: false,
+
             ...(search && {
                 productName: { $regex: search, $options: "i" },
             }),
@@ -38,10 +38,6 @@ export const productRepository = {
             ...(isListed !== undefined && { isListed }),
         };
 
-        // Variants Filter Construction
-        const variantConditions = [];
-
-        // Price Range Filter using $elemMatch to ensure a single variant satisfies the range
         if (minPrice !== undefined || maxPrice !== undefined) {
             const priceQuery = {};
             if (minPrice !== undefined) {
@@ -50,18 +46,12 @@ export const productRepository = {
             if (maxPrice !== undefined) {
                 priceQuery.salePrice = { ...priceQuery.salePrice, $lte: maxPrice };
             }
-            // Use $elemMatch on variants array
             query.variants = { $elemMatch: priceQuery };
         }
 
-        // Material Filter
         if (material) {
             const materials = Array.isArray(material) ? material : [material];
             const materialRegexes = materials.map(m => new RegExp(m, "i"));
-
-            // If we already have a variants query (from price), we need to handle it carefully.
-            // But 'variants.material' dot notation works independently of 'variants' $elemMatch usually.
-            // Check: { variants: { $elemMatch: ... }, "variants.material": ... } works in Mongo.
             query["variants.material"] = { $in: materialRegexes };
         }
 

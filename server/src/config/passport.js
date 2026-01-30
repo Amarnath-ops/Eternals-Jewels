@@ -39,7 +39,7 @@ passport.use(
                             provider: profile.provider,
                         },
                         isVerified: true,
-                        isBlocked:user.isBlocked,
+                        isBlocked:user?.isBlocked,
                         referralCode: referalCode,
                         provider: profile.provider,
                     });

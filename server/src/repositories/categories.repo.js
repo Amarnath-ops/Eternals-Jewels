@@ -8,7 +8,6 @@ export const categoryRepository = {
     }),
 
   create: (data) => Category.create(data),
-
   findById: (id) =>
     Category.findOne({ _id: id, isDeleted: false }),
 
@@ -33,13 +32,17 @@ export const categoryRepository = {
       { new: true }
     ),
 
-  findAll: ({ search, page, limit, sort,select="" }) => {
+  findAll: ({ search, page, limit, sort,select="",isListed}) => {
     const query = {
       isDeleted: false,
       ...(search && {
         categoryName: { $regex: search, $options: "i" },
       }),
     };
+
+    if(isListed){
+      query.isListed = isListed
+    }
 
     return Promise.all([
       Category.find(query)

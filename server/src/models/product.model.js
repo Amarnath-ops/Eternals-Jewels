@@ -24,16 +24,12 @@ const productSchema = new mongoose.Schema(
                 regularPrice: { type: Number, required: true, min: 0 },
                 salePrice: { type: Number, required: true, min: 0 },
                 sku: { type: String, required: true, unique: true },
-            },
-        ],
-        thumbnail: {
-            image_url: { type: String, required: true },
-            publicId: { type: String, required: true },
-        },
-        productImages: [
-            {
-                image_url: { type: String, required: true },
-                publicId: { type: String, required: true },
+                images: [
+                    {
+                        image_url: { type: String, required: true },
+                        publicId: { type: String, required: true },
+                    },
+                ],
             },
         ],
         isListed: {

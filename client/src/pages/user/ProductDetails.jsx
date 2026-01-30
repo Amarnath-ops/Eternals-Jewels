@@ -28,13 +28,29 @@ const ProductDetails = () => {
 
   useEffect(() => {
     if (product) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (product.thumbnail) setActiveImage(product.thumbnail.image_url);
 
         if (product.variants && product.variants.length > 0) {
-            setSelectedMaterial(product.variants[0]);
+            const firstVariant = product.variants[0];
+            setSelectedMaterial(firstVariant);
+            // Set active image to first variant's first image or fallback to thumbnail
+            if (firstVariant.images && firstVariant.images.length > 0) {
+                setActiveImage(firstVariant.images[0].image_url);
+            }
         }
     }
   }, [product]);
+
+  // Update active image when variant changes
+  useEffect(() => {
+    if (selectedMaterial && selectedMaterial.images && selectedMaterial.images.length > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setActiveImage(selectedMaterial.images[0].image_url);
+    } else if (product?.thumbnail) {
+        setActiveImage(product.thumbnail.image_url);
+    }
+  }, [selectedMaterial, product]);
 
   if (isLoading) {
       return (
@@ -99,7 +115,7 @@ const ProductDetails = () => {
 
                 <div className="w-full lg:w-1/2">
 
-                    <div className="relative w-full h-[400px] md:h-[600px] mb-4 bg-gray-50 rounded-sm z-10">
+                    <div className="relative w-full h-100 md:h-150 mb-4 bg-gray-50 rounded-sm z-10">
                         <SideBySideMagnifier
                             src={activeImage}
                             alt={product.productName}
@@ -109,23 +125,26 @@ const ProductDetails = () => {
 
 
                     <div className="flex gap-4 overflow-x-auto pb-2 justify-center lg:justify-start">
-
-                         <button 
-                            className={`w-20 h-24 flex-shrink-0 border ${activeImage === product.thumbnail?.image_url ? 'border-black' : 'border-transparent'} transition-all`}
-                            onClick={() => setActiveImage(product.thumbnail?.image_url)}
-                         >
-                             <img src={product.thumbnail?.image_url} className="w-full h-full object-cover" alt="thumbnail" />
-                         </button>
-
-                         {product.productImages?.map((img, idx) => (
-                             <button 
-                                key={idx}
-                                className={`w-20 h-24 flex-shrink-0 border ${activeImage === img.image_url ? 'border-black' : 'border-transparent'} transition-all`}
-                                onClick={() => setActiveImage(img.image_url)}
-                             >
-                                 <img src={img.image_url} className="w-full h-full object-cover" alt={`gallery-${idx}`} />
-                             </button>
-                         ))}
+                        {/* Show variant-specific images if available */}
+                        {selectedMaterial && selectedMaterial.images && selectedMaterial.images.length > 0 ? (
+                            selectedMaterial.images.map((img, idx) => (
+                                <button 
+                                    key={idx}
+                                    className={`w-20 h-24 shrink-0 border ${activeImage === img.image_url ? 'border-black' : 'border-transparent'} transition-all`}
+                                    onClick={() => setActiveImage(img.image_url)}
+                                >
+                                    <img src={img.image_url} className="w-full h-full object-cover" alt={`variant-${idx}`} />
+                                </button>
+                            ))
+                        ) : (
+                            /* Fallback to thumbnail if no variant images */
+                            <button 
+                                className={`w-20 h-24 shrink-0 border ${activeImage === product.thumbnail?.image_url ? 'border-black' : 'border-transparent'} transition-all`}
+                                onClick={() => setActiveImage(product.thumbnail?.image_url)}
+                            >
+                                <img src={product.thumbnail?.image_url} className="w-full h-full object-cover" alt="thumbnail" />
+                            </button>
+                        )}
                     </div>
                 </div>
 

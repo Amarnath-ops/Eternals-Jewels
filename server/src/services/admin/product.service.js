@@ -1,4 +1,4 @@
-import cloudinary, { uploadBuffer } from "../../config/cloudinary.js";
+import { uploadBuffer } from "../../config/cloudinary.js";
 import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
 import { productRepository } from "../../repositories/product.repo.js";
@@ -10,16 +10,10 @@ export const addProductService = async (data, files) => {
         error.statusCode = STATUS_CODES.CONFLICT;
         throw error;
     }
-
-    // Variant image validation handled by frontend and schema
-
-
-    // Process variant-specific images
     if (files.variantImages && files.variantImages.length > 0) {
         const mappings = data.variantImageMappings || [];
         const variantImagesMap = {};
 
-        // Group images by variant index
         for (let i = 0; i < files.variantImages.length; i++) {
             const file = files.variantImages[i];
             const [variantIdx] = mappings[i] || [];
@@ -32,12 +26,12 @@ export const addProductService = async (data, files) => {
             }
         }
 
-        // Upload images for each variant
         for (const [variantIdx, imageFiles] of Object.entries(variantImagesMap)) {
             const uploadPromises = imageFiles.map(async (file) => {
                 if (!file.mimetype.startsWith("image/")) {
-                    throw new Error(ERROR_MESSAGES.INVALID_IMAGE_FORMAT);
+                    throw new Error(ERROR_MESSAGES.INVALID_IMAGE_FORMAT).statusCode(STATUS_CODES.BAD_REQUEST);
                 }
+
                 const uploaded = await uploadBuffer(file.buffer, "products/variants");
                 return {
                     image_url: uploaded.secure_url,
@@ -53,7 +47,7 @@ export const addProductService = async (data, files) => {
         }
     }
 
-    // Clean up temporary field
+    
     delete data.variantImageMappings;
 
     return await productRepository.create(data);
@@ -61,12 +55,13 @@ export const addProductService = async (data, files) => {
 
 export const getProductService = async (query) => {
     const { page = 1, limit = 10, search = "", sort = "-createdAt", category } = query;
-    const [products, total] = await productRepository.findAll({
+    const {products, total} = await productRepository.findAll({
         search,
         category,
         page: Number(page),
         limit: Number(limit),
         sort,
+        isListed:undefined
     });
 
     return {
@@ -105,12 +100,12 @@ export const updateProductService = async (id, data, files) => {
 
 
 
-    // Process variant-specific images
+    
     if (files && files.variantImages && files.variantImages.length > 0) {
         const mappings = data.variantImageMappings || [];
         const variantImagesMap = {};
 
-        // Group images by variant index
+        
         for (let i = 0; i < files.variantImages.length; i++) {
             const file = files.variantImages[i];
             const [variantIdx] = mappings[i] || [];
@@ -123,15 +118,15 @@ export const updateProductService = async (id, data, files) => {
             }
         }
 
-        // Upload images for each variant
+        
         for (const [variantIdx, imageFiles] of Object.entries(variantImagesMap)) {
             const variantIdxNum = Number(variantIdx);
             
-            // Note: We do NOT strictly delete old images here because data.variants usually contains 
-            // the existing images we want to keep. Deletion of specific images should be handled 
-            // by a separate "remove image" action or by filtering them out of data.variants before update,
-            // followed by a periodic cleanup or specific delete request. 
-            // For now, we assume we are ADDING images to the variant.
+            
+            
+            
+            
+            
 
             const uploadPromises = imageFiles.map(async (file) => {
                 if (!file.mimetype.startsWith("image/")) {
@@ -147,8 +142,8 @@ export const updateProductService = async (id, data, files) => {
             const uploadedImages = await Promise.all(uploadPromises);
             
             if (!data.variants) {
-                // If variants data wasn't sent, we can't easily merge without fetching logic, 
-                // but usually it IS sent. If not, we copy from product.variants.
+                
+                
                 data.variants = [...product.variants];
             }
             
@@ -159,7 +154,7 @@ export const updateProductService = async (id, data, files) => {
         }
     }
 
-    // Clean up temporary field
+    
     delete data.variantImageMappings;
 
     const result = await productRepository.updateById(id, data);

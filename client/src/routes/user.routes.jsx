@@ -23,6 +23,7 @@ import { useEffect } from "react";
 import axiosInstance from "@/api/axios";
 import { setCredentials } from "@/store/user/authSlice";
 import { toast } from "sonner";
+import CartPage from "@/pages/user/Cart";
 
 const UserRoutes = () => {
     const dispatch = useDispatch();
@@ -32,7 +33,7 @@ const UserRoutes = () => {
             dispatch(setCredentials({ accessToken: res.data.data.accessToken, user: res.data.data.user }));
         } catch (error) {
             console.error("No active Sessions ", error);
-            error.response?.data?.message === 'Your account is blocked' && toast.error(error?.response?.data?.message)
+            error.response?.data?.message === "Your account is blocked" && toast.error(error?.response?.data?.message);
         }
     };
     useEffect(() => {
@@ -58,10 +59,8 @@ const UserRoutes = () => {
                     element={accessToken ? <Navigate to="/" replace /> : <ForgotPasswordPage />}
                 />
                 <Route path="/reset-password" element={accessToken ? <Navigate to="/" replace /> : <ResetPassword />} />
-                <Route
-                    path="/google-success"
-                    element={accessToken ? <Navigate to="/" replace /> : <GoogleSuccess />}
-                ></Route>
+                <Route path="/google-success" element={accessToken ? <Navigate to="/" replace /> : <GoogleSuccess />} />
+                <Route path="/cart" element={isLogin ? <CartPage /> : <LoginPage/>} />
                 <Route path="/account" element={isLogin ? <ProfileDashboard /> : <LoginPage />}>
                     <Route index path="profile" element={<MyProfile />}></Route>
                     <Route path="edit-profile" element={<EditProfile />}></Route>

@@ -3,12 +3,12 @@ import { X, Package, Tag, Layers, FileText, IndianRupee, Image as ImageIcon } fr
 
 const ProductDetailsModal = ({ open, onClose, product }) => {
     const [activeImage, setActiveImage] = useState(null);
-    const [selectedVariantIndex, setSelectedVariantIndex] = useState(0); // Default to first variant
+    const [selectedVariantIndex, setSelectedVariantIndex] = useState(0); 
 
-    // ✅ safe early return AFTER hooks
+    
     if (!open || !product) return null;
 
-    // Debug logging to check product structure
+    
     console.log('Product data:', product);
     console.log('Variants:', product.variants);
     if (product.variants && product.variants.length > 0) {
@@ -16,16 +16,16 @@ const ProductDetailsModal = ({ open, onClose, product }) => {
         console.log('First variant images:', product.variants[0].images);
     }
 
-    // Determine which images to display based on selected variant
-    // Default to first variant if none selected
+    
+    
     const displayImages = selectedVariantIndex !== null
         ? product.variants[selectedVariantIndex]?.images?.map(img => img.image_url) || []
         : product.variants[0]?.images?.map(img => img.image_url) || [];
 
-    // fallback image
+    
     const displayImage = activeImage || displayImages[0];
 
-    // Handle variant selection
+    
     const handleVariantSelect = (index) => {
         console.log('Selected variant index:', index);
         if (index !== null && product.variants[index]) {
@@ -33,14 +33,14 @@ const ProductDetailsModal = ({ open, onClose, product }) => {
             console.log('Variant images:', product.variants[index].images);
         }
         setSelectedVariantIndex(index);
-        setActiveImage(null); // Reset active image when switching variants
+        setActiveImage(null); 
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            {/* Modal Content */}
+            {}
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row relative animate-in zoom-in-95 duration-200">
-                {/* Close Button */}
+                {}
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 z-10 bg-white/90 p-2 rounded-full shadow-sm hover:bg-gray-100 transition-colors"
@@ -48,7 +48,7 @@ const ProductDetailsModal = ({ open, onClose, product }) => {
                     <X size={20} className="text-gray-600" />
                 </button>
 
-                {/* Left Side: Images */}
+                {}
                 <div className="w-full md:w-1/2 bg-gray-50/50 p-6 flex flex-col gap-4 border-r border-gray-100">
                     <div className="flex-1 bg-white rounded-xl border border-gray-200 p-2 flex items-center justify-center overflow-hidden aspect-square shadow-sm">
                         {displayImage ? (
@@ -65,11 +65,11 @@ const ProductDetailsModal = ({ open, onClose, product }) => {
                         )}
                     </div>
 
-                    {/* Variant Selector */}
+                    {}
                     <div className="border-t border-gray-200 pt-4">
                         <p className="text-xs font-bold text-gray-500 uppercase mb-2">View Images By:</p>
                         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                            {/* Variant Options */}
+                            {}
                             {product.variants?.map((variant, idx) => (
                                 <button
                                     key={idx}
@@ -89,7 +89,7 @@ const ProductDetailsModal = ({ open, onClose, product }) => {
                         </div>
                     </div>
 
-                    {/* Gallery Thumbs */}
+                    {}
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                         {displayImages.length > 0 ? (
                             displayImages.map((img, idx) => (
@@ -113,9 +113,9 @@ const ProductDetailsModal = ({ open, onClose, product }) => {
                     </div>
                 </div>
 
-                {/* Right Side: Details */}
+                {}
                 <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col overflow-y-auto">
-                    {/* Header */}
+                    {}
                     <div className="mb-6">
                         <div className="flex items-center gap-2 mb-2">
                             <span
@@ -134,7 +134,7 @@ const ProductDetailsModal = ({ open, onClose, product }) => {
                         <h2 className="text-2xl font-bold text-gray-900 leading-tight">{product.productName}</h2>
                     </div>
 
-                    {/* Description */}
+                    {}
                     <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-100">
                         <div className="flex items-center gap-2 mb-2 text-gray-900 font-bold text-sm">
                             <FileText size={16} className="text-gray-500" />
@@ -145,7 +145,7 @@ const ProductDetailsModal = ({ open, onClose, product }) => {
                         </p>
                     </div>
 
-                    {/* Variants Table */}
+                    {}
                     <div>
                         <div className="flex items-center gap-2 mb-3 text-gray-900 font-bold text-sm">
                             <Layers size={16} className="text-gray-500" />
@@ -209,7 +209,7 @@ const ProductDetailsModal = ({ open, onClose, product }) => {
                         </div>
                     </div>
 
-                    {/* Timestamps */}
+                    {}
                     <div className="mt-auto pt-6 text-xs text-gray-400 border-t border-gray-100 flex justify-between">
                         <span>Created: {new Date(product.createdAt).toLocaleDateString()}</span>
                     </div>

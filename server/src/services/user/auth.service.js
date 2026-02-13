@@ -21,7 +21,7 @@ import { CONSTANTS } from "../../constants/constants.js";
 import { sendMail } from "../../utils/nodemailer.js";
 import generateAvatar from "../../utils/avatar.js";
 export const signUpService = async (userData) => {
-    // Check if email exists
+    
     const existing = await findUserByEmail(userData?.email);
     if (existing) {
         const error = new Error(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS);
@@ -35,10 +35,10 @@ export const signUpService = async (userData) => {
         provider: "local",
         url: avatarURL,
     };
-    // Hash password
+    
     const hashedPassword = await bcrypt.hash(userData?.password, 10);
 
-    // Generate unique referal code
+    
     let referalCode;
     for (let i = 0; i < 5; i++) {
         const codeForTest = generateReferralCode(userData?.fullname);
@@ -49,12 +49,12 @@ export const signUpService = async (userData) => {
         }
     }
 
-    // If no code found after 5 tries
+    
     if (!referalCode) {
         referalCode = `${Date.now().toString(36).toUpperCase()}`;
     }
 
-    // Create User
+    
     const userInfo = {
         fullname: userData.fullname,
         email: userData.email,
@@ -65,7 +65,7 @@ export const signUpService = async (userData) => {
     };
     const user = await createUser(userInfo);
 
-    // Client provides referral Code
+    
     if (userData.referredBy) {
         const referrer = await findUserByReferralCode(userData.referredBy);
         if (referrer) {
@@ -82,7 +82,7 @@ export const signUpService = async (userData) => {
     cache.set(`verify_${user.email}`, otp, CONSTANTS.OTP_CACHE_TIME);
     console.log(otp);
     await sendMail(user.email, otp);
-    // REST API Response
+    
     return {
         message: CONSTANTS.OTP_SEND,
     };

@@ -10,7 +10,7 @@ export const addProductApi = async (data) => {
 
 export const getProductsApi = async (params) => {
     const res = await axiosInstance.get("/admin/products", { params });
-    return res.data; // usually .data.data but controller sends {data: ...} so res.data is the full object
+    return res.data; 
 };
 
 export const getProductByIdApi = async (id) => {

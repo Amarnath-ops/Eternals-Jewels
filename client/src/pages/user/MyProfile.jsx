@@ -13,8 +13,8 @@ const ProfileDetails = () => {
     }
     return (
         <>
-            {/* min-w-0 prevents flex items from overflowing */}
-            {/* Breadcrumb Area */}
+            {}
+            {}
             <div className="mb-4 md:mb-6 flex items-center gap-2 text-sm text-gray-600">
                 <Link to="/account/profile" className="hover:text-black transition-colors font-semibold text-black">
                     Profile
@@ -23,10 +23,10 @@ const ProfileDetails = () => {
             </div>
             <div className="w-full bg-white rounded-3xl shadow-sm md:p-5 p-5">
                 <div className="max-w-2xl mx-auto space-y-6">
-                    {/* --- Profile Photo Section --- */}
+                    {}
                     <div className="flex justify-center mb-6">
                         <div className="relative">
-                            {/* Profile Image */}
+                            {}
                             <img
                                 src={user?.avatar || "https://via.placeholder.com/150"}
                                 alt="Profile"
@@ -34,9 +34,9 @@ const ProfileDetails = () => {
                             />
                         </div>
                     </div>
-                    {/* ---------------------------------- */}
+                    {}
 
-                    {/* Full Name Input */}
+                    {}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-900">Full name</label>
                         <input
@@ -47,7 +47,7 @@ const ProfileDetails = () => {
                         />
                     </div>
 
-                    {/* Email Input */}
+                    {}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-900">Email</label>
                         <input
@@ -58,7 +58,7 @@ const ProfileDetails = () => {
                         />
                     </div>
 
-                    {/* Phone Input */}
+                    {}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-900">Phone</label>
                         <input
@@ -70,7 +70,7 @@ const ProfileDetails = () => {
                         />
                     </div>
 
-                    {/* Edit Button */}
+                    {}
                     <div className="pt-6 flex justify-center md:justify-end">
                         <Link
                             to="/account/edit-profile"

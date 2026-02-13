@@ -22,14 +22,11 @@ const Footer = () => {
     return (
         <>
             <footer className="bg-[#F5F2ED] text-gray-800 font-sans w-full overflow-hidden pt-30">
-                {/* Removed max-w constraints.
-         Reduced horizontal padding to px-4 (mobile) and px-6 (desktop) 
-         to push content as close to the edges as possible.
-      */}
+                {}
                 <div className="w-full px-4 md:px-6 2xl:px-8 pt-10 pb-8">
-                    {/* Main Content Wrapper */}
+                    {}
                     <div className="flex flex-col xl:flex-row justify-between gap-10 xl:gap-0 w-full">
-                        {/* Links Grid: Stretches to fill available space */}
+                        {}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 grow xl:pr-20">
                             {footerLinks.map((column, index) => (
                                 <div key={index}>
@@ -49,7 +46,7 @@ const Footer = () => {
                             ))}
                         </div>
 
-                        {/* Newsletter Section: Fixed width on large screens to keep it neat */}
+                        {}
                         <div className="xl:w-100 2xl:w-125 shrink-0">
                             <h2 className="font-serif text-2xl md:text-3xl 2xl:text-4xl text-black mb-2 2xl:mb-4 leading-tight">
                                 You can be one step ahead.
@@ -79,7 +76,7 @@ const Footer = () => {
                         </div>
                     </div>
 
-                    {/* Bottom Bar */}
+                    {}
                     <div className="mt-10 2xl:mt-20 pt-6 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-xs 2xl:text-sm text-gray-500 uppercase tracking-wide gap-4 border-t border-gray-200/50 w-full">
                         <div className="flex items-center gap-1">
                             <span>&copy;</span> <span>ETERNALS, LLC</span>

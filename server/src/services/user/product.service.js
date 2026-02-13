@@ -3,21 +3,23 @@ import { STATUS_CODES } from "../../constants/statusCode.js";
 import { productRepository } from "../../repositories/product.repo.js";
 
 export const getProducts = async (query) => {
-    const { page = 1, limit = 12, search = "", sort = "-createdAt", category, minPrice, maxPrice, material } = query;
-    
-    // Ensure we only fetch listed products for the user side
+    const { page = 1, limit = 12, search, sort = "-createdAt", category, minPrice, maxPrice } = query;
     const isListed = true;
+    let materials = query.material || query["material[]"];
 
-    let [products, total] = await productRepository.findAll({
+    if (materials && !Array.isArray(materials)) {
+        materials = [materials];
+    }
+    let { products, total } = await productRepository.findAll({
         search,
         category,
         page: Number(page),
         limit: Number(limit),
         sort,
         isListed,
-        minPrice: (minPrice !== undefined && minPrice !== "") ? Number(minPrice) : undefined,
-        maxPrice: (maxPrice !== undefined && maxPrice !== "") ? Number(maxPrice) : undefined,
-        material
+        minPrice: minPrice !== undefined && minPrice !== "" ? Number(minPrice) : undefined,
+        maxPrice: maxPrice !== undefined && maxPrice !== "" ? Number(maxPrice) : undefined,
+        material: materials,
     });
     return {
         products,
@@ -35,11 +37,14 @@ export const getProductById = async (id) => {
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
-    console.log(product)
-    if(!product.category.isListed){
+    if (!product.category.isListed) {
         const error = new Error(ERROR_MESSAGES.PRODUCT_CATEGORY_IS_NOT_LISTED);
         error.statusCode = STATUS_CODES.NOT_FOUND;
-        throw error
+        throw error;
     }
     return product;
+};
+
+export const getUniqueMaterials = async () => {
+    return await productRepository.findDistinctMaterials();
 };

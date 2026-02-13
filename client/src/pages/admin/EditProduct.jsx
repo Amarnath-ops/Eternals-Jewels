@@ -14,6 +14,8 @@ import { SpinnerBadge } from "@/components/Spinner";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImage } from "@/lib/cropUtils";
+import { toast } from "sonner";
+import z from "zod";
 
 const EditProduct = () => {
     const { id } = useParams();
@@ -24,10 +26,10 @@ const EditProduct = () => {
     const imgRef = useRef(null);
     const canvasRef = useRef(null);
 
-    // Variant images state
+    
     const [variantImages, setVariantImages] = useState({});
     const [currentVariantIndex, setCurrentVariantIndex] = useState(null);
-    const [variantCropQueue, setVariantCropQueue] = useState([]);
+    const [, setVariantCropQueue] = useState([]);
 
     const { data: productData, isLoading: isLoadingProduct } = useGetProductById(id);
     const { mutateAsync: updateProduct, isPending } = useUpdateProduct();
@@ -48,7 +50,6 @@ const EditProduct = () => {
             isListed: true,
         },
     });
-
     const { fields, append, remove } = useFieldArray({
         control,
         name: "variants",
@@ -65,18 +66,19 @@ const EditProduct = () => {
                 isListed: productData.isListed,
                 variants: productData.variants,
             });
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setStatus(productData.isListed ? "Listed" : "Unlisted");
             
-            // Initialize variant images from existing product data
+            
             if (productData.variants) {
                 const existingImages = {};
                 productData.variants.forEach((variant, idx) => {
                     if (variant.images && variant.images.length > 0) {
-                        // Store existing images in a way that doesn't interfere with new uploads
+                        
                         existingImages[`existing_${idx}`] = variant.images;
                     }
                 });
-                // Note: We'll handle existing images separately in submission
+                
             }
         }
     }, [productData, reset, setValue]);
@@ -86,7 +88,7 @@ const EditProduct = () => {
 
         if (!croppedFile) return;
 
-        // Handle variant image cropping
+        
         if (currentVariantIndex !== null) {
             const variantIdx = currentVariantIndex;
             const currentImages = variantImages[variantIdx] || [];
@@ -95,7 +97,7 @@ const EditProduct = () => {
                 [variantIdx]: [...currentImages, croppedFile]
             }));
 
-            // Process next image in queue
+            
             setVariantCropQueue(prev => {
                 const [, ...rest] = prev;
                 if (rest.length > 0) {
@@ -113,17 +115,17 @@ const EditProduct = () => {
     };
 
     const handleRemoveVariant = (index) => {
-        // Remove from form
+        
         remove(index);
 
-        // Update variant images state
+        
         setVariantImages(prev => {
             const newState = { ...prev };
-            // Delete the removed index
+            
             delete newState[index];
             
-            // Shift remaining indices down
-            // For example, if we remove index 1, what was at index 2 becomes index 1
+            
+            
             const shiftedState = {};
             Object.keys(newState).forEach(key => {
                 const keyNum = parseInt(key);
@@ -144,8 +146,9 @@ const EditProduct = () => {
         for (const file of files) {
             const result = imageSchema.safeParse(file);
             if (!result.success) {
-                const errorMsg = result.error.errors[0].message;
-                alert(`Error with file ${file.name}: ${errorMsg}`);
+                const zodError = z.treeifyError(result.error)
+                const errorMsg = zodError.errors[0];
+                toast.error(`Error with file ${file.name}: ${errorMsg}`);
                 continue;
             }
             validFiles.push(file);
@@ -156,7 +159,7 @@ const EditProduct = () => {
         const totalImages = currentImages.length + existingImages.length + validFiles.length;
         
         if (totalImages > 4) {
-            alert("Maximum 4 images per variant");
+            toast.error("Maximum 4 images per variant");
             return;
         }
 
@@ -220,7 +223,7 @@ const EditProduct = () => {
             }
 
             formData.append("variants", JSON.stringify(data.variants));
-
+            console.log(formData)
             await updateProduct({ id, formData });
         } catch (error) {
             console.error(error);
@@ -364,7 +367,7 @@ const EditProduct = () => {
                                         </div>
                                     </div>
 
-                                    {/* Variant Images Section */}
+                                    {}
                                     <div className="mt-4">
                                         <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">
                                             Variant Images (3-4 Required)
@@ -379,8 +382,8 @@ const EditProduct = () => {
                                             onChange={(e) => handleVariantImages(index, e.target.files)}
                                         />
                                         <div className="grid grid-cols-4 gap-3">
-                                            {/* Show existing images */}
-                                            {/* Show existing images from form state */}
+                                            {}
+                                            {}
                                             {watchedVariants?.[index]?.images?.map((img, imgIdx) => (
                                                 <div key={`existing-${imgIdx}`} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
                                                     <img
@@ -401,7 +404,7 @@ const EditProduct = () => {
                                                 </div>
                                             ))}
                                             
-                                            {/* Show new uploaded images */}
+                                            {}
                                             {(variantImages[index] || []).map((file, imgIdx) => (
                                                 <div key={imgIdx} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
                                                     <img
@@ -419,7 +422,7 @@ const EditProduct = () => {
                                                 </div>
                                             ))}
                                             
-                                            {/* Add button if under limit */}
+                                            {}
                                             {((variantImages[index] || []).length + (watchedVariants?.[index]?.images?.length || 0)) < 4 && (
                                                 <label
                                                     htmlFor={`variant-images-${index}`}
@@ -450,7 +453,7 @@ const EditProduct = () => {
                         </button>
                     </div>
 
-                    {/* Cropping Modal for Variant Images */}
+                    {}
                     {src && (
                         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
                             <div className="bg-white p-4 rounded-xl w-full max-w-2xl shadow-lg flex flex-col max-h-[90vh]">

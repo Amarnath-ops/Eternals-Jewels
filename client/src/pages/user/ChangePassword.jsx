@@ -32,21 +32,21 @@ const ChangePassword = () => {
     }
     return (
         <div>
-            {/* Main Card */}
+            {}
             <div className="bg-white p-8 md:p-16 rounded-3xl shadow-sm max-w-4xl mx-auto flex flex-col items-center justify-center h-143.75">
                 {user.provider === "google" ? (
                     <p>Password change is not available for Google sign-in accounts.</p>
                 ) : (
                     <div>
-                        {/* Header */}
+                        {}
                         <h2 className="text-2xl md:text-3xl font-normal text-black mb-2 text-center">
                             Change Password for
                         </h2>
                         <p className="text-lg text-gray-600 mb-10 text-center">{user.email}</p>
 
-                        {/* Form */}
+                        {}
                         <FormWrapper onSubmit={handleSubmit(onSubmit)} className=" w-full md:min-w-150 max-w-md space-y-6">
-                            {/* Current Password */}
+                            {}
                             <div className="space-y-2">
                                 <div className="relative">
                                     <FormInput
@@ -72,7 +72,7 @@ const ChangePassword = () => {
                                 </div>
                             </div>
 
-                            {/* New Password */}
+                            {}
                             <div className="space-y-2">
                                 <div className="relative">
                                     <FormInput
@@ -95,7 +95,7 @@ const ChangePassword = () => {
                                 </div>
                             </div>
 
-                            {/* Confirm Password */}
+                            {}
                             <div className="space-y-2">
                                 <div className="relative">
                                     <FormInput
@@ -118,7 +118,7 @@ const ChangePassword = () => {
                                 </div>
                             </div>
 
-                            {/* Button */}
+                            {}
                             <div className="pt-4 flex justify-center">
                                 <button
                                     type="submit"

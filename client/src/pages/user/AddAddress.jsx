@@ -17,8 +17,8 @@ const AddressAddPage = () => {
     };
     return (
         <>
-            {/* min-w-0 prevents flex items from overflowing */}
-            {/* Breadcrumb Area */}
+            {}
+            {}
             <div className="mb-4 md:mb-6 flex items-center gap-2 text-sm text-gray-600">
                 <Link to="/account/address" className="hover:text-black transition-colors font-semibold text-black">
                     My Address

@@ -63,7 +63,7 @@ const EditProfile = () => {
 
     return (
         <div className="flex-1 w-full min-w-0">
-            {/* Breadcrumb Area */}
+            {}
             <div className="mb-6 flex items-center gap-2 text-sm text-gray-600">
                 <Link to="/account/profile" className="hover:text-black transition-colors">
                     Profile
@@ -74,27 +74,27 @@ const EditProfile = () => {
                 </Link>
             </div>
 
-            {/* Main Content Card */}
-            {/* Adjusted padding: p-6 for mobile, p-12 for desktop to fix alignment */}
+            {}
+            {}
             <div className="bg-white rounded-3xl shadow-sm p-6 md:p-12">
                 <FormWrapper onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto space-y-6">
-                    {/* --- Profile Photo Section --- */}
+                    {}
                     <div className="flex justify-center mb-6">
                         <div className="relative group">
-                            {/* Profile Image */}
+                            {}
                             <img
                                 src={preview || "https://via.placeholder.com/150"}
                                 alt="Profile"
                                 className="w-28 h-28 rounded-full object-cover border-4 border-gray-100 shadow-sm"
                             />
-                            {/* Edit Icon (Pencil) */}
+                            {}
                             <button
                                 type="button"
                                 className="absolute bottom-1 right-1 bg-black text-white p-2 rounded-full shadow-md hover:bg-gray-800 transition-colors cursor-pointer"
                                 title="Edit photo"
                             >
                                 <Pencil size={16} />
-                                {/* File Input - Fully covers the button for better clickability */}
+                                {}
                                 <input
                                     onChange={async (e) => {
                                         const file = e.target.files[0];
@@ -117,9 +117,9 @@ const EditProfile = () => {
                         </div>
                     </div>
                     {errors.avatar && <p className="text-red-500 text-xs mt-1 w-full">{errors.avatar.message}</p>}
-                    {/* ---------------------------------- */}
+                    {}
 
-                    {/* Full Name Input */}
+                    {}
                     <div className="space-y-2">
                         <FormInput
                             label="Full name"
@@ -131,7 +131,7 @@ const EditProfile = () => {
                         />
                     </div>
 
-                    {/* Email Input */}
+                    {}
                     <div className="space-y-2">
                         <FormInput
                             label="Email"
@@ -143,7 +143,7 @@ const EditProfile = () => {
                         />
                     </div>
 
-                    {/* Phone Input */}
+                    {}
                     <div className="space-y-2">
                         <FormInput
                             label="Phone"
@@ -155,7 +155,7 @@ const EditProfile = () => {
                         />
                     </div>
 
-                    {/* Edit Button */}
+                    {}
                     <div className="pt-6 flex justify-center md:justify-end">
                         <button
                             disabled={isRequesting || isUpdating || !isDirty}

@@ -33,11 +33,11 @@ const LoginPage = () => {
         <>
             <Navbar homePage={false} />
             <div className="flex flex-col items-center justify-center mt-10 min-h-screen">
-                {/* Header */}
+                {}
                 <h1 className="text-4xl font-bold mb-12 text-black">Login</h1>
 
                 <div className="w-full max-w-md space-y-6">
-                    {/* Email Input */}
+                    {}
                     <FormWrapper onSubmit={handleSubmit(onSubmit)}>
                         <div className="space-y-2">
                             <div className="relative">
@@ -53,7 +53,7 @@ const LoginPage = () => {
                             </div>
                         </div>
 
-                        {/* Password Input */}
+                        {}
                         <div className="space-y-2">
                             <div className="relative">
                                 <FormInput
@@ -82,7 +82,7 @@ const LoginPage = () => {
                             </div>
                         </div>
 
-                        {/* Login Button */}
+                        {}
                         <button
                             className="w-full py-3.5 rounded-lg text-white font-medium text-lg hover:opacity-90 transition shadow-md bg-[#1F463E]"
                             type="submit"
@@ -91,7 +91,7 @@ const LoginPage = () => {
                         </button>
                     </FormWrapper>
 
-                    {/* Sign Up Link */}
+                    {}
                     <div className="text-center">
                         <p className="text-sm font-semibold text-gray-900">
                             New user?{" "}
@@ -101,19 +101,19 @@ const LoginPage = () => {
                         </p>
                     </div>
 
-                    {/* Divider */}
+                    {}
                     <div className="relative flex py-4 items-center">
                         <div className="grow border-t border-gray-600/50"></div>
                         <span className="shrink mx-4 text-gray-900 text-sm ">Or Login with</span>
                         <div className="grow border-t border-gray-600/50"></div>
                     </div>
 
-                    {/* Google Login Button */}
+                    {}
                     <button
                         onClick={handleGoogleLogin}
                         className="w-full bg-white text-black py-3 rounded-lg font-medium flex items-center justify-center space-x-2 hover:bg-gray-50 transition shadow-sm"
                     >
-                        {/* Google Logo SVG */}
+                        {}
                         <svg className="w-5 h-5" viewBox="0 0 24 24">
                             <path
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

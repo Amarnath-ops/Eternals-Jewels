@@ -44,14 +44,14 @@ const ForgotPasswordPage = () => {
             <div className="min-h-screen bg-[#D9D9D9] font-sans flex flex-col">
                 <Navbar />
 
-                {/* Main Content Section */}
+                {}
                 <main className="flex-grow flex flex-col items-center justify-center -mt-10">
-                    {/* Heading */}
+                    {}
                     <h1 className="text-3xl font-bold text-black mb-12 tracking-wide">Forgot Password ?</h1>
 
-                    {/* Form Container */}
+                    {}
                     <div className="w-full max-w-[500px] px-4 flex flex-col gap-6">
-                        {/* Email Section */}
+                        {}
                         <form onSubmit={emailForm.handleSubmit(onSubmitEmail)}>
                             <label className="block text-gray-800 text-sm mb-2 pl-1 font-medium">
                                 Enter your registered email
@@ -81,7 +81,7 @@ const ForgotPasswordPage = () => {
                             )}
                         </form>
 
-                        {/* OTP Section */}
+                        {}
                         <form onSubmit={OTPForm.handleSubmit(onSubmitOTP)}>
                             <label className="block text-gray-800 text-sm mb-2 pl-1 font-medium">Enter OTP Code</label>
                             <input
@@ -94,7 +94,7 @@ const ForgotPasswordPage = () => {
                             {OTPForm.formState.errors.otp && (
                                 <p className="text-red-500 text-xs mt-1">{OTPForm.formState.errors.otp.message}</p>
                             )}
-                            {/* Verify Button */}
+                            {}
                             <div className="flex justify-center mt-4">
                                 <button
                                     type="submit"

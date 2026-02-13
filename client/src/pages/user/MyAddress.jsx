@@ -28,8 +28,8 @@ const AddressContent = () => {
 
     return (
         <>
-            {/* min-w-0 prevents flex items from overflowing */}
-            {/* Breadcrumb Area */}
+            {}
+            {}
             <div className="mb-4 md:mb-6 flex items-center gap-2 text-sm text-gray-600">
                 <Link to="/account/address" className="hover:text-black transition-colors font-semibold text-black">
                     My Address
@@ -37,7 +37,7 @@ const AddressContent = () => {
                 <ChevronRight size={14} />
             </div>
             <div className="flex-1 bg-white rounded-3xl shadow-sm p-6 md:p-12">
-                {/* Header with Add Button */}
+                {}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                     <h2 className="text-xl md:text-2xl font-bold text-gray-900">My Addresses</h2>
                     <Link
@@ -49,7 +49,7 @@ const AddressContent = () => {
                     </Link>
                 </div>
 
-                {/* Address List */}
+                {}
                 <div className="space-y-4 md:space-y-6">
                     {addresses?.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
@@ -65,12 +65,12 @@ const AddressContent = () => {
 
                     {addresses?.map((addr) => (
                         <div key={addr._id} className="group">
-                            {/* The Address Card */}
+                            {}
                             <div className="bg-[#F4F1EE] p-5 md:p-8 rounded-2xl relative border border-transparent group-hover:border-gray-200 transition-all">
                                 
-                                {/* Content Wrapper - Adds padding on right for desktop to avoid button overlap */}
+                                {}
                                 <div className="md:pr-32">
-                                    {/* Default Badge */}
+                                    {}
                                     {addr.isDefault && (
                                         <span className="inline-block bg-black text-white text-[10px] font-bold px-2 py-1 rounded mb-3 uppercase tracking-wider">
                                             Default
@@ -96,8 +96,8 @@ const AddressContent = () => {
                                     </div>
                                 </div>
 
-                                {/* Action Buttons */}
-                                {/* Mobile: Flex row at bottom. Desktop: Absolute top-right */}
+                                {}
+                                {}
                                 <div className="mt-6 md:mt-0 flex gap-3 md:absolute md:top-8 md:right-8 border-t md:border-t-0 border-gray-200 pt-4 md:pt-0">
                                     <Link
                                         to={`/account/edit-address/${addr._id}`}
@@ -121,7 +121,7 @@ const AddressContent = () => {
                 </div>
             </div>
 
-            {/* Delete Confirmation Modal */}
+            {}
             <ConfirmModal open={openConfirmModal} onClose={() => setOpenConfirmModal(false)}>
                 <div className="w-full max-w-sm p-4">
                     <div className="flex justify-center mb-4">

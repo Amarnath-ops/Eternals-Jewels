@@ -4,7 +4,7 @@ const Dashboard = () => {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       
-      {/* Top Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
           { title: 'Total Customers', value: '5,423', sub: '16% this month', icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
@@ -27,10 +27,10 @@ const Dashboard = () => {
 
       <h2 className="text-xl font-bold text-gray-900 mb-6">Sales Details</h2>
 
-      {/* Chart Placeholders Section */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         
-        {/* Sales Overview Placeholder */}
+        {}
         <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-700 mb-6">Sales Overview</h3>
           <div className="h-64 w-full bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400">
@@ -40,7 +40,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Orders Trend Placeholder */}
+        {}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-700 mb-6">Orders Trend</h3>
           <div className="h-64 w-full bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400">
@@ -51,7 +51,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Top Products Table */}
+      {}
       <div className="bg-gray-50 rounded-xl">
         <h3 className="text-lg font-bold text-gray-900 mb-4">Top Products</h3>
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

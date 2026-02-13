@@ -29,3 +29,12 @@ export const getProductById = async (id) => {
         throw error.response?.data?.message || "Error fetching product details";
     }
 };
+
+export const getMaterials = async () => {
+    try {
+        const response = await axiosInstance.get("/products/materials");
+        return response.data.data;
+    } catch (error) {
+        throw error.response?.data?.message || "Error fetching materials";
+    }
+};

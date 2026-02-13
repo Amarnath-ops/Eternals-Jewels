@@ -8,6 +8,7 @@ import adminCategoriesRoutes from "./routes/admin/categories.routes.js";
 import adminProductRoutes from "./routes/admin/product.routes.js";
 import userCategoryRoutes from "./routes/user/categories.routes.js"
 import userProductRoutes from "./routes/user/product.routes.js";
+import userCartRoutes from "./routes/user/cart.routes.js"
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import "./config/passport.js";
@@ -30,13 +31,14 @@ app.use("/api/v1/auth", authUserRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/categories", userCategoryRoutes);
 app.use("/api/v1/products", userProductRoutes);
-
+app.use("/api/v1/cart", userCartRoutes)
 
 
 app.use("/api/v1/admin/auth", adminAuthRoutes);
 app.use("/api/v1/admin/customers", adminCustomersRoutes);
 app.use("/api/v1/admin/categories", adminCategoriesRoutes);
 app.use("/api/v1/admin/products", adminProductRoutes);
+
 
 export default app;
 

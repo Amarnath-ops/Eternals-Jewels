@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
 import { SpinnerBadge } from "@/components/Spinner";
 import useGetLandingCategories from "@/hooks/tanstack_Queries/user/categories/useGetLandingCategories";
-// --- Data Constants ---
+import { Link } from "react-router-dom";
 
 const FEATURED_PRODUCTS = [
     {
@@ -62,30 +62,28 @@ const FAQS = [
     },
 ];
 
-// --- Main Page Component ---
-
 const HomePage = () => {
     const accessToken = useSelector((state) => state.user);
     console.log(accessToken);
 
-    const {data,isLoading} = useGetLandingCategories()
-    if(isLoading) return <SpinnerBadge content={"Loading..."}/>
+    const { data, isLoading } = useGetLandingCategories();
+    if (isLoading) return <SpinnerBadge content={"Loading..."} />;
     return (
         <>
             <div className="w-full bg-white font-sans text-gray-900">
                 <Navbar homePage={true} />
-                {/* 1. Hero Section */}
+                {}
                 <section className="relative h-screen w-full">
-                    {/* Background Video */}
+                    {}
                     <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
                         <source src="/asset/promovideo (2) - Trim.mp4" type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
 
-                    {/* Overlay gradient for text readability */}
+                    {}
                     <div className="absolute inset-0 bg-black/30 md:bg-black/20"></div>
 
-                    {/* Hero Content */}
+                    {}
                     <div className="relative h-full max-w-7xl mx-auto px-6 flex flex-col justify-center text-white">
                         <div className="max-w-xl mt-20 md:mt-20">
                             <h1 className="font-cormorant text-5xl md:text-7xl font-normal mb-4 leading-tight">
@@ -95,13 +93,15 @@ const HomePage = () => {
                             <p className="text-base font-karla md:text-lg mb-8 max-w-md font-semibold tracking-wide text-white/90">
                                 Indulge in the opulence of Golden Memory, a mesmerizing jewelry collection fit for a queen.
                             </p>
-                            <Button className="px-8 py-3 border bg-transparent border-white text-white uppercase tracking-widest text-xs font-bold hover:bg-white hover:text-black transition duration-300">
-                                Shop Now
-                            </Button>
+                            <Link to="/shop">
+                                <Button className="px-8 py-3 border bg-transparent border-white text-white uppercase tracking-widest text-xs font-bold hover:bg-white hover:text-black transition duration-300">
+                                    Shop Now
+                                </Button>
+                            </Link>
                         </div>
                     </div>
                 </section>
-                {/* 2. Shop by Category */}
+                {}
                 <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto">
                     <div className="text-center mb-12">
                         <h2 className="font-cormorant text-3xl md:text-4xl text-gray-900 mb-2">Shop by category</h2>
@@ -120,15 +120,17 @@ const HomePage = () => {
                                         className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
                                     />
                                 </div>
-                                <span className="font-cormorant  text-gray-700 text-lg group-hover:text-black">{cat.categoryName}</span>
+                                <span className="font-cormorant  text-gray-700 text-lg group-hover:text-black">
+                                    {cat.categoryName}
+                                </span>
                             </div>
                         ))}
                     </div>
                 </section>
-                {/* 3. Promo Section (Minimal Me) */}
+                {}
                 <section className="relative w-full h-[70vh] bg-gray-50">
                     <div className="h-full w-full flex flex-col md:flex-row">
-                        {/* Image Side */}
+                        {}
                         <div className="w-full h-full">
                             <img
                                 src="asset/Minimal.png"
@@ -136,21 +138,23 @@ const HomePage = () => {
                                 className="w-full h-full object-cover object-top"
                             />
                         </div>
-                        {/* Content Side (Overlapping on Desktop) */}
+                        {}
                         <div className="w-full md:w-1/3 bg-white/90 md:bg-transparent flex items-center justify-center p-8 md:p-0 md:absolute md:right-0 md:top-80 md:-translate-y-1/2">
                             <div className="p-8 md:p-12  max-w-sm">
                                 <h2 className="font-serif text-3xl text-gray-900 mb-3">Minimal Me</h2>
                                 <p className="text-gray-500 text-xs mb-6 leading-relaxed">
                                     Introducing our new minimalist collection. Subtle for the active yet elegant.
                                 </p>
-                                <Button className="bg-transparent px-8 py-3 border border-black text-black uppercase tracking-widest text-xs font-bold hover:bg-black hover:text-white transition duration-300">
-                                    Shop Now
-                                </Button>
+                                <Link to="/shop">
+                                    <Button className="bg-transparent px-8 py-3 border border-black text-black uppercase tracking-widest text-xs font-bold hover:bg-black hover:text-white transition duration-300">
+                                        Shop Now
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                     </div>
                 </section>
-                {/* 4. Featured Collections */}
+                {}
                 <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className="font-serif text-3xl md:text-4xl text-gray-900 mb-3">Featured Collections</h2>
@@ -181,18 +185,20 @@ const HomePage = () => {
                     </div>
 
                     <div className="flex justify-center">
-                        <Button className="bg-transparent px-7 py-3 border border-[#d4a6a6] text-[#896161] uppercase tracking-widest text-xs font-bold hover:border-black hover:text-white transition duration-300 rounded-xl">
-                            Shop Now
-                        </Button>
+                        <Link to="/shop">
+                            <Button className="bg-transparent px-7 py-3 border border-[#d4a6a6] text-[#896161] uppercase tracking-widest text-xs font-bold hover:border-black hover:text-white transition duration-300 rounded-xl">
+                                Shop Now
+                            </Button>
+                        </Link>
                     </div>
                 </section>
-                {/* 5. Questions (FAQ) */}
+                {}
                 <section className="py-16 bg-white px-6">
                     <div className="max-w-6xl mx-auto">
                         <h2 className="font-serif text-3xl md:text-4xl text-center text-gray-900 mb-12">Questions</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                            {/* Left Column */}
+                            {}
                             <div className="space-y-2">
                                 <Accordion type="single" collapsible className="w-full">
                                     {FAQS.slice(0, 3).map((faq, i) => (
@@ -208,7 +214,7 @@ const HomePage = () => {
                                 </Accordion>
                             </div>
 
-                            {/* Right Column */}
+                            {}
                             <div className="space-y-2">
                                 <Accordion type="single" collapsible className="w-full">
                                     {FAQS.slice(3, 6).map((faq, i) => (
@@ -230,21 +236,21 @@ const HomePage = () => {
                         </div>
                     </div>
                 </section>
-                {/* 6. About Section (Dark) */}
+                {}
                 <section className="bg-[#0a0a0a] text-white h-170">
                     <div className="flex flex-col md:flex-row h-auto md:h-170">
-                        {/* Image Side */}
+                        {}
                         <div className="w-full md:w-1/2 h-100 md:h-full relative">
                             <img
                                 src="asset/AboutIMG.png"
                                 alt="Craftsmanship"
                                 className="w-170 h-170 object-fit opacity-80"
                             />
-                            {/* Diamond Shine Effect (Visual Flourish) */}
+                            {}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white blur-3xl rounded-full opacity-20 animate-pulse"></div>
                         </div>
 
-                        {/* Content Side */}
+                        {}
                         <div className="w-full md:w-1/2 p-10 md:p-20 flex flex-col justify-center">
                             <h2 className="font-serif text-3xl md:text-4xl mb-6 text-white/90">What were we made for?</h2>
                             <p className="text-gray-400 text-sm leading-relaxed mb-6 font-light">
@@ -258,12 +264,14 @@ const HomePage = () => {
                                 tristique senectus et netus et malesuada fames ac.
                             </p>
                             <div>
-                                <Button
-                                    size={40}
-                                    className="px-8 py-3 border border-gray-600 text-gray-300 uppercase tracking-widest text-xs font-bold hover:border-white hover:text-white transition duration-300"
-                                >
-                                    About Us
-                                </Button>
+                                <Link to="/about">
+                                    <Button
+                                        size={40}
+                                        className="px-8 py-3 border border-gray-600 text-gray-300 uppercase tracking-widest text-xs font-bold hover:border-white hover:text-white transition duration-300"
+                                    >
+                                        About Us
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                     </div>

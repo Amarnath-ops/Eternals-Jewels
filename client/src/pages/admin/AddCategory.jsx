@@ -92,9 +92,9 @@ const AddCategory = () => {
     };
     return (
         <div className="flex-1 bg-white min-h-screen p-4 md:p-8 font-sans">
-            {/* --- Main Container with Max Width --- */}
+            {}
             <div className="max-w-4xl mx-auto w-full">
-                {/* --- Header Section --- */}
+                {}
                 <div className="mb-6 md:mb-8">
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">ADD A CATEGORY</h1>
                     <div className="flex flex-wrap items-center text-xs md:text-sm text-gray-500">
@@ -117,13 +117,13 @@ const AddCategory = () => {
                             onChange={(e) => handleInputImage(e.target.files[0])}
                         />
 
-                        {/* Responsive Drop Zone Container */}
+                        {}
                         <div
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
                             className="border-2 w-full border-dashed border-gray-200 rounded-lg bg-[#F8F9FE] min-h-62.5 flex flex-col items-center justify-center text-center p-6 transition-colors hover:bg-gray-50"
                         >
-                            {/* --- Crop Modal (Overlay) --- */}
+                            {}
                             {src && !preview && (
                                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
                                     <div className="bg-white p-4 rounded-xl w-full max-w-3xl shadow-lg max-h-[90vh] overflow-y-auto flex flex-col">
@@ -167,7 +167,7 @@ const AddCategory = () => {
                                 </div>
                             )}
 
-                            {/* --- Preview State --- */}
+                            {}
                             {preview ? (
                                 <div className="flex flex-col items-center w-full">
                                     <div className="w-full max-w-sm aspect-square overflow-hidden rounded-xl border border-gray-100 shadow-sm">
@@ -182,7 +182,7 @@ const AddCategory = () => {
                                     </button>
                                 </div>
                             ) : (
-                                /* --- Empty State --- */
+                                
                                 <>
                                     <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-3 text-purple-500">
                                         <Image size={24} />
@@ -202,9 +202,9 @@ const AddCategory = () => {
                         </div>
                     </div>
                     {errors.thumbnail && <p className="text-red-500 text-xs mt-1 w-full">{errors.thumbnail.message}</p>}
-                    {/* --- Form Fields --- */}
+                    {}
                     <div className="space-y-6">
-                        {/* Offer & Redeemable Row */}
+                        {}
                         <div className="flex flex-col md:flex-row gap-4 md:gap-8">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
                                 <label className="text-gray-900 font-medium text-base whitespace-nowrap">
@@ -238,7 +238,7 @@ const AddCategory = () => {
                             </div>
                         </div>
 
-                        {/* Category Name */}
+                        {}
                         <div>
                             <label className="block text-gray-600 mb-2 font-medium">Category Name</label>
                             <FormInput
@@ -251,7 +251,7 @@ const AddCategory = () => {
                             />
                         </div>
 
-                        {/* Description */}
+                        {}
                         <div>
                             <label className="block text-gray-600 mb-2 font-medium">Description</label>
                             <textarea
@@ -265,7 +265,7 @@ const AddCategory = () => {
                             )}
                         </div>
 
-                        {/* Status (Listed/Unlisted) */}
+                        {}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 pt-2">
                             <span className="text-gray-900 font-bold text-lg">Should be</span>
 
@@ -321,7 +321,7 @@ const AddCategory = () => {
                         </div>
                     </div>
 
-                    {/* --- Action Button --- */}
+                    {}
                     <div className="mt-8 md:mt-10 flex justify-center md:justify-end pb-8">
                         <button
                         disabled={isPending}

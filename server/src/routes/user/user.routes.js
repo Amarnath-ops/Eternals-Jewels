@@ -17,6 +17,6 @@ router.post("/email/change", protect, requestEmailChange);
 router.post("/email/verify", protect, verifyEmailChangeOtp);
 router.post("/address", protect, addAddress);
 router.get("/address", protect, getAddress);
-router.put("/address/:addressId",protect,updateAddress)
-router.delete("/address/:addressId",protect,deleteAddress)
+router.put("/address/:addressId", protect, updateAddress);
+router.delete("/address/:addressId", protect, deleteAddress);
 export default router;

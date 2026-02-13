@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, ChevronDown, Filter, X } from "lucide-react";
 import { useGetProducts } from "@/hooks/tanstack_Queries/user/products/useGetProducts";
 import { useGetCategories } from "@/hooks/tanstack_Queries/user/categories/useGetCategories";
+import { useGetMaterials } from "@/hooks/tanstack_Queries/user/products/useGetMaterials";
 import { useDebounce } from "@/hooks/useDebounce";
 import ProductCard from "@/components/user/ProductCard";
 import { SpinnerBadge } from "@/components/Spinner";
@@ -22,6 +23,8 @@ const Shop = () => {
     );
     const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
     const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
+    const [appliedMinPrice, setAppliedMinPrice] = useState(searchParams.get("minPrice") || "");
+    const [appliedMaxPrice, setAppliedMaxPrice] = useState(searchParams.get("maxPrice") || "");
     const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     const debouncedSearch = useDebounce(searchTerm, 500);
@@ -34,10 +37,10 @@ const Shop = () => {
         if (sort !== "createdAt") params.set("sort", sort);
         if (selectedCategories.length > 0) params.set("category", selectedCategories.join(","));
         if (selectedMaterials.length > 0) params.set("material", selectedMaterials.join(","));
-        if (minPrice) params.set("minPrice", minPrice);
-        if (maxPrice) params.set("maxPrice", maxPrice);
+        if (appliedMinPrice) params.set("minPrice", appliedMinPrice);
+        if (appliedMaxPrice) params.set("maxPrice", appliedMaxPrice);
         setSearchParams(params, { replace: true });
-    }, [currentPage, debouncedSearch, sort, selectedCategories, selectedMaterials, minPrice, maxPrice, setSearchParams]);
+    }, [currentPage, debouncedSearch, sort, selectedCategories, selectedMaterials, appliedMinPrice, appliedMaxPrice, setSearchParams]);
 
     const { data: productsData, isLoading: isProductsLoading } = useGetProducts({
         page: currentPage,
@@ -47,35 +50,20 @@ const Shop = () => {
             sort === "priceHigh"
                 ? "-variants.0.salePrice"
                 : sort === "priceLow"
-                  ? "variants.0.salePrice"
-                  : sort === "a-z"
+                ? "variants.0.salePrice"
+                : sort === "a-z"
                     ? "productName"
                     : sort === "z-a"
-                      ? "-productName"
-                      : "-createdAt",
+                    ? "-productName"
+                    : "-createdAt",
         category: selectedCategories.length > 0 ? selectedCategories[0] : undefined,
-        minPrice,
-        maxPrice,
+        minPrice: appliedMinPrice,
+        maxPrice: appliedMaxPrice,
         material: selectedMaterials.length > 0 ? selectedMaterials : undefined,
     });
 
     const { data: categoriesData } = useGetCategories();
-
-    /* ✅ FIXED MATERIAL LOGIC (SAFE + MEMOIZED, UI SAME) */
-    const materials = useMemo(() => {
-        if (!productsData?.products) return [];
-
-        const set = new Set();
-        productsData.products.forEach((product) => {
-            product?.variants?.forEach((variant) => {
-                if (variant?.material) {
-                    set.add(variant.material);
-                }
-            });
-        });
-
-        return Array.from(set);
-    }, [productsData]);
+    const { data: materials = [] } = useGetMaterials();
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -112,6 +100,8 @@ const Shop = () => {
     };
 
     const handlePriceApply = () => {
+        setAppliedMinPrice(minPrice);
+        setAppliedMaxPrice(maxPrice);
         setCurrentPage(1);
     };
 
@@ -122,6 +112,8 @@ const Shop = () => {
         setSort("createdAt");
         setMinPrice("");
         setMaxPrice("");
+        setAppliedMinPrice("");
+        setAppliedMaxPrice("");
         setCurrentPage(1);
     };
 

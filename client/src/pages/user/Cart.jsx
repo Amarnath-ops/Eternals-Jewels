@@ -1,0 +1,105 @@
+import React from "react";
+import { ShoppingBag, Minus, Plus, Instagram, Twitter, Facebook, Youtube, Linkedin } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import { useGetCartItems } from "@/hooks/tanstack_Queries/user/cart/useGetCartItems";
+import { SpinnerBadge } from "@/components/Spinner";
+
+const CartPage = () => {
+    const { data, isLoading } = useGetCartItems();
+    console.log(data);
+
+    return (
+        <div className="min-h-screen bg-white text-gray-800">
+            <Navbar />
+
+            {}
+            {isLoading ? (
+                <SpinnerBadge content={"Cart is loading..."} />
+            ) : data.cart.total === 0 ? (
+                <>
+                    <div className="flex justify-center items-center mt-18">
+                        <p className="text-2xl font-semibold">Your Cart is Empty.</p>
+                    </div>
+                </>
+            ) : (
+                <main className="max-w-6xl mx-auto px-4 py-12">
+                    <div className="flex justify-between items-center mb-8 border-b border-gray-200 pb-4">
+                        <div className="flex items-center gap-3">
+                            <ShoppingBag className="text-gray-600" />
+                            <h2 className="text-2xl  text-gray-700">Your shopping Cart</h2>
+                        </div>
+                        <button className="border border-red-200 text-red-400 px-4 py-2 text-sm hover:bg-red-400 hover:text-white transition">
+                            Empty my cart
+                        </button>
+                    </div>
+
+                    {}
+                    <div className="space-y-4">
+                        {data?.cart?.items?.map((item) => (
+                            <div key={item.productId} className="flex bg-[#F8F5F2] p-6 relative">
+                                <img src={item.image} alt={item.name} className="w-32 h-32 object-cover bg-white" />
+                                <div className="ml-6 grow">
+                                    <h3 className="font-semibold text-sm tracking-widest uppercase">{item.name}</h3>
+                                    <p className="text-xs text-gray-500 mt-1">{item.material}</p>
+
+                                    <div className="mt-12 flex items-baseline gap-2">
+                                        <span className="text-xs text-gray-400 line-through">
+                                            ₹{item.regularPrice.toFixed(2)}
+                                        </span>
+                                        <span className="text-xl font-medium text-gray-600">
+                                            ₹{item.salePrice.toFixed(2)}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col justify-between items-end">
+                                    <div className="flex border border-gray-300">
+                                        <button
+                                            onClick={() => updateQuantity(item.id, -1)}
+                                            className="p-2 hover:bg-gray-200"
+                                        >
+                                            <Minus size={16} />
+                                        </button>
+                                        <span className="px-6 py-2 bg-gray-100 flex items-center font-karla">
+                                            {item.quantity}
+                                        </span>
+                                        <button
+                                            onClick={() => updateQuantity(item.id, 1)}
+                                            className="p-2 bg-[#C4A484] text-white"
+                                        >
+                                            <Plus size={16} />
+                                        </button>
+                                    </div>
+                                    <button className="border border-red-200 text-red-400 px-4 py-1 text-xs mt-4 hover:bg-red-400 hover:text-white">
+                                        Remove from cart
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {}
+                    <div className="mt-8">
+                        <div className="flex justify-between items-center border-t-2 border-gray-800 pt-4">
+                            <span className="font-bold tracking-widest font-poppins uppercase">TOTAL AMOUNT</span>
+                            <span className="text-2xl font-semibold font-karla">₹{data?.cart?.total?.toFixed(2)}</span>
+                        </div>
+                        <p className="text-center text-xs text-gray-500 my-6">
+                            Shipping, taxes, and discount codes calculated at checkout.
+                        </p>
+
+                        <div className="space-y-3">
+                            <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition">
+                                Proceed to Checkout
+                            </button>
+                            <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition">
+                                Continue Shopping
+                            </button>
+                        </div>
+                    </div>
+                </main>
+            )}
+        </div>
+    );
+};
+
+export default CartPage;

@@ -14,32 +14,50 @@ import { addProductSchema, updateProductSchema } from "../../validations/product
 
 const parseBody = (body) => {
     const data = { ...body };
+
+    
     if (data.variants && typeof data.variants === "string") {
         try {
             data.variants = JSON.parse(data.variants);
-        } catch (error) {
-            console.log(error);
+        } catch (e) {
+            console.log(e);
+            data.variants = [];
         }
     }
+
+    if (!Array.isArray(data.variants)) {
+        data.variants = data.variants ? [data.variants] : [];
+    }
+
+    
+    if (Array.isArray(data.variants)) {
+        data.variants = data.variants.map((v) => {
+            if (v.images && !Array.isArray(v.images)) {
+                v.images = Object.values(v.images);
+            }
+            return v;
+        });
+    }
+
+    
     if (data.isListed !== undefined) {
         data.isListed = data.isListed === "true" || data.isListed === true;
     }
-    if (data.existingImages && typeof data.existingImages === "string") {
-        try {
-            data.existingImages = JSON.parse(data.existingImages);
-        } catch (error) {
-            console.log(error);
-            data.existingImages = [data.existingImages];
+
+    
+    if (data.variantImageMappings) {
+        if (typeof data.variantImageMappings === "string") {
+            try {
+                data.variantImageMappings = JSON.parse(data.variantImageMappings);
+            } catch {
+                data.variantImageMappings = [];
+            }
+        }
+        if (!Array.isArray(data.variantImageMappings)) {
+            data.variantImageMappings = [data.variantImageMappings];
         }
     }
-    if (data.variantImageMappings && typeof data.variantImageMappings === "string") {
-        try {
-            data.variantImageMappings = JSON.parse(data.variantImageMappings);
-        } catch (error) {
-            console.log(error);
-            data.variantImageMappings = [];
-        }
-    }
+
     return data;
 };
 
@@ -55,6 +73,7 @@ export const addProduct = async (req, res) => {
             data: { product: result },
         });
     } catch (error) {
+        console.log(error);
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
@@ -64,6 +83,7 @@ export const addProduct = async (req, res) => {
 
 export const getProducts = async (req, res) => {
     try {
+        console.log(req.query);
         const data = await getProductService(req.query);
         return res.status(STATUS_CODES.OK).json({
             success: true,

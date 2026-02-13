@@ -10,4 +10,4 @@ const generateOTP = () => {
   return OTP;
 };
 
-export default generateOTP // Outputs something like: "829102"
+export default generateOTP 

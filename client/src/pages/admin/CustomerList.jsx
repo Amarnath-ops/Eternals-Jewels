@@ -92,10 +92,10 @@ const CustomerList = () => {
                 </div>
             </div>
 
-            {/* Table Container */}
+            {}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <table className="w-full text-left border-collapse">
-                    {/* Table Header */}
+                    {}
                     <thead className="bg-[#1a7f37] text-white text-xs uppercase font-medium">
                         <tr>
                             <th className="px-6 py-4">Customer Name</th>
@@ -106,12 +106,12 @@ const CustomerList = () => {
                             <th className="px-6 py-4">
                                 <div className="flex items-center gap-1 cursor-pointer">BLOCK/ UNBLOCK</div>
                             </th>
-                            {/* Changed from Action to Joined On */}
+                            {}
                             <th className="px-6 py-4">Joined On</th>
                         </tr>
                     </thead>
 
-                    {/* Table Body */}
+                    {}
                     <tbody className="divide-y divide-gray-100">
                         {isLoading ? (
                             <div className="flex justify-center items-center h-100 translate-x-115">
@@ -188,7 +188,7 @@ const CustomerList = () => {
                                                 </button>
                                             </td>
 
-                                            {/* Date Column */}
+                                            {}
                                             <td className="px-6 py-4 text-sm text-gray-600 font-medium">
                                                 {formatDate(customer.createdAt)}
                                             </td>

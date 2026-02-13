@@ -13,7 +13,7 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
     } = useZodForm(addressSchema, { defaultValues });
     return (
         <div className="flex-1 bg-white rounded-3xl shadow-sm p-8 md:p-12">
-            {/* --- Header Section --- */}
+            {}
             <div className="flex flex-col md:flex-row justify-between items-end border-b border-gray-300 pb-3 mb-8">
                 <h2 className="text-lg md:text-xl font-bold text-black">
                     {type === "edit" ? "Update your address" : "Add Address"}
@@ -21,9 +21,9 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                 <span className="text-gray-900 text-sm md:text-base font-medium mb-1">Personal Information</span>
             </div>
 
-            {/* --- Form Section --- */}
+            {}
             <FormWrapper onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Full Name */}
+                {}
                 <div className="space-y-2">
                     <FormInput
                         label="Fullname"
@@ -36,7 +36,7 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                     />
                 </div>
 
-                {/* Email */}
+                {}
                 <div className="space-y-2">
                     <FormInput
                         label="Phone"
@@ -49,7 +49,7 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                     />
                 </div>
 
-                {/* Address (Full Width) */}
+                {}
                 <div className="space-y-2 md:col-span-2">
                     <label className="text-sm font-medium text-gray-900">Address</label>
 
@@ -62,7 +62,7 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                     {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>}
                 </div>
 
-                {/* District */}
+                {}
                 <div className="space-y-2">
                     <FormInput
                         label="District"
@@ -75,7 +75,7 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                     />
                 </div>
 
-                {/* State */}
+                {}
                 <div className="space-y-2">
                     <FormInput
                         label="State"
@@ -88,7 +88,7 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                     />
                 </div>
 
-                {/* City */}
+                {}
                 <div className="space-y-2">
                     <FormInput
                         label="City"
@@ -101,7 +101,7 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                     />
                 </div>
 
-                {/* Pin Code */}
+                {}
                 <div className="space-y-2">
                     <FormInput
                         label="Pin Code"
@@ -114,7 +114,7 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                     />
                 </div>
 
-                {/* Landmark */}
+                {}
                 <div className="space-y-2 md:col-span-1">
                     <FormInput
                         label="Landmark ( optional )"
@@ -127,10 +127,10 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                     />
                 </div>
 
-                {/* Spacer div to keep grid alignment if needed, or leave empty */}
+                {}
                 <div className="hidden md:block"></div>
 
-                {/* --- Set as Default Checkbox --- */}
+                {}
                 <div className="md:col-span-2 flex items-center space-x-3 mt-2">
                     <input
                         type="checkbox"
@@ -142,7 +142,7 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                         Set as default address
                     </label>
                 </div>
-                {/* Buttons */}
+                {}
                 <div className="md:col-span-2 flex justify-end gap-4 mt-6">
                     <Link
                         to="/account/address"

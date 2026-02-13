@@ -13,22 +13,22 @@ const AccountDropdown = ({onClose}) => {
     };
     return (
         <div className="absolute inset-25 h-screen" onClick={onClose}>
-            {/* Dropdown Menu */}
+            {}
             <div className="absolute right-1 hidden mt-5 md:block w-64 opacity-80 bg-black/39 backdrop-blur-md  rounded-3xl shadow-xl border border-white/25 overflow-hidden z-50 py-4 px-2">
                 <div className="flex flex-col gap-2">
-                    {/* Account Item */}
+                    {}
                     <Link to="/account/profile">
                         <MenuItem icon={User} label="Account" onClick={() => console.log("Account clicked")} />
                     </Link>
 
-                    {/* My Order Item */}
+                    {}
                     <MenuItem icon={ShoppingBag} label="My Order" onClick={() => console.log("Orders clicked")} />
 
-                    {/* Logout Item */}
+                    {}
                     <MenuItem
                         icon={LogOut}
                         label="Logout"
-                        isLast={true} // specific styling for logout if needed
+                        isLast={true} 
                         onClick={handleLogout}
                     />
                 </div>

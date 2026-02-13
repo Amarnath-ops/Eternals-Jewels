@@ -23,12 +23,12 @@ const Sidebar = () => {
   return (
     <aside className="w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col justify-between z-10">
       <div>
-        {/* Logo */}
+        {}
         <div className="p-6">
           <h1 className="text-2xl font-bold italic text-black">Eternals</h1>
         </div>
 
-        {/* Menu Items */}
+        {}
         <nav className="mt-2 px-4 space-y-2">
           {menuItems.map((item, index) =>{
             const active = isActive(item.path)
@@ -50,7 +50,7 @@ const Sidebar = () => {
         </nav>
       </div>
 
-      {/* Bottom Actions */}
+      {}
       <div className="p-4 space-y-3 mb-4">
         <button onClick={handleLogOut} className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 shadow-sm">
           <LogOut className="w-4 h-4 mr-2" />

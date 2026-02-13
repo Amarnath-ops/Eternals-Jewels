@@ -48,14 +48,14 @@ const AddProduct = () => {
 
     const [variantImages, setVariantImages] = useState({});
     const [currentVariantIndex, setCurrentVariantIndex] = useState(null);
-    const [variantCropQueue, setVariantCropQueue] = useState([]);
+    const [, setVariantCropQueue] = useState([]);
 
     const handleCropImage = async () => {
         const croppedFile = await getCroppedImage(imgRef.current, completedCrop, canvasRef.current);
 
         if (!croppedFile) return;
 
-        // Handle variant image cropping
+        
         if (currentVariantIndex !== null) {
             console.log("Cropping variant image for variant index:", currentVariantIndex);
             const variantIdx = currentVariantIndex;
@@ -70,7 +70,7 @@ const AddProduct = () => {
                 return updated;
             });
 
-            // Process next image in queue
+            
             setVariantCropQueue((prev) => {
                 const [, ...rest] = prev;
                 console.log("Remaining images in crop queue:", rest.length);
@@ -91,14 +91,13 @@ const AddProduct = () => {
 
     const handleVariantImages = (variantIndex, files) => {
         if (!files || files.length === 0) return;
-        console.log(variantIndex, files);
         setValue(`variants.${variantIndex}.images`, files, {
             shouldValidate: true,
         });
-        const validFiles = Array.from(files).filter((f) => f.type.startsWith("image/"));
-
+        const validFiles = Array.from(files).filter((f) => f.type.startsWith("image/") && f.size < 2 * 1024 *1024);
+        
         const currentImages = variantImages[variantIndex] || [];
-
+        console.log(files);
         if (currentImages.length + validFiles.length > 4) {
             setError(`variants.${variantIndex}.images`, { message: "Max 4 images per variant" });
             return;
@@ -150,15 +149,15 @@ const AddProduct = () => {
                 });
             });
 
-            Object.entries(variantImages).forEach(([_, images]) => {
+            Object.entries(variantImages).forEach(([, images]) => {
                 images.forEach((file) => {
                     formData.append("variantImages", file);
                 });
             });
             formData.append("variantImageMappings", JSON.stringify(variantImageMappings));
             
-            // Remove images field from variants before sending, as images are handled via variantImageMappings
-            const sanitizedVariants = data.variants.map(({ images, ...rest }) => rest);
+            
+            const sanitizedVariants = data.variants.map(({  ...rest }) => rest);
             formData.append("variants", JSON.stringify(sanitizedVariants));
 
             await addProduct(formData);
@@ -362,7 +361,7 @@ const AddProduct = () => {
                                         </div>
                                     </div>
 
-                                    {/* Variant Images Section */}
+                                    {}
                                     <div className="mt-4">
                                         <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">
                                             Variant Images (3-4 Required)
@@ -429,7 +428,7 @@ const AddProduct = () => {
                         </button>
                     </div>
 
-                    {/* Cropping Modal for Variant Images */}
+                    {}
                     {src && (
                         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
                             <div className="bg-white p-4 rounded-xl w-full max-w-2xl shadow-lg flex flex-col max-h-[90vh]">

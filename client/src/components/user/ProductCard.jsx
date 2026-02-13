@@ -10,14 +10,14 @@ const ProductCard = ({ product }) => {
     currency: 'INR',
   }).format(price);
 
-  // Use first variant's first image if available, otherwise use thumbnail
+  
   const displayImage = variants && variants[0]?.images && variants[0].images.length > 0
     ? variants[0].images[0].image_url
     : thumbnail?.image_url;
 
   return (
     <div className="group relative bg-[#FDF8F5] pb-4 rounded-sm shadow-sm transition-shadow hover:shadow-md">
-        {/* Image Container with Padding */}
+        {}
         <div className="p-3 pb-0">
              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-sm bg-white">
                 {displayImage ? (
@@ -50,7 +50,7 @@ const ProductCard = ({ product }) => {
                  </div>
             </div>
 
-            {/* Add to Wishlist Button */}
+            {}
              <button className="relative z-10 mt-3 w-full flex items-center justify-center gap-2 rounded-full border border-[#D4C4B7] py-2 text-[10px] font-bold uppercase tracking-widest text-[#8B7E74] hover:bg-[#8B7E74] hover:text-white hover:border-[#8B7E74] transition-all">
                 <Heart size={12} className="mb-0.5" /> 
                 Add to Wishlist

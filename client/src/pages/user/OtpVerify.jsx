@@ -69,7 +69,7 @@ const OtpVerification = () => {
             <Navbar />
             <div className="min-h-screen flex items-center justify-center font-poppins px-4 -mt-20">
                 <div className="w-full max-w-md text-center">
-                    {/* Header */}
+                    {}
                     <h1 className="text-3xl font-bold text-black mb-3">Verify OTP</h1>
                     <p className="text-[#4F4F4F] text-base mb-10 leading-relaxed">
                         We've sent an email with an one time password to{" "}
@@ -123,9 +123,9 @@ const OtpVerification = () => {
                                 </button>
                             </p>
 
-                            {/* Verify Button */}
+                            {}
                             <Button
-                                // onClick={handleVerify}
+                                
                                 className="w-full max-w-100 py-7 bg-[#1A4D3E] text-white text-base font-semibold rounded-lg hover:bg-[#143d31] transition-colors"
                             >
                                 {isPending?"Verifying..":"Verify"}

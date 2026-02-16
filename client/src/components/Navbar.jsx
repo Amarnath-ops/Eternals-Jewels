@@ -12,7 +12,7 @@ const Navbar = ({ homePage }) => {
     const [mobileDropDown, setMobileDropdown] = useState(false);
     const { mutateAsync } = useLogoutUser();
     const isLogin = useSelector((state) => state.user.isLogin);
-    const { data} = useGetCartItems()
+    const { data } = useGetCartItems({ enabled: !!isLogin });
     const handleLogout = async () => {
         try {
             await mutateAsync();
@@ -89,9 +89,14 @@ const Navbar = ({ homePage }) => {
                             to="/cart"
                             className={`${
                                 homePage ? "text-white hover:text-gray-300" : "text-black/75 hover:text-black"
-                            }  transition p-1 rounded-full `}
-                        > {data?.cart?.items?.length}
+                            } transition p-1 rounded-full relative`}
+                        >
                             <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 2xl:w-7 2xl:h-7" />
+                            {data?.cart?.items?.length > 0 && (
+                                <span className="absolute -top-1.5 -right-2 bg-[#7e6b58] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                                    {data.cart.items.length}
+                                </span>
+                            )}
                         </Link>
                         <button
                             className={`${

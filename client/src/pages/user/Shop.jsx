@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, ChevronDown, Filter, X } from "lucide-react";
+import { Search, ChevronDown, Filter, X, Check } from "lucide-react";
 import { useGetProducts } from "@/hooks/tanstack_Queries/user/products/useGetProducts";
 import { useGetCategories } from "@/hooks/tanstack_Queries/user/categories/useGetCategories";
 import { useGetMaterials } from "@/hooks/tanstack_Queries/user/products/useGetMaterials";
@@ -223,7 +223,7 @@ const Shop = () => {
                                                     className={`w-4 h-4 border flex items-center justify-center transition-colors ${selectedCategories.includes(cat._id) ? "bg-black border-black" : "border-gray-300 group-hover:border-gray-400"}`}
                                                 >
                                                     {selectedCategories.includes(cat._id) && (
-                                                        <div className="w-2 h-2 bg-white" />
+                                                        <Check size={12} className="text-white" strokeWidth={3} />
                                                     )}
                                                 </div>
                                                 <input
@@ -253,7 +253,7 @@ const Shop = () => {
                                                     className={`w-4 h-4 border flex items-center justify-center transition-colors ${selectedMaterials.includes(mat) ? "bg-black border-black" : "border-gray-300 group-hover:border-gray-400"}`}
                                                 >
                                                     {selectedMaterials.includes(mat) && (
-                                                        <div className="w-2 h-2 bg-white" />
+                                                        <Check size={12} className="text-white" strokeWidth={3} />
                                                     )}
                                                 </div>
                                                 <input

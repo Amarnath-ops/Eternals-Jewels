@@ -75,6 +75,7 @@ export const getCartService = async (userId) => {
 
             return {
                 productId: product._id,
+                variantId: item.variantId,
                 name: product.productName,
                 material: variant.material,
                 image: variant.images?.[0]?.image_url,
@@ -120,5 +121,16 @@ export const removeFromCartService = async (userId, productId, variantId) => {
         (item) => !(item.product._id.toString() === productId && item.variantId.toString() === variantId),
     );
 
+    return cartRepository.saveCart(cart);
+};
+
+export const clearCartService = async (userId) => {
+    const cart = await cartRepository.findCartByUser(userId);
+    if (!cart) {
+        const error = new Error(ERROR_MESSAGES.CART_NOT_FOUND);
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+    cart.cartItems = [];
     return cartRepository.saveCart(cart);
 };

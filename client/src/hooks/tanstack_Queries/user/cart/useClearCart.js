@@ -3,14 +3,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 
-export const useAddToCart = () => {
+export const useClearCart = () => {
     const queryClient = useQueryClient();
+
     return useMutation({
-        mutationFn: cartServices.addToCart,
+        mutationFn: cartServices.clearCart,
         onSuccess: (data) => {
-            console.log(data);
             queryClient.invalidateQueries([QUERY_KEYS.USER_CART]);
-            toast.success("Added to your cart.");
+            toast.success("Cart cleared");
+        },
+        onError: (error) => {
+            console.error(error);
+            toast.error(error.message || "Failed to clear cart");
         },
     });
 };

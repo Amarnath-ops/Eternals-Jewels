@@ -59,7 +59,9 @@ axiosInstance.interceptors.response.use(
                     window.location.href = "/admin/login";
                 } else {
                     store.dispatch(logOut());
-                    window.location.href = "/login";
+                    if (!window.location.pathname.includes("/login")) {
+                        window.location.href = "/login";
+                    }
                 }
             }
         }

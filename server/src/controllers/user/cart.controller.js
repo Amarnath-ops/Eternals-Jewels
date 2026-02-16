@@ -5,6 +5,7 @@ import {
     getCartService,
     removeFromCartService,
     updateQuantityService,
+    clearCartService
 } from "../../services/user/cart.service.js";
 
 export const addToCart = async (req, res) => {
@@ -66,6 +67,22 @@ export const removeFromCart = async (req, res) => {
         const { productId, variantId } = req.body;
 
         const cart = await removeFromCartService(userId, productId, variantId);
+        return res.status(STATUS_CODES.OK).json({
+            success: true,
+            cart,
+        });
+    } catch (error) {
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
+export const clearCart = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const cart = await clearCartService(userId);
         return res.status(STATUS_CODES.OK).json({
             success: true,
             cart,

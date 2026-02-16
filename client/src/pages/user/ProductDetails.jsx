@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, Minus, Plus } from "lucide-react";
 import SideBySideMagnifier from "@/components/user/SideBySideMagnifier";
 import { useGetUserProductById } from "@/hooks/tanstack_Queries/user/products/useGetUserProductById";
 import { useGetProducts } from "@/hooks/tanstack_Queries/user/products/useGetProducts";
@@ -8,6 +8,10 @@ import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/user/ProductCard";
 import { SpinnerBadge } from "@/components/Spinner";
 import { useAddToCart } from "@/hooks/tanstack_Queries/user/cart/useAddToCart";
+import { useSelector } from "react-redux";
+import { useGetCartItems } from "@/hooks/tanstack_Queries/user/cart/useGetCartItems";
+import { useUpdateCartQuantity } from "@/hooks/tanstack_Queries/user/cart/useUpdateCartQuantity";
+import { useRemoveFromCart } from "@/hooks/tanstack_Queries/user/cart/useRemoveFromCart";
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -21,7 +25,32 @@ const ProductDetails = () => {
         limit: 4,
         sort: "-createdAt",
     });
-    const { mutateAsync: addtoCart} = useAddToCart();
+    console.log(relatedData)
+
+    const { mutateAsync: addtoCart } = useAddToCart();
+    const isLogin = useSelector((state) => state.user.isLogin);
+    const { data: cartData } = useGetCartItems({ enabled: !!isLogin });
+    const { mutateAsync: updateQuantity } = useUpdateCartQuantity();
+    const { mutateAsync: removeFromCart } = useRemoveFromCart();
+
+    const cartItem = cartData?.cart?.items?.find(
+        (item) => item.productId === product?._id && item.variantId === selectedMaterial?._id
+    )   ;
+
+    const handleQuantityChange = async (newQty) => {
+        if (!selectedMaterial) return;
+        
+        const data = {
+            productId: product._id,
+            variantId: selectedMaterial._id,
+        };
+
+        if (newQty === 0) {
+            await removeFromCart(data);
+        } else {
+            await updateQuantity({ ...data, quantity: newQty });
+        }
+    };
 
     const relatedProducts = relatedData?.products?.filter((p) => p._id !== id).slice(0, 4) || [];
 
@@ -217,12 +246,33 @@ const ProductDetails = () => {
                             </div>
 
                             <div className="flex gap-4 mb-4">
-                                <button
-                                    onClick={() => handleAddToCart(product)}
-                                    className="flex-1 bg-[#CAB49E] text-white py-3.5 px-8 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-[#bfa38a] transition-colors shadow-sm"
-                                >
-                                    Add to Cart
-                                </button>
+                                    {cartItem ? (
+                                        <div className="flex-1 flex items-center justify-between bg-[#CAB49E] text-white px-4 py-3.5 rounded-sm shadow-sm">
+                                            <button
+                                                onClick={() => handleQuantityChange(cartItem.quantity - 1)}
+                                                className="p-1 hover:text-gray-300 transition-colors"
+                                                disabled={cartItem.quantity <= 0}
+                                            >
+                                                <Minus size={18} />
+                                            </button>
+                                            <span className="text-sm font-bold uppercase tracking-widest px-4">
+                                                {cartItem.quantity} IN CART
+                                            </span>
+                                            <button
+                                                onClick={() => handleQuantityChange(cartItem.quantity + 1)}
+                                                className="p-1 hover:text-gray-300 transition-colors"
+                                            >
+                                                <Plus size={18} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleAddToCart(product)}
+                                            className="flex-1 bg-[#CAB49E] text-white py-3.5 px-8 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-[#bfa38a] transition-colors shadow-sm"
+                                        >
+                                            Add to Cart
+                                        </button>
+                                    )}
                                 <button className="flex-1 border border-[#CAB49E] text-[#CAB49E] py-3.5 px-8 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                                     <Heart size={16} /> Add to Wishlist
                                 </button>

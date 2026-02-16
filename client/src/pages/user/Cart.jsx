@@ -3,11 +3,38 @@ import { ShoppingBag, Minus, Plus, Instagram, Twitter, Facebook, Youtube, Linked
 import Navbar from "@/components/Navbar";
 import { useGetCartItems } from "@/hooks/tanstack_Queries/user/cart/useGetCartItems";
 import { SpinnerBadge } from "@/components/Spinner";
+import { useUpdateCartQuantity } from "@/hooks/tanstack_Queries/user/cart/useUpdateCartQuantity";
+import { useRemoveFromCart } from "@/hooks/tanstack_Queries/user/cart/useRemoveFromCart";
+import { useClearCart } from "@/hooks/tanstack_Queries/user/cart/useClearCart";
+import { Link } from "react-router-dom";
 
 const CartPage = () => {
     const { data, isLoading } = useGetCartItems();
     console.log(data);
-
+    const { mutateAsync: updateQuantity } = useUpdateCartQuantity();
+    const { mutateAsync: removeFromCart } = useRemoveFromCart();
+    const { mutateAsync: clearCart } = useClearCart();
+    const handleRemoveFromCart = async (item) => {
+        const data = {
+            productId: item.productId,
+            variantId: item.variantId,
+        };
+        await removeFromCart(data);
+    };
+    const handleUpdateQuantity = async (item, newQty) => {
+        const data = {
+            productId: item.productId,
+            variantId: item.variantId,
+        };
+        if (newQty === 0) {
+            await removeFromCart(data);
+        } else {
+            await updateQuantity({ ...data, quantity: newQty });
+        }
+    };
+    const HandleClearCart = async () => {
+        await clearCart();
+    };
     return (
         <div className="min-h-screen bg-white text-gray-800">
             <Navbar />
@@ -28,7 +55,10 @@ const CartPage = () => {
                             <ShoppingBag className="text-gray-600" />
                             <h2 className="text-2xl  text-gray-700">Your shopping Cart</h2>
                         </div>
-                        <button className="border border-red-200 text-red-400 px-4 py-2 text-sm hover:bg-red-400 hover:text-white transition">
+                        <button
+                            className="border border-red-200 text-red-400 px-4 py-2 text-sm hover:bg-red-400 hover:text-white transition"
+                            onClick={() => HandleClearCart()}
+                        >
                             Empty my cart
                         </button>
                     </div>
@@ -54,7 +84,7 @@ const CartPage = () => {
                                 <div className="flex flex-col justify-between items-end">
                                     <div className="flex border border-gray-300">
                                         <button
-                                            onClick={() => updateQuantity(item.id, -1)}
+                                            onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                                             className="p-2 hover:bg-gray-200"
                                         >
                                             <Minus size={16} />
@@ -63,13 +93,16 @@ const CartPage = () => {
                                             {item.quantity}
                                         </span>
                                         <button
-                                            onClick={() => updateQuantity(item.id, 1)}
+                                            onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                                             className="p-2 bg-[#C4A484] text-white"
                                         >
                                             <Plus size={16} />
                                         </button>
                                     </div>
-                                    <button className="border border-red-200 text-red-400 px-4 py-1 text-xs mt-4 hover:bg-red-400 hover:text-white">
+                                    <button
+                                        className="border border-red-200 text-red-400 px-4 py-1 text-xs mt-4 hover:bg-red-400 hover:text-white"
+                                        onClick={() => handleRemoveFromCart(item)}
+                                    >
                                         Remove from cart
                                     </button>
                                 </div>
@@ -91,9 +124,11 @@ const CartPage = () => {
                             <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition">
                                 Proceed to Checkout
                             </button>
-                            <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition">
-                                Continue Shopping
-                            </button>
+                            <Link to="/shop">
+                                <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition">
+                                    Continue Shopping
+                                </button>
+                            </Link>
                         </div>
                     </div>
                 </main>

@@ -112,6 +112,16 @@ export const getOrdersService = async (userId, page = 1, limit = 5) => {
     return await orderRepository.findOrdersByUserId(userId, page, limit);
 };
 
+export const getOrderByIdService = async (userId, orderId) => {
+    const order = await orderRepository.findOrderByIdAndUser(orderId, userId);
+    if (!order) {
+        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND || "Order not found");
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+    return order;
+};
+
 export const cancelOrderService = async (userId, orderId) => {
 
     const order = await orderRepository.findOrderByIdAndUser(orderId, userId);
@@ -132,4 +142,54 @@ export const cancelOrderService = async (userId, orderId) => {
         await productRepository.updateStock(item.product, item.variantId, -item.quantity);
     }
     return await orderRepository.cancelOrder(orderId);
+};
+
+export const returnOrderService = async (userId, orderId, itemId, reason) => {
+    const order = await orderRepository.findOrderByIdAndUser(orderId, userId);
+    if (!order) {
+        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND || "Order not found");
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+
+    if (order.orderStatus !== "Delivered") {
+         const error = new Error("Return can only be requested for delivered orders");
+         error.statusCode = STATUS_CODES.BAD_REQUEST;
+         throw error;
+    }
+
+    const item = order.orderItems.id(itemId);
+    if (!item) {
+        const error = new Error("Item not found in order");
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+
+    if (item.itemStatus !== "Delivered") {
+        const error = new Error(`Cannot return item with status ${item.itemStatus}`);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+
+    return await orderRepository.requestReturn(orderId, itemId, reason);
+};
+
+export const cancelOrderItemService = async (userId, orderId, itemId) => {
+    const order = await orderRepository.findOrderByIdAndUser(orderId, userId);
+    if (!order) {
+        throw new Error(ERROR_MESSAGES.ORDER_NOT_FOUND || "Order not found");
+    }
+
+    const item = order.orderItems.id(itemId);
+    if (!item) {
+        throw new Error("Item not found in order");
+    }
+
+    if (!["Pending", "Processing"].includes(item.itemStatus)) {
+        throw new Error(`Cannot cancel item in ${item.itemStatus} state`);
+    }
+
+    await productRepository.updateStock(item.product, item.variantId, -item.quantity); 
+
+    return await orderRepository.cancelOrderItem(orderId, itemId);
 };

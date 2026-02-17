@@ -1,4 +1,4 @@
-import { placeOrderApi, getOrdersApi, cancelOrderApi } from "../../api/users/order.api";
+import { placeOrderApi, getOrdersApi, cancelOrderApi, getOrderByIdApi, returnOrderApi, cancelOrderItemApi } from "../../api/users/order.api";
 
 export const orderService = {
     placeOrder: async (data) => {
@@ -7,7 +7,16 @@ export const orderService = {
     getOrders: async (page = 1, limit = 5) => {
         return await getOrdersApi(page, limit);
     },
+    getOrderById: async (orderId) => {
+        return await getOrderByIdApi(orderId);
+    },
     cancelOrder: async (orderId) => {
         return await cancelOrderApi(orderId);
+    },
+    returnOrder: async (orderId, itemId, reason) => {
+        return await returnOrderApi(orderId, itemId, reason);
+    },
+    cancelOrderItem: async (orderId, itemId) => {
+        return await cancelOrderItemApi(orderId, itemId);
     }
 };

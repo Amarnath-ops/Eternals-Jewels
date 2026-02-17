@@ -34,6 +34,34 @@ export const orderRepository = {
     },
     
     findOrderByIdAndUser: async (orderId, userId) => {
-        return await Order.findOne({ _id: orderId, user: userId });
+        return await Order.findOne({ _id: orderId, user: userId }).populate("orderItems.product");
+    },
+    
+    requestReturn: async (orderId, itemId, reason) => {
+        return await Order.findOneAndUpdate(
+            { _id: orderId, "orderItems._id": itemId },
+            { 
+                $set: { 
+                    "orderItems.$.itemStatus": "Return Requested",
+                    "orderItems.$.returnReason": reason 
+                } 
+            },
+            { new: true }
+        );
+    },
+
+    cancelOrderItem: async (orderId, itemId) => {
+        const order = await Order.findOne({ _id: orderId, "orderItems._id": itemId });
+        if (!order) return null;
+
+        const item = order.orderItems.find(item => item._id.toString() === itemId);
+        item.itemStatus = "Cancelled";
+        
+        const allCancelled = order.orderItems.every(item => item.itemStatus === "Cancelled");
+        if (allCancelled) {
+            order.orderStatus = "Cancelled";
+        }
+
+        return await order.save();
     }
 };

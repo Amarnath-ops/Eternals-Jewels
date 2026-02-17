@@ -29,8 +29,11 @@ const orderItemSchema = new mongoose.Schema({
     },
     itemStatus: {
         type: String,
-        enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Returned"],
+        enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Returned", "Return Requested"],
         default: "Pending",
+    },
+    returnReason: {
+        type: String,
     }
 });
 

@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { orderService } from "@/services/user/order.service";
 import toast from "react-hot-toast";
 
+import { useNavigate } from "react-router-dom";
+
 const OrderCard = ({ order, onOrderCancelled }) => {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
     // Helper to format currency
@@ -85,7 +88,9 @@ const OrderCard = ({ order, onOrderCancelled }) => {
                 </p>
                 
                 <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-black text-white text-xs uppercase font-medium rounded hover:bg-gray-800 transition-colors">
+                    <button 
+                        onClick={() => navigate(`/account/orders/${order._id}`)}
+                        className="px-4 py-2 bg-black text-white text-xs uppercase font-medium rounded hover:bg-gray-800 transition-colors">
                         View Details
                     </button>
                     {order.orderStatus !== "Cancelled" && order.orderStatus !== "Delivered" && order.orderStatus !== "Returned" && (

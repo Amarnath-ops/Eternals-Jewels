@@ -28,6 +28,7 @@ import Wishlist from "@/pages/user/Wishlist";
 import CheckoutPage from "@/pages/user/Checkout";
 import OrderSuccessPage from "@/pages/user/OrderSuccess";
 import MyOrders from "@/pages/user/MyOrders";
+import OrderDetails from "@/pages/user/OrderDetails";
 
 const UserRoutes = () => {
     const dispatch = useDispatch();
@@ -75,6 +76,7 @@ const UserRoutes = () => {
                     <Route path="edit-address/:addressId" element={<AddressEditPage />}></Route>
                     <Route path="add-address/" element={<AddressAddPage />}></Route>
                     <Route path="orders" element={<MyOrders />}></Route>
+                    <Route path="orders/:orderId" element={<OrderDetails />}></Route>
                     <Route path="change-password" element={<ChangePassword />}></Route>
                 </Route>
             </Routes>

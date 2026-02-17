@@ -1,0 +1,135 @@
+import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
+import { STATUS_CODES } from "../../constants/statusCode.js";
+import { orderRepository } from "../../repositories/order.repo.js";
+import { cartRepository } from "../../repositories/cart.repo.js";
+import { productRepository } from "../../repositories/product.repo.js";
+import { findAddressById } from "../../repositories/address.repo.js";
+
+export const placeOrderService = async (userId, { addressId, paymentMethod }) => {
+
+    const cart = await cartRepository.findCartByUser(userId);
+    if (!cart || cart.cartItems.length === 0) {
+        const error = new Error(ERROR_MESSAGES.CART_EMPTY);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+
+    // 2. Validate Items & Calculate Total
+    let totalAmount = 0;
+    const orderItems = [];
+
+    for (const item of cart.cartItems) {
+        const product = await productRepository.findById(item.product._id);
+        
+        if (!product || !product.isListed || product.isDeleted) {
+            const error = new Error(`Product ${product ? product.productName : ""} is unavailable`);
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
+        }
+
+        const variant = product.variants.id(item.variantId);
+        if (!variant) {
+            const error = new Error(`Variant not found for product ${product.productName}`);
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
+        }
+
+        if (variant.quantity < item.quantity) {
+             const error = new Error(`Insufficient stock for ${product.productName} (${variant.material})`);
+             error.statusCode = STATUS_CODES.BAD_REQUEST;
+             throw error;
+        }
+
+        const price = variant.salePrice; 
+        const itemTotal = price * item.quantity;
+        totalAmount += itemTotal;
+
+        orderItems.push({
+            product: product._id,
+            variantId: variant._id,
+            productName: product.productName,
+            image: variant.images[0].image_url,
+            price: price,
+            quantity: item.quantity,
+            itemStatus: "Pending",
+        });
+    }
+
+    // 3. fetch Address
+    const address = await findAddressById(addressId);
+    if (!address) {
+        const error = new Error(ERROR_MESSAGES.ADDRESS_NOT_FOUND);
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+
+    // 4. Create Order Object
+
+    let deliveryCharge = 0;
+    if (totalAmount < 1000) {
+        deliveryCharge = 50; 
+    }
+    
+    const finalAmount = totalAmount + deliveryCharge;
+
+    const orderData = {
+        user: userId,
+        orderItems,
+        shippingAddress: {
+            fullname: address.fullname,
+            phone: address.phone,
+            address: address.address,
+            state: address.state,
+            district: address.district,
+            city: address.city,
+            pincode: address.pincode,
+            landmark: address.landmark
+        },
+        paymentMethod,
+        totalAmount,
+        finalAmount,
+        discountAmount: 0,
+        orderStatus: "Pending",
+        paymentStatus: paymentMethod === "COD" ? "Pending" : "Pending", // If Razorpay, client handles payment first then calls verify. But here we PLACE order.
+        deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    };
+
+    // 5. Save Order
+    const newOrder = await orderRepository.createOrder(orderData);
+
+    // 6. Update Stock
+    for (const item of orderItems) {
+        await productRepository.updateStock(item.product, item.variantId, item.quantity);
+    }
+
+    // 7. Clear Cart
+    await cartRepository.clearCart(userId);
+
+    return newOrder;
+};
+
+export const getOrdersService = async (userId, page = 1, limit = 5) => {
+    return await orderRepository.findOrdersByUserId(userId, page, limit);
+};
+
+export const cancelOrderService = async (userId, orderId) => {
+
+    const order = await orderRepository.findOrderByIdAndUser(orderId, userId);
+    if (!order) {
+        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND || "Order not found");
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+
+
+    if (["Delivered", "Cancelled", "Returned", "Shipped"].includes(order.orderStatus)) {
+        const error = new Error(`Cannot cancel order in ${order.orderStatus} state`);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+
+    for (const item of order.orderItems) {
+        await productRepository.updateStock(item.product, item.variantId, -item.quantity);
+    }
+    return await orderRepository.cancelOrder(orderId);
+};

@@ -60,27 +60,23 @@ const AddProduct = () => {
             console.log("Cropping variant image for variant index:", currentVariantIndex);
             const variantIdx = currentVariantIndex;
             const currentImages = variantImages[variantIdx] || [];
-            console.log("Adding cropped image to variant", variantIdx, "- current count:", currentImages.length);
             setVariantImages((prev) => {
                 const updated = {
                     ...prev,
                     [variantIdx]: [...currentImages, croppedFile],
                 };
-                console.log("Updated variant images state:", updated);
                 return updated;
             });
 
             
             setVariantCropQueue((prev) => {
                 const [, ...rest] = prev;
-                console.log("Remaining images in crop queue:", rest.length);
                 if (rest.length > 0) {
                     const next = rest[0];
                     setTimeout(() => {
                         setSrc(URL.createObjectURL(next));
                     }, 0);
                 } else {
-                    console.log("All variant images cropped for this variant");
                     setSrc(null);
                     setCurrentVariantIndex(null);
                 }
@@ -92,7 +88,7 @@ const AddProduct = () => {
     const handleVariantImages = (variantIndex, files) => {
         if (!files || files.length === 0) return;
         setValue(`variants.${variantIndex}.images`, files, {
-            shouldValidate: true,
+            shouldValidate: false,
         });
         const validFiles = Array.from(files).filter((f) => f.type.startsWith("image/") && f.size < 2 * 1024 *1024);
         

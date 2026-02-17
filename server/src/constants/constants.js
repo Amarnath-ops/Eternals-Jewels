@@ -24,5 +24,6 @@ export const CONSTANTS = Object.freeze({
     PRODUCT_UPDATED: "Product updated successfully.",
     PRODUCT_DELETED: "Product deleted successfully.",
     PRODUCT_FETCHED_SUCCESSFULLY: "Product fetched successfully.",
-    PRODUCT_LIST_TOGGLED: "Product status toggled."
+    PRODUCT_LIST_TOGGLED: "Product status toggled.",
+    ORDER_CANCELLED_SUCCESSFULLY: "Order cancelled successfully.",
 });

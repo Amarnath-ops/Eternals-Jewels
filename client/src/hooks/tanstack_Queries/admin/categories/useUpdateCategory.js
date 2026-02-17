@@ -16,6 +16,9 @@ export const useUpdateCategory = ()=>{
       })
       navigate("/admin/categories")
       toast.success("Category updated successfully.")
+    },
+    onError:(error)=>{
+      toast.error(error.response.data.message || "Something went wrong.")
     }
   })
 }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Eye, Edit, Trash2, Search, Loader } from "lucide-react";
+import { Eye, Edit, Trash2, Search, Loader, ChevronRight } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import { Link } from "react-router-dom";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -15,7 +15,7 @@ const CategoryPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [categoryId, setCategoryId] = useState(null);
     const [openConfirmModal, setOpenConfirmModal] = useState(false);
-    const [sort, setSort] = useState(1);
+    const [sort, setSort] = useState("createdAt"); 
     const limit = 5;
     const debouncedSearch = useDebounce(searchTerm, 500);
 
@@ -23,7 +23,7 @@ const CategoryPage = () => {
         page: currentPage,
         limit,
         search: debouncedSearch,
-        sort: "-createdAt",
+        sort: sort, 
     });
     const { mutateAsync: deleteCategory, isPending: isDeleting } = useDeleteCategory();
     const { mutateAsync: toggleCategory, isPending } = useToggleCategory();
@@ -76,7 +76,7 @@ const CategoryPage = () => {
     return (
         <>
             <div className="flex-1 bg-white min-h-screen p-8 font-sans">
-                {}
+                {/* Header */}
                 <div className="flex justify-between items-start mb-6">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 mb-1 border-b-2 border-gray-800 inline-block pb-1">
@@ -99,9 +99,9 @@ const CategoryPage = () => {
                     </Link>
                 </div>
 
-                {}
+                {/* Filters */}
                 <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                    {}
+                    {/* Search */}
                     <div className="relative w-full md:w-96">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Search size={18} className="text-gray-400" />
@@ -115,31 +115,37 @@ const CategoryPage = () => {
                         />
                     </div>
 
-                    {}
+                    {/* Sorting Buttons */}
                     <div className="flex items-center border rounded-md ps-4 text-sm font-medium">
                         <span className="mr-6 font-bold text-gray-900">Sort</span>
                         <button
-                            className={`py-2 px-2 rounded-md text-gray-600 hover:text-green-700 transition ${sort === 1 && "bg-[#a3a3a338] "}`}
-                            onClick={() => setSort(1)}
+                            className={`py-2 px-2 rounded-md text-gray-600 hover:text-green-700 transition ${sort === "createdAt" && "bg-gray-100 font-bold"}`}
+                            onClick={() => setSort("createdAt")}
                         >
-                            High Sale
+                            First Added
+                        </button>
+                         <button
+                            className={`py-2 px-2 rounded-md text-gray-600 hover:text-green-700 transition ${sort === "-createdAt" && "bg-gray-100 font-bold"}`}
+                            onClick={() => setSort("-createdAt")}
+                        >
+                            Last Added
                         </button>
                         <button
-                            className={`py-2 px-2 rounded-md text-gray-600 hover:text-green-700 transition ${sort === 2 && "bg-[#a3a3a338] "}`}
-                            onClick={() => setSort(2)}
+                            className={`py-2 px-2 rounded-md text-gray-600 hover:text-green-700 transition ${sort === "categoryName" && "bg-gray-100 font-bold"}`}
+                            onClick={() => setSort("categoryName")}
                         >
-                            Low Sale
+                            Name (A-Z)
                         </button>
                         <button
-                            className={`py-2 px-2 rounded-md text-gray-600 hover:text-green-700 transition ${sort === 3 && "bg-[#a3a3a338] "}`}
-                            onClick={() => setSort(3)}
+                            className={`py-2 px-2 rounded-md text-gray-600 hover:text-green-700 transition ${sort === "-categoryName" && "bg-gray-100 font-bold"}`}
+                            onClick={() => setSort("-categoryName")}
                         >
-                            Last added first
+                            Name (Z-A)
                         </button>
                     </div>
                 </div>
 
-                {}
+                {/* Table */}
                 <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
                     <table className="w-full min-w-max">
                         <thead>
@@ -147,7 +153,6 @@ const CategoryPage = () => {
                                 <th className="p-4">SNO</th>
                                 <th className="p-4">Category Name</th>
                                 <th className="p-4">thumbnail</th>
-                                <th className="p-4">Stock</th>
                                 <th className="p-4">Added</th>
                                 <th className="p-4">List / Unlist</th>
                                 <th className="p-4 text-center">Action</th>
@@ -180,10 +185,9 @@ const CategoryPage = () => {
                                                         className="w-10 h-10 rounded-md"
                                                     />
                                                 </td>
-                                                <td className="p-4">{item.stock || "Nil"}</td>
                                                 <td className="p-4 text-gray-500">{formatDate(item.createdAt)}</td>
 
-                                                {}
+                                                {/* Listed/Unlisted Toggle */}
                                                 <td className="p-4">
                                                     {item.isListed ? (
                                                         <button
@@ -206,7 +210,7 @@ const CategoryPage = () => {
                                                     )}
                                                 </td>
 
-                                                {}
+                                                {/* Edit/Delete */}
                                                 <td className="p-4">
                                                     <div className="flex items-center justify-center gap-2">
                                                         <Link

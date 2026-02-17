@@ -77,4 +77,9 @@ export const productRepository = {
     findDistinctMaterials: async () => {
         return await Product.distinct("variants.material", { isDeleted: false, isListed: true });
     },
+
+    updateStock: (productId, variantId, quantity) => Product.updateOne(
+        { _id: productId, "variants._id": variantId },
+        { $inc: { "variants.$.quantity": -quantity } }
+    ),
 };

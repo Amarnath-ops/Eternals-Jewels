@@ -26,6 +26,8 @@ import toast from "react-hot-toast";
 import CartPage from "@/pages/user/Cart";
 import Wishlist from "@/pages/user/Wishlist";
 import CheckoutPage from "@/pages/user/Checkout";
+import OrderSuccessPage from "@/pages/user/OrderSuccess";
+import MyOrders from "@/pages/user/MyOrders";
 
 const UserRoutes = () => {
     const dispatch = useDispatch();
@@ -65,12 +67,14 @@ const UserRoutes = () => {
                 <Route path="/cart" element={isLogin ? <CartPage /> : <LoginPage/>} />
                 <Route path="/wishlist" element={isLogin ? <Wishlist /> : <LoginPage />} />
                 <Route path="/checkout" element={isLogin ? <CheckoutPage /> : <LoginPage />} />
+                <Route path="/order-success" element={isLogin ? <OrderSuccessPage /> : <LoginPage />} />
                 <Route path="/account" element={isLogin ? <ProfileDashboard /> : <LoginPage />}>
                     <Route index path="profile" element={<MyProfile />}></Route>
                     <Route path="edit-profile" element={<EditProfile />}></Route>
                     <Route path="address" element={<MyAddressPage />}></Route>
                     <Route path="edit-address/:addressId" element={<AddressEditPage />}></Route>
                     <Route path="add-address/" element={<AddressAddPage />}></Route>
+                    <Route path="orders" element={<MyOrders />}></Route>
                     <Route path="change-password" element={<ChangePassword />}></Route>
                 </Route>
             </Routes>

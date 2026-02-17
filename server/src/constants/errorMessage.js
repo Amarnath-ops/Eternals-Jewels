@@ -36,4 +36,7 @@ export const ERROR_MESSAGES = Object.freeze({
     ITEM_NOT_IN_CART: "Item is not in the cart.",
     WISHLIST_NOT_FOUND: "Wishlist not found.",
     ITEM_ALREADY_IN_WISHLIST: "Item is already in wishlist.",
+    CART_EMPTY: "Cart is empty.",
+    ORDER_NOT_FOUND: "Order not found.",
+    ORDER_CANNOT_BE_CANCELLED: "Order cannot be cancelled in current status",
 });

@@ -9,7 +9,7 @@ export const imageFileSchema = z
     } , {
         message: "Images are required.",
     })
-    .refine((files) => files.length < 3, {
+    .refine((files) => files.length >= 3, {
         message: "At least 3 images is required.",
     })
     .refine((files) => files.length <= 4, {

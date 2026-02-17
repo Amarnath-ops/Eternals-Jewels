@@ -7,8 +7,8 @@ const Sidebar = ({ user }) => {
     const menuItems = [
         { icon: User, label: "My Profile", path: "/account/profile" },
         { icon: MapPin, label: "My Address", path: "/account/address" },
-        { icon: ShoppingBag, label: "My Order", path: "/account/order" },
-        { icon: Heart, label: "My Wishlist", path: "/account/wishlist" },
+        { icon: ShoppingBag, label: "My Order", path: "/account/orders" },
+        { icon: Heart, label: "My Wishlist", path: "/wishlist" },,
         { icon: Wallet, label: "My Wallet", path: "/account/wallet" },
         { icon: Lock, label: "Change password", path: "/account/change-password" },
         { icon: Users, label: "Referral Code", path: "/account/referral" }, 

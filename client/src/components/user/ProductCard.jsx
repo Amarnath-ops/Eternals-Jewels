@@ -1,6 +1,11 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAddToWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useAddToWishlist";
+import { useRemoveFromWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useRemoveFromWishlist";
+import { useGetWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useGetWishlist";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 const ProductCard = ({ product }) => {
   const { productName, thumbnail, category, variants, _id } = product;
@@ -9,6 +14,39 @@ const ProductCard = ({ product }) => {
     style: 'currency',
     currency: 'INR',
   }).format(price);
+
+  const isLogin = useSelector((state) => state.user.isLogin);
+  const { data: wishlistData } = useGetWishlist({ enabled: !!isLogin });
+  const { mutate: addToWishlist, isPending: isAdding } = useAddToWishlist();
+  const { mutate: removeFromWishlist, isPending: isRemoving } = useRemoveFromWishlist();
+
+  const variantId = variants && variants.length > 0 ? variants[0]._id : null;
+  const isInWishlist = wishlistData?.wishlist?.items?.some(
+      (item) => item.productId === _id && item.variantId === variantId
+  );
+
+  const handleWishlist = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!isLogin) {
+          toast.error("Please login to add to wishlist");
+          return;
+      }
+      
+      if (!variantId) {
+          toast.error("Product variant not found");
+          return;
+      }
+
+      const data = { productId: _id, variantId };
+
+      if (isInWishlist) {
+          removeFromWishlist(data);
+      } else {
+          addToWishlist(data);
+      }
+  };
 
   
   const displayImage = variants && variants[0]?.images && variants[0].images.length > 0
@@ -51,9 +89,17 @@ const ProductCard = ({ product }) => {
             </div>
 
             {}
-             <button className="relative z-10 mt-3 w-full flex items-center justify-center gap-2 rounded-full border border-[#D4C4B7] py-2 text-[10px] font-bold uppercase tracking-widest text-[#8B7E74] hover:bg-[#8B7E74] hover:text-white hover:border-[#8B7E74] transition-all">
-                <Heart size={12} className="mb-0.5" /> 
-                Add to Wishlist
+             <button 
+                onClick={handleWishlist}
+                disabled={isAdding || isRemoving}
+                className={`relative z-10 mt-3 w-full flex items-center justify-center gap-2 rounded-full border py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${
+                    isInWishlist 
+                    ? "bg-[#8B7E74] text-white border-[#8B7E74]" 
+                    : "border-[#D4C4B7] text-[#8B7E74] hover:bg-[#8B7E74] hover:text-white hover:border-[#8B7E74]"
+                }`}
+             >
+                <Heart size={12} className={`mb-0.5 ${isInWishlist ? "fill-white text-white" : ""}`} /> 
+                {isInWishlist ? "In Wishlist" : "Add to Wishlist"}
              </button>
         </div>
     </div>

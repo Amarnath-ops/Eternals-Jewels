@@ -1,7 +1,7 @@
 import { useVerifyEmailOtp } from "@/hooks/tanstack_Queries/user/profile/useEmailChange";
 import useZodForm from "@/hooks/useZodForm";
 import { OtpSchema } from "@/validations/auth.schema";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import FormWrapper from "../form/Form";
 
 const EmailOtpModal = ({ onClose, email }) => {

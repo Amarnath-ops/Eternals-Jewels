@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Eye, Edit, Trash2, ChevronRight, ChevronLeft, Search, Loader } from "lucide-react";
+import { Eye, Edit, Trash2, Search, Loader } from "lucide-react";
+import Pagination from "@/components/Pagination";
 import { Link } from "react-router-dom";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useGetCategories } from "@/hooks/tanstack_Queries/admin/categories/useGetCategories";
@@ -37,9 +38,7 @@ const CategoryPage = () => {
         setCurrentPage(1);
     };
 
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    };
+
     const onDeleteClick = (category) => {
         setCategoryId(category._id);
         setOpenConfirmModal(true);
@@ -248,47 +247,11 @@ const CategoryPage = () => {
                         Showing {totalCustomers === 0 ? 0 : startItem}-{endItem} from {totalCustomers}
                     </span>
 
-                    <div className="flex items-center gap-1">
-                        <button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                            let pageNum;
-                            if (totalPages <= 5) pageNum = i + 1;
-                            else if (currentPage <= 3) pageNum = i + 1;
-                            else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
-                            else pageNum = currentPage - 2 + i;
-
-                            return (
-                                <button
-                                    key={pageNum}
-                                    onClick={() => handlePageChange(pageNum)}
-                                    className={`w-8 h-8 flex items-center justify-center rounded text-sm font-medium transition-colors ${
-                                        currentPage === pageNum
-                                            ? "bg-black text-white"
-                                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                    }`}
-                                >
-                                    {pageNum}
-                                </button>
-                            );
-                        })}
-
-                        {totalPages > 5 && <span className="px-2 text-gray-400">...</span>}
-
-                        <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages || totalPages === 0}
-                            className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
             </div>
             <ConfirmModal open={openConfirmModal} onClose={() => setOpenConfirmModal(false)}>

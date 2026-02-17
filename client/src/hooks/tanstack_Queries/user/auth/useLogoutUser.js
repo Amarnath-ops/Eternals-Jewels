@@ -2,7 +2,7 @@ import { authService } from "@/services/auth.service";
 import { logOut } from "@/store/user/authSlice";
 import { useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 export const useLogoutUser = () => {
   const dispatch = useDispatch()

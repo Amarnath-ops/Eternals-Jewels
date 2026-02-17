@@ -8,6 +8,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import ProductCard from "@/components/user/ProductCard";
 import { SpinnerBadge } from "@/components/Spinner";
 import Navbar from "@/components/Navbar";
+import Pagination from "@/components/Pagination";
 
 const Shop = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -332,25 +333,13 @@ const Shop = () => {
                                 </div>
                             )}
 
-                            {!isProductsLoading && totalPages > 1 && (
-                                <div className="mt-12 flex justify-center gap-2">
-                                    {[...Array(totalPages)].map((_, i) => {
-                                        const p = i + 1;
-                                        return (
-                                            <button
-                                                key={p}
-                                                onClick={() => setCurrentPage(p)}
-                                                className={`w-8 h-8 flex items-center justify-center rounded text-sm font-medium transition-colors ${
-                                                    currentPage === p
-                                                        ? "bg-black text-white"
-                                                        : "bg-white text-gray-600 hover:bg-gray-50 border border-transparent shadow-sm"
-                                                }`}
-                                            >
-                                                {p}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                            {!isProductsLoading && (
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={setCurrentPage}
+                                    className="mt-12 justify-center"
+                                />
                             )}
                         </div>
                     </div>

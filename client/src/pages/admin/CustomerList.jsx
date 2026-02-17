@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Search, ChevronLeft, ChevronRight, X, Loader } from "lucide-react";
+import { Search, X, Loader } from "lucide-react";
+import Pagination from "@/components/Pagination";
 import { useCustomers } from "@/hooks/tanstack_Queries/admin/customers/useCustomers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useToggleBlockUser } from "@/hooks/tanstack_Queries/admin/customers/useToggleBlockUser";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { formatDate } from "@/lib/formatDate";
 
 const CustomerList = () => {
@@ -27,11 +28,7 @@ const CustomerList = () => {
     const startItem = (page - 1) * limit + 1;
     const endItem = Math.min(page * limit, totalCustomers);
 
-    const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPages) {
-            setPage(newPage);
-        }
-    };
+
 
     const handleToggle = async (customer) => {
         const confirm = window.confirm(`Are you sure you want to ${customer.isBlocked ? "unblock" : "block"} this user?`);
@@ -211,47 +208,11 @@ const CustomerList = () => {
                         Showing {totalCustomers === 0 ? 0 : startItem}-{endItem} from {totalCustomers}
                     </span>
 
-                    <div className="flex items-center gap-1">
-                        <button
-                            onClick={() => handlePageChange(page - 1)}
-                            disabled={page === 1}
-                            className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                            let pageNum;
-                            if (totalPages <= 5) pageNum = i + 1;
-                            else if (page <= 3) pageNum = i + 1;
-                            else if (page >= totalPages - 2) pageNum = totalPages - 4 + i;
-                            else pageNum = page - 2 + i;
-
-                            return (
-                                <button
-                                    key={pageNum}
-                                    onClick={() => handlePageChange(pageNum)}
-                                    className={`w-8 h-8 flex items-center justify-center rounded text-sm font-medium transition-colors ${
-                                        page === pageNum
-                                            ? "bg-black text-white"
-                                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                    }`}
-                                >
-                                    {pageNum}
-                                </button>
-                            );
-                        })}
-
-                        {totalPages > 5 && <span className="px-2 text-gray-400">...</span>}
-
-                        <button
-                            onClick={() => handlePageChange(page + 1)}
-                            disabled={page === totalPages || totalPages === 0}
-                            className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
+                    <Pagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        onPageChange={setPage}
+                    />
                 </div>
             </div>
         </div>

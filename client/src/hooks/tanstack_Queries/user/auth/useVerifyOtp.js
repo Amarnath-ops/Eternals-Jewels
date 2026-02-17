@@ -4,7 +4,7 @@ import { setCredentials } from "@/store/user/authSlice";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 export const useVerifyOtp = () => {
     const dispatch = useDispatch();

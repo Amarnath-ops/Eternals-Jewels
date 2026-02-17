@@ -12,6 +12,9 @@ import { useSelector } from "react-redux";
 import { useGetCartItems } from "@/hooks/tanstack_Queries/user/cart/useGetCartItems";
 import { useUpdateCartQuantity } from "@/hooks/tanstack_Queries/user/cart/useUpdateCartQuantity";
 import { useRemoveFromCart } from "@/hooks/tanstack_Queries/user/cart/useRemoveFromCart";
+import { useAddToWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useAddToWishlist";
+import { useGetWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useGetWishlist";
+import { useRemoveFromWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useRemoveFromWishlist";
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -25,7 +28,6 @@ const ProductDetails = () => {
         limit: 4,
         sort: "-createdAt",
     });
-    console.log(relatedData)
 
     const { mutateAsync: addtoCart } = useAddToCart();
     const isLogin = useSelector((state) => state.user.isLogin);
@@ -33,13 +35,20 @@ const ProductDetails = () => {
     const { mutateAsync: updateQuantity } = useUpdateCartQuantity();
     const { mutateAsync: removeFromCart } = useRemoveFromCart();
 
+    const { mutateAsync: addToWishlist } = useAddToWishlist();
+    const { mutateAsync: removeFromWishlist } = useRemoveFromWishlist();
+    const { data: wishlistData } = useGetWishlist({ enabled: !!isLogin });
+
     const cartItem = cartData?.cart?.items?.find(
         (item) => item.productId === product?._id && item.variantId === selectedMaterial?._id
-    )   ;
+    );
+    const isInWishlist = wishlistData?.wishlist?.items?.some(
+        (item) => item.productId === product?._id && item.variantId === selectedMaterial?._id
+    );
 
     const handleQuantityChange = async (newQty) => {
         if (!selectedMaterial) return;
-        
+
         const data = {
             productId: product._id,
             variantId: selectedMaterial._id,
@@ -119,14 +128,35 @@ const ProductDetails = () => {
         currency: "INR",
         maximumFractionDigits: 0,
     }).format(regularPrice);
+    
     const handleAddToCart = async (product) => {
         const data = {
             productId: product._id,
             variantId: selectedMaterial._id,
-            quantity:1
+            quantity: 1
         };
         await addtoCart(data);
     };
+
+    const handleWishlistToggle = async () => {
+        if (!isLogin) {
+            navigate("/login");
+            return;
+        }
+        if (!selectedMaterial) return;
+
+        const data = {
+            productId: product._id,
+            variantId: selectedMaterial._id,
+        };
+
+        if (isInWishlist) {
+            await removeFromWishlist(data);
+        } else {
+            await addToWishlist(data);
+        }
+    };
+
     return (
         <>
             <Navbar />
@@ -134,7 +164,7 @@ const ProductDetails = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-xs text-gray-500 mb-8 uppercase tracking-wide">
                         <span className="cursor-pointer hover:text-black" onClick={() => navigate("/")}>
-                            Home
+                            Home {!isInWishlist&& "haia"}
                         </span>
                         <span className="mx-2">/</span>
                         <span className="cursor-pointer hover:text-black" onClick={() => navigate("/shop")}>
@@ -155,7 +185,6 @@ const ProductDetails = () => {
                             </div>
 
                             <div className="flex gap-4 overflow-x-auto pb-2 justify-center lg:justify-start">
-                                {}
                                 {selectedMaterial && selectedMaterial.images && selectedMaterial.images.length > 0 ? (
                                     selectedMaterial.images.map((img, idx) => (
                                         <button
@@ -171,7 +200,6 @@ const ProductDetails = () => {
                                         </button>
                                     ))
                                 ) : (
-                                    
                                     <button
                                         className={`w-20 h-24 shrink-0 border ${activeImage === product.thumbnail?.image_url ? "border-black" : "border-transparent"} transition-all`}
                                         onClick={() => setActiveImage(product.thumbnail?.image_url)}
@@ -246,35 +274,43 @@ const ProductDetails = () => {
                             </div>
 
                             <div className="flex gap-4 mb-4">
-                                    {cartItem ? (
-                                        <div className="flex-1 flex items-center justify-between bg-[#CAB49E] text-white px-4 py-3.5 rounded-sm shadow-sm">
-                                            <button
-                                                onClick={() => handleQuantityChange(cartItem.quantity - 1)}
-                                                className="p-1 hover:text-gray-300 transition-colors"
-                                                disabled={cartItem.quantity <= 0}
-                                            >
-                                                <Minus size={18} />
-                                            </button>
-                                            <span className="text-sm font-bold uppercase tracking-widest px-4">
-                                                {cartItem.quantity} IN CART
-                                            </span>
-                                            <button
-                                                onClick={() => handleQuantityChange(cartItem.quantity + 1)}
-                                                className="p-1 hover:text-gray-300 transition-colors"
-                                            >
-                                                <Plus size={18} />
-                                            </button>
-                                        </div>
-                                    ) : (
+                                {cartItem ? (
+                                    <div className="flex-1 flex items-center justify-between bg-[#CAB49E] text-white px-4 py-3.5 rounded-sm shadow-sm">
                                         <button
-                                            onClick={() => handleAddToCart(product)}
-                                            className="flex-1 bg-[#CAB49E] text-white py-3.5 px-8 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-[#bfa38a] transition-colors shadow-sm"
+                                            onClick={() => handleQuantityChange(cartItem.quantity - 1)}
+                                            className="p-1 hover:text-gray-300 transition-colors"
+                                            disabled={cartItem.quantity <= 0}
                                         >
-                                            Add to Cart
+                                            <Minus size={18} />
                                         </button>
-                                    )}
-                                <button className="flex-1 border border-[#CAB49E] text-[#CAB49E] py-3.5 px-8 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                                    <Heart size={16} /> Add to Wishlist
+                                        <span className="text-sm font-bold uppercase tracking-widest px-4">
+                                            {cartItem.quantity} IN CART
+                                        </span>
+                                        <button
+                                            onClick={() => handleQuantityChange(cartItem.quantity + 1)}
+                                            className="p-1 hover:text-gray-300 transition-colors"
+                                        >
+                                            <Plus size={18} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => handleAddToCart(product)}
+                                        className="flex-1 bg-[#CAB49E] text-white py-3.5 px-8 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-[#bfa38a] transition-colors shadow-sm"
+                                    >
+                                        Add to Cart
+                                    </button>
+                                )}
+                                <button
+                                    onClick={handleWishlistToggle}
+                                    className={`flex-1 border border-[#CAB49E] py-3.5 px-8 rounded-sm text-sm font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 ${
+                                        isInWishlist
+                                            ? "bg-[#CAB49E] text-white"
+                                            : "text-[#CAB49E] hover:bg-gray-50"
+                                    }`}
+                                >
+                                    <Heart size={16} fill={isInWishlist ? "currentColor" : "none"} />
+                                    {isInWishlist ? "In Wishlist" : "Add to Wishlist"}
                                 </button>
                             </div>
 

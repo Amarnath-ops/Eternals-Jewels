@@ -2,7 +2,7 @@ import { QUERY_KEYS } from "@/lib/queryKeys";
 import { userService } from "@/services/user.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 export const useUpdateProfile = () => {
     const queryClient = useQueryClient();

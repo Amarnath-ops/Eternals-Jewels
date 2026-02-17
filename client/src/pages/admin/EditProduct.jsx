@@ -14,7 +14,7 @@ import { SpinnerBadge } from "@/components/Spinner";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImage } from "@/lib/cropUtils";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import z from "zod";
 
 const EditProduct = () => {

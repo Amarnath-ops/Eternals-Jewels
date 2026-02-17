@@ -2,7 +2,7 @@ import { adminService } from "@/services/admin.service";
 import { adminLogout } from "@/store/admin/adminAuthSlice";
 import { useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 export const useLogoutAdmin = () => {
     const dispatch = useDispatch();

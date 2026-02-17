@@ -22,8 +22,10 @@ import ProfileDashboard from "@/layouts/ProfileDashboard";
 import { useEffect } from "react";
 import axiosInstance from "@/api/axios";
 import { setCredentials } from "@/store/user/authSlice";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import CartPage from "@/pages/user/Cart";
+import Wishlist from "@/pages/user/Wishlist";
+import CheckoutPage from "@/pages/user/Checkout";
 
 const UserRoutes = () => {
     const dispatch = useDispatch();
@@ -61,6 +63,8 @@ const UserRoutes = () => {
                 <Route path="/reset-password" element={accessToken ? <Navigate to="/" replace /> : <ResetPassword />} />
                 <Route path="/google-success" element={accessToken ? <Navigate to="/" replace /> : <GoogleSuccess />} />
                 <Route path="/cart" element={isLogin ? <CartPage /> : <LoginPage/>} />
+                <Route path="/wishlist" element={isLogin ? <Wishlist /> : <LoginPage />} />
+                <Route path="/checkout" element={isLogin ? <CheckoutPage /> : <LoginPage />} />
                 <Route path="/account" element={isLogin ? <ProfileDashboard /> : <LoginPage />}>
                     <Route index path="profile" element={<MyProfile />}></Route>
                     <Route path="edit-profile" element={<EditProfile />}></Route>

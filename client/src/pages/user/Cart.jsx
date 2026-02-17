@@ -53,7 +53,7 @@ const CartPage = () => {
                     <div className="flex justify-between items-center mb-8 border-b border-gray-200 pb-4">
                         <div className="flex items-center gap-3">
                             <ShoppingBag className="text-gray-600" />
-                            <h2 className="text-2xl  text-gray-700">Your shopping Cart</h2>
+                            <h2 className="text-2xl  text-gray-700 font-cormorant">Your shopping Cart</h2>
                         </div>
                         <button
                             className="border border-red-200 text-red-400 px-4 py-2 text-sm hover:bg-red-400 hover:text-white transition"
@@ -121,9 +121,11 @@ const CartPage = () => {
                         </p>
 
                         <div className="space-y-3">
-                            <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition">
-                                Proceed to Checkout
-                            </button>
+                            <Link to="/checkout">
+                                <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition mb-2">
+                                    Proceed to Checkout
+                                </button>
+                            </Link>
                             <Link to="/shop">
                                 <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition">
                                     Continue Shopping

@@ -2,7 +2,7 @@ import axios from "axios";
 import store from "../store/store";
 import { logOut, setCredentials } from "@/store/user/authSlice";
 import { adminLogout, setAdminCredentials } from "@/store/admin/adminAuthSlice";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
     withCredentials: true,

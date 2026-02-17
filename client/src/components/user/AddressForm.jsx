@@ -5,7 +5,7 @@ import useZodForm from "@/hooks/useZodForm";
 import { addressSchema } from "@/validations/address.schema";
 import FormInput from "../form/FormInput";
 
-const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) => {
+const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading, onCancel }) => {
     const {
         handleSubmit,
         register,
@@ -144,12 +144,23 @@ const AddressForm = ({ type, onSubmit, defaultValues, submitLabel, isLoading }) 
                 </div>
                 {}
                 <div className="md:col-span-2 flex justify-end gap-4 mt-6">
-                    <Link
-                        to="/account/address"
-                        className="bg-gray-600 text-white px-8 py-2.5 rounded-md font-medium text-sm hover:bg-gray-700 transition-colors"
-                    >
-                        Cancel
-                    </Link>
+                    {/* Buttons */}
+                    {onCancel ? (
+                        <button
+                            type="button"
+                            onClick={onCancel}
+                            className="bg-gray-600 text-white px-8 py-2.5 rounded-md font-medium text-sm hover:bg-gray-700 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                    ) : (
+                        <Link
+                            to="/account/address"
+                            className="bg-gray-600 text-white px-8 py-2.5 rounded-md font-medium text-sm hover:bg-gray-700 transition-colors"
+                        >
+                            Cancel
+                        </Link>
+                    )}
                     <button
                         disabled={isLoading}
                         type="submit"

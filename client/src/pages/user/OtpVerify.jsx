@@ -8,7 +8,7 @@ import { REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useLocation } from "react-router-dom";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { useVerifyOtp } from "@/hooks/tanstack_Queries/user/auth/useVerifyOtp";
 import { useResendOtp } from "@/hooks/tanstack_Queries/user/auth/useResendOtp";
 

@@ -33,5 +33,7 @@ export const ERROR_MESSAGES = Object.freeze({
     VARIANT_IS_NOT_FOUND: "Variant is not found.",
     NOT_ENOUGH_STOCK: "Not enough stock.",
     CART_NOT_FOUND: "Cart is not found.",
-    ITEM_NOT_IN_CART:"Item is not in the cart."
+    ITEM_NOT_IN_CART: "Item is not in the cart.",
+    WISHLIST_NOT_FOUND: "Wishlist not found.",
+    ITEM_ALREADY_IN_WISHLIST: "Item is already in wishlist.",
 });

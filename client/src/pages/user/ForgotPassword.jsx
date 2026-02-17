@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { emailSchema, OtpSchema } from "@/validations/auth.schema";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { SpinnerBadge } from "@/components/Spinner";
 import { useForgotPassword } from "@/hooks/tanstack_Queries/user/auth/useForgotPassword";
@@ -45,12 +45,12 @@ const ForgotPasswordPage = () => {
                 <Navbar />
 
                 {}
-                <main className="flex-grow flex flex-col items-center justify-center -mt-10">
+                <main className="grow flex flex-col items-center justify-center -mt-10">
                     {}
                     <h1 className="text-3xl font-bold text-black mb-12 tracking-wide">Forgot Password ?</h1>
 
                     {}
-                    <div className="w-full max-w-[500px] px-4 flex flex-col gap-6">
+                    <div className="w-full max-w-125 px-4 flex flex-col gap-6">
                         {}
                         <form onSubmit={emailForm.handleSubmit(onSubmitEmail)}>
                             <label className="block text-gray-800 text-sm mb-2 pl-1 font-medium">

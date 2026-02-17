@@ -10,7 +10,7 @@ import EmailOtpModal from "../../components/user/EmailOtpModal";
 import { useCurrentUser } from "@/hooks/tanstack_Queries/user/profile/useCurrentUser";
 import { SpinnerBadge } from "@/components/Spinner";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 const EditProfile = () => {
     const [showOtpModal, setShowOtpModal] = useState(false);

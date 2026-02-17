@@ -78,13 +78,14 @@ const Navbar = ({ homePage }) => {
 
                 {isLogin ? (
                     <div className="flex items-center space-x-3 md:space-x-6 2xl:space-x-8">
-                        <button
+                        <Link
+                            to="/wishlist"
                             className={`${
                                 homePage ? "text-white hover:text-gray-300" : "text-black/75 hover:text-black"
                             }  transition hidden sm:block p-1 rounded-full `}
                         >
                             <Heart className="w-5 h-5 md:w-6 md:h-6 2xl:w-7 2xl:h-7" />
-                        </button>
+                        </Link>
                         <Link
                             to="/cart"
                             className={`${
@@ -93,7 +94,7 @@ const Navbar = ({ homePage }) => {
                         >
                             <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 2xl:w-7 2xl:h-7" />
                             {data?.cart?.items?.length > 0 && (
-                                <span className="absolute -top-1.5 -right-2 bg-[#7e6b58] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                                <span className="absolute -top-1.5 -right-2 bg-[#7e6b58] text-white text-[10px] font-bold rounded-full min-w-4.5 h-4.5 flex items-center justify-center px-1">
                                     {data.cart.items.length}
                                 </span>
                             )}

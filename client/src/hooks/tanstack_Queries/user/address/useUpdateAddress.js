@@ -1,7 +1,7 @@
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { addressServices } from "@/services/address.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 export const useUpdateAddress = () => {
     const queryClient = useQueryClient();

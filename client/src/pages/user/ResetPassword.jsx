@@ -2,7 +2,7 @@ import React from "react";
 import { Heart, ShoppingCart, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useLocation } from "react-router-dom";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { SpinnerBadge } from "@/components/Spinner";
 import { resetPasswordSchema } from "@/validations/auth.schema";
 import useZodForm from "@/hooks/useZodForm";

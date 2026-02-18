@@ -7,6 +7,7 @@ import Dashboard from "@/pages/admin/Dashboard";
 import AdminLogin from "@/pages/admin/Login";
 import UpdateCategory from "@/pages/admin/UpdateCategory";
 import ProductList from "@/pages/admin/ProductList";
+import OrderList from "@/pages/admin/OrderList";
 import { setAdminCredentials } from "@/store/admin/adminAuthSlice";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +15,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import AddProduct from "@/pages/admin/AddProduct";
 
 import EditProduct from "@/pages/admin/EditProduct";
-
+import OrderDetails from "@/pages/admin/OrderDetails";
 const AdminRoutes = () => {
     const dispatch = useDispatch();
     const restoreToken = async () => {
@@ -44,6 +45,8 @@ const AdminRoutes = () => {
                     <Route path="products" element={<ProductList />} />
                     <Route path="products/add-product" element={<AddProduct />} />
                     <Route path="products/edit-product/:id" element={<EditProduct />} />
+                    <Route path="orders" element={<OrderList />} />
+                    <Route path="orders/:orderId" element={<OrderDetails />} />
                 </Route>
             </Routes>
         </>

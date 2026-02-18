@@ -24,7 +24,7 @@ export const addToCartService = async (userId, productId, variantId, quantity) =
 
     if (variant.quantity < quantity) {
         const error = new Error(ERROR_MESSAGES.NOT_ENOUGH_STOCK);
-        error.statusCode = STATUS_CODES.NOT_FOUND;
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
 
@@ -39,6 +39,11 @@ export const addToCartService = async (userId, productId, variantId, quantity) =
         (item) => String(item.product._id) === String(productId) && String(item.variantId) === String(variantId),
     );
     if (existingItem) {
+        if (existingItem.quantity + quantity > variant.quantity) {
+             const error = new Error(ERROR_MESSAGES.NOT_ENOUGH_STOCK);
+             error.statusCode = STATUS_CODES.BAD_REQUEST;
+             throw error;
+        }
         existingItem.quantity += quantity;
     } else {
         cart.cartItems.push({
@@ -106,6 +111,25 @@ export const updateQuantityService = async (userId, productId, variantId, qty) =
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
+    const product = await productRepository.findById(productId);
+    if (!product) {
+        const error = new Error(ERROR_MESSAGES.PRODUCT_NOT_FOUND);
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+    const variant = product.variants.id(variantId);
+    if (!variant) {
+        const error = new Error(ERROR_MESSAGES.VARIANT_IS_NOT_FOUND);
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+
+    if (qty > variant.quantity) {
+        const error = new Error(ERROR_MESSAGES.NOT_ENOUGH_STOCK);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+
     item.quantity = qty;
     return cartRepository.saveCart(cart);
 };

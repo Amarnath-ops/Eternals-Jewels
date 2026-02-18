@@ -32,8 +32,9 @@ export const getOrders = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
+        const search = req.query.search || "";
 
-        const { orders, totalPages } = await getOrdersService(req.user._id, page, limit);
+        const { orders, totalPages } = await getOrdersService(req.user._id, page, limit, search);
 
         return res.status(STATUS_CODES.OK).json({
             success: true,

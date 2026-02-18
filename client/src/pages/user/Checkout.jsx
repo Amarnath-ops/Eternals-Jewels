@@ -18,12 +18,10 @@ const CheckoutPage = () => {
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState("RazorPay");
 
-    // Address Modal State
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-    const [modalMode, setModalMode] = useState("add"); // "add" or "edit"
+    const [modalMode, setModalMode] = useState("add"); 
     const [addressToEdit, setAddressToEdit] = useState(null);
 
-    // Set default address as selected initially if available
     React.useEffect(() => {
         if (addressData && addressData.length > 0 && !selectedAddressId) {
             const defaultAddr = addressData.find((addr) => addr.isDefault);
@@ -42,7 +40,7 @@ const CheckoutPage = () => {
     };
 
     const handleEditAddress = (e, addr) => {
-        e.stopPropagation(); // Prevent selecting the address card when clicking edit
+        e.stopPropagation(); 
         setModalMode("edit");
         setAddressToEdit(addr);
         setIsAddressModalOpen(true);
@@ -68,6 +66,11 @@ const CheckoutPage = () => {
             toast.error("Please select a delivery address.");
             return;
         }
+        console.log(paymentMethod)
+        if (paymentMethod === "RazorPay"  || paymentMethod === "Wallet") {
+            toast.error("Only cash on delivery is implemented, Other payment method will add in the next week.");
+            return;
+        }
 
         try {
             const orderData = {
@@ -80,9 +83,6 @@ const CheckoutPage = () => {
             navigate("/order-success");
         } catch (error) {
             console.error("Order placement failed", error);
-            // Toast is handled by hook onError if configured there, or here.
-            // In hook I removed explicit toast.error, so it relies on default or nothing.
-            // Let's rely on the error thrown.
         }
     };
 

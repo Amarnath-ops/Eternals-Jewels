@@ -4,8 +4,8 @@ export const orderService = {
     placeOrder: async (data) => {
         return await placeOrderApi(data);
     },
-    getOrders: async (page = 1, limit = 5) => {
-        return await getOrdersApi(page, limit);
+    getOrders: async (page = 1, limit = 5, search = "") => {
+        return await getOrdersApi(page, limit, search);
     },
     getOrderById: async (orderId) => {
         return await getOrderByIdApi(orderId);

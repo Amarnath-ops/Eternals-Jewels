@@ -5,8 +5,8 @@ export const placeOrderApi = async (data) => {
     return res.data;
 };
 
-export const getOrdersApi = async (page = 1, limit = 5) => {
-    const res = await axiosInstance.get(`/orders?page=${page}&limit=${limit}`);
+export const getOrdersApi = async (page = 1, limit = 5, search = "") => {
+    const res = await axiosInstance.get(`/orders?page=${page}&limit=${limit}&search=${search}`);
     return res.data;
 };
 

@@ -38,10 +38,13 @@ app.use("/api/v1/wishlist", wishlistRoutes);
 app.use("/api/v1/orders", userOrderRoutes);
 
 
+import adminOrderRoutes from "./routes/admin/order.routes.js";
+
 app.use("/api/v1/admin/auth", adminAuthRoutes);
 app.use("/api/v1/admin/customers", adminCustomersRoutes);
 app.use("/api/v1/admin/categories", adminCategoriesRoutes);
 app.use("/api/v1/admin/products", adminProductRoutes);
+app.use("/api/v1/admin/orders", adminOrderRoutes);
 
 
 export default app;

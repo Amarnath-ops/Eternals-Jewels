@@ -296,9 +296,10 @@ const ProductDetails = () => {
                                 ) : (
                                     <button
                                         onClick={() => handleAddToCart(product)}
-                                        className="flex-1 bg-[#CAB49E] text-white py-3.5 px-8 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-[#bfa38a] transition-colors shadow-sm"
+                                        disabled={!selectedMaterial || selectedMaterial.quantity === 0}
+                                        className={`flex-1 ${!selectedMaterial || selectedMaterial.quantity === 0 ? "bg-gray-300 cursor-not-allowed" : "bg-[#CAB49E] hover:bg-[#bfa38a] shadow-sm"} text-white py-3.5 px-8 rounded-sm text-sm font-bold uppercase tracking-widest transition-colors`}
                                     >
-                                        Add to Cart
+                                        {!selectedMaterial || selectedMaterial.quantity === 0 ? "Out of Stock" : "Add to Cart"}
                                     </button>
                                 )}
                                 <button

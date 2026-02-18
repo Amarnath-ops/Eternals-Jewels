@@ -103,14 +103,17 @@ const Wishlist = () => {
                                         
                                         <div className="flex items-center justify-center gap-2 mb-3">
                                             <span className="text-sm font-semibold text-gray-900">
-                                                {// Using basic formatting compatible with existing
-                                                new Intl.NumberFormat('en-IN', {
+                                                {new Intl.NumberFormat('en-IN', {
                                                     style: 'currency',
                                                     currency: 'INR',
                                                     maximumFractionDigits: 0,
-                                                }).format(item.price)
-                                                }
+                                                }).format(item.price)}
                                             </span>
+                                            {item.stock === 0 && (
+                                                <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded">
+                                                    Out of Stock
+                                                </span>
+                                            )}
                                             <div className="flex text-[#F5B843]">
                                                 {[...Array(5)].map((_, i) => (
                                                     <Star key={i} size={10} fill="currentColor" strokeWidth={0} />
@@ -128,7 +131,12 @@ const Wishlist = () => {
                                             </button>
                                             <button 
                                                 onClick={() => handleMoveToCart(item.productId, item.variantId)}
-                                                className="w-full border border-[#CAB49E] text-[#6D5D4E] text-xs font-bold uppercase tracking-widest py-2.5 rounded-sm hover:bg-[#EAE5DF] transition-colors"
+                                                disabled={item.stock === 0}
+                                                className={`w-full border border-[#CAB49E] text-xs font-bold uppercase tracking-widest py-2.5 rounded-sm transition-colors ${
+                                                    item.stock === 0
+                                                        ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                                                        : "text-[#6D5D4E] hover:bg-[#EAE5DF]"
+                                                }`}
                                             >
                                                 Move to Cart
                                             </button>

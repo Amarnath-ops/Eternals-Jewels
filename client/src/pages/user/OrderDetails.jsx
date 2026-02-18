@@ -222,7 +222,7 @@ const OrderDetails = () => {
                             <div className="text-right flex flex-col items-end gap-2">
                                 <p className="text-lg font-bold text-gray-900">{formatCurrency(item.price)}</p>
                                 <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                                {order.orderStatus === "Delivered" && item.itemStatus !== "Returned" && item.itemStatus !== "Return Requested" && (
+                                {item.itemStatus === "Delivered" && (
                                     <button 
                                         onClick={() => handleReturnClick(item)}
                                         className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors"
@@ -233,7 +233,7 @@ const OrderDetails = () => {
                                 {item.itemStatus === "Return Requested" && (
                                      <span className="text-sm text-orange-500 font-medium">Return Requested</span>
                                 )}
-                                {["Pending", "Processing"].includes(item.itemStatus) && !isCancelled && (
+                                {["Pending", "Processing"].includes(item.itemStatus || order.orderStatus) && (
                                     <button 
                                         onClick={() => handleCancelItem(item)}
                                         className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center gap-1 transition-colors"
@@ -251,11 +251,26 @@ const OrderDetails = () => {
 
                 <div className="border-t border-gray-200 pt-8 mt-8">
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        {/* Left Column: Payment & Delivery */}
                         <div className="space-y-8">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment</h3>
-                                <p className="text-gray-600 mb-1">{order.paymentMethod}</p>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h3>
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-gray-600 font-medium">Method</span>
+                                        <span className="text-gray-900 font-semibold">{order.paymentMethod}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-600 font-medium">Status</span>
+                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                                            order.paymentStatus === 'Completed' || order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700 border-green-200' :
+                                            order.paymentStatus === 'Failed' ? 'bg-red-100 text-red-700 border-red-200' :
+                                            order.paymentStatus === 'Refunded' ? 'bg-purple-100 text-purple-700 border-purple-200' :
+                                            'bg-amber-100 text-amber-700 border-amber-200'
+                                        }`}>
+                                            {order.paymentStatus}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Delivery</h3>

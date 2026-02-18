@@ -14,7 +14,6 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
         throw error;
     }
 
-    // 2. Validate Items & Calculate Total
     let totalAmount = 0;
     const orderItems = [];
 
@@ -55,7 +54,6 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
         });
     }
 
-    // 3. fetch Address
     const address = await findAddressById(addressId);
     if (!address) {
         const error = new Error(ERROR_MESSAGES.ADDRESS_NOT_FOUND);
@@ -63,7 +61,6 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
         throw error;
     }
 
-    // 4. Create Order Object
 
     let deliveryCharge = 0;
     if (totalAmount < 1000) {
@@ -90,26 +87,23 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
         finalAmount,
         discountAmount: 0,
         orderStatus: "Pending",
-        paymentStatus: paymentMethod === "COD" ? "Pending" : "Pending", // If Razorpay, client handles payment first then calls verify. But here we PLACE order.
-        deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        paymentStatus: paymentMethod === "COD" ? "Pending" : "Pending",
+        deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 
     };
 
-    // 5. Save Order
     const newOrder = await orderRepository.createOrder(orderData);
 
-    // 6. Update Stock
     for (const item of orderItems) {
         await productRepository.updateStock(item.product, item.variantId, item.quantity);
     }
 
-    // 7. Clear Cart
     await cartRepository.clearCart(userId);
 
     return newOrder;
 };
 
-export const getOrdersService = async (userId, page = 1, limit = 5) => {
-    return await orderRepository.findOrdersByUserId(userId, page, limit);
+export const getOrdersService = async (userId, page = 1, limit = 5, search = "") => {
+    return await orderRepository.findOrdersByUserId(userId, page, limit, search);
 };
 
 export const getOrderByIdService = async (userId, orderId) => {
@@ -150,12 +144,6 @@ export const returnOrderService = async (userId, orderId, itemId, reason) => {
         const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND || "Order not found");
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
-    }
-
-    if (order.orderStatus !== "Delivered") {
-         const error = new Error("Return can only be requested for delivered orders");
-         error.statusCode = STATUS_CODES.BAD_REQUEST;
-         throw error;
     }
 
     const item = order.orderItems.id(itemId);

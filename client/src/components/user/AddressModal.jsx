@@ -18,13 +18,10 @@ const AddressModal = ({ isOpen, onClose, mode = "add", initialData = null }) => 
                 toast.success("Address added successfully.");
             } else {
                 await updateAddress({ addressId: initialData._id, data });
-                // Hook handles success toast
             }
             onClose();
         } catch (error) {
             console.error(error);
-            // Error handling is likely done in the hook or global handler, 
-            // but toast.error could be added here if not.
         }
     };
 

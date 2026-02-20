@@ -14,6 +14,7 @@ import userOrderRoutes from "./routes/user/order.routes.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import "./config/passport.js";
+import adminOrderRoutes from "./routes/admin/order.routes.js";
 
 const app = express();
 
@@ -37,8 +38,6 @@ app.use("/api/v1/cart", userCartRoutes)
 app.use("/api/v1/wishlist", wishlistRoutes);
 app.use("/api/v1/orders", userOrderRoutes);
 
-
-import adminOrderRoutes from "./routes/admin/order.routes.js";
 
 app.use("/api/v1/admin/auth", adminAuthRoutes);
 app.use("/api/v1/admin/customers", adminCustomersRoutes);

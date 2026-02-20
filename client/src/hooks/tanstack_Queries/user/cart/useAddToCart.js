@@ -12,5 +12,8 @@ export const useAddToCart = () => {
             queryClient.invalidateQueries([QUERY_KEYS.USER_CART]);
             toast.success("Added to your cart.");
         },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message || "Failed to add to cart");
+        },
     });
 };

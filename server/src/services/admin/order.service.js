@@ -8,7 +8,7 @@ export const getAllOrdersService = async (page = 1, limit = 10, search = "", sta
 export const getOrderByIdService = async (orderId) => {
     const order = await orderRepository.findOrderById(orderId);
     if (!order) {
-        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND || "Order not found");
+        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND);
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
@@ -18,7 +18,7 @@ export const getOrderByIdService = async (orderId) => {
 export const updateOrderStatusService = async (orderId, status) => {
     const order = await orderRepository.findOrderById(orderId);
     if (!order) {
-        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND || "Order not found");
+        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND);
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
@@ -36,19 +36,19 @@ export const updateOrderStatusService = async (orderId, status) => {
     const newPrecedence = statusPrecedence[status] || 0;
 
     if (newPrecedence < currentPrecedence && order.orderStatus !== "Cancelled" && order.orderStatus !== "Returned") {
-         const error = new Error("Cannot revert order status to a previous stage.");
+         const error = new Error(ERROR_MESSAGES.CANNOT_REVERT_ORDER_STATUS);
          error.statusCode = STATUS_CODES.BAD_REQUEST;
          throw error;
     }
 
     if (order.orderStatus === "Cancelled") {
-        const error = new Error("Cannot change status of a Cancelled order.");
+        const error = new Error(ERROR_MESSAGES.CANNOT_CHANGE_STATUS_OF_CANCELLED_ORDER);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
 
     if (order.orderStatus === "Delivered" && status !== "Returned") {
-         const error = new Error("Delivered orders can only be marked as Returned.");
+         const error = new Error(ERROR_MESSAGES.DELIVERED_ORDERS_CAN_ONLY_BE_MARKED_AS_RETURNED);
          error.statusCode = STATUS_CODES.BAD_REQUEST;
          throw error;
     }
@@ -59,14 +59,14 @@ export const updateOrderStatusService = async (orderId, status) => {
 export const updateOrderItemStatusService = async (orderId, itemId, status) => {
     const order = await orderRepository.findOrderById(orderId);
     if (!order) {
-        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND || "Order not found");
+        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND);
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
 
     const item = order.orderItems.id(itemId);
     if (!item) {
-        const error = new Error("Item not found");
+        const error = new Error(ERROR_MESSAGES.ITEM_NOT_FOUND);
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
@@ -87,19 +87,19 @@ export const updateOrderItemStatusService = async (orderId, itemId, status) => {
     const isReturnToProcess = item.itemStatus === "Return Requested" && (status === "Processing" || status === "Delivered");
     
     if (newPrecedence < currentPrecedence && item.itemStatus !== "Cancelled" && item.itemStatus !== "Returned" && !isReturnToProcess) {
-         const error = new Error("Cannot revert item status to a previous stage.");
+         const error = new Error(ERROR_MESSAGES.CANNOT_REVERT_ORDER_STATUS);
          error.statusCode = STATUS_CODES.BAD_REQUEST;
          throw error;
     }
 
     if (item.itemStatus === "Cancelled") {
-        const error = new Error("Cannot change status of a Cancelled item.");
+        const error = new Error(ERROR_MESSAGES.CANNOT_CHANGE_STATUS_OF_CANCELLED_ITEM);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
 
     if (item.itemStatus === "Delivered" && status !== "Returned" && status !== "Return Requested") {
-         const error = new Error("Delivered items can only be marked as Returned.");
+         const error = new Error(ERROR_MESSAGES.DELIVERED_ITEMS_CAN_ONLY_BE_MARKED_AS_RETURNED);
          error.statusCode = STATUS_CODES.BAD_REQUEST;
          throw error;
     }

@@ -1,24 +1,35 @@
+import { CONSTANTS } from "../../constants/constants.js";
 import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
-import { placeOrderService, getOrdersService, cancelOrderService, getOrderByIdService, returnOrderService, cancelOrderItemService } from "../../services/user/order.service.js";
+import {
+    placeOrderService,
+    getOrdersService,
+    cancelOrderService,
+    getOrderByIdService,
+    returnOrderService,
+    cancelOrderItemService,
+    verifyPaymentService,
+} from "../../services/user/order.service.js";
 
 export const placeOrder = async (req, res) => {
     try {
         const { addressId, paymentMethod } = req.body;
-        
+
         if (!addressId || !paymentMethod) {
-            return res.status(STATUS_CODES.BAD_REQUEST).json({
-                success: false,
-                message: "Address and Payment Method are required",
-            });
+            const error = new Error(ERROR_MESSAGES.ADDRESS_AND_PAYMENT_METHOD_REQUIRED);
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
         }
 
         const order = await placeOrderService(req.user._id, { addressId, paymentMethod });
 
         return res.status(STATUS_CODES.CREATED).json({
             success: true,
-            message: "Order placed successfully.",
+            message: CONSTANTS.ORDER_PLACED_SUCCESSFULLY,
             orderId: order._id,
+            razorpayOrderId: order.razorpayOrderId,
+            amount: order.amount,
+            key: process.env.RAZORPAY_KEY_ID,
         });
     } catch (error) {
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
@@ -38,10 +49,10 @@ export const getOrders = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Orders fetched successfully",
+            message: CONSTANTS.ORDERS_FETCHED_SUCCESSFULLY,
             orders,
             totalPages,
-            currentPage: page
+            currentPage: page,
         });
     } catch (error) {
         return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
@@ -49,10 +60,7 @@ export const getOrders = async (req, res) => {
             message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         });
     }
-    }
-
-
-
+};
 
 export const getOrderById = async (req, res) => {
     try {
@@ -61,7 +69,7 @@ export const getOrderById = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Order fetched successfully",
+            message: CONSTANTS.ORDER_FETCHED_SUCCESSFULLY,
             order,
         });
     } catch (error) {
@@ -79,11 +87,10 @@ export const cancelOrder = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Order cancelled successfully",
+            message: CONSTANTS.ORDER_CANCELLED_SUCCESSFULLY,
             order,
         });
-    }
-    catch(error){
+    } catch (error) {
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
@@ -95,19 +102,18 @@ export const returnOrder = async (req, res) => {
     try {
         const { orderId, itemId } = req.params;
         const { reason } = req.body;
-        
+
         if (!reason) {
-             return res.status(STATUS_CODES.BAD_REQUEST).json({
-                success: false,
-                message: "Return reason is required",
-            });
+            const error = new Error(ERROR_MESSAGES.RETURN_REASON_REQUIRED);
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
         }
 
         const order = await returnOrderService(req.user._id, orderId, itemId, reason);
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Return requested successfully",
+            message: CONSTANTS.ORDER_RETURNED_SUCCESSFULLY,
             order,
         });
     } catch (error) {
@@ -125,7 +131,7 @@ export const cancelOrderItem = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Order item cancelled successfully",
+            message: CONSTANTS.ORDER_ITEM_CANCELLED_SUCCESSFULLY,
             order,
         });
     } catch (error) {
@@ -133,5 +139,24 @@ export const cancelOrderItem = async (req, res) => {
             success: false,
             message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         });
+    }
+};
+
+export const verifyPayment = async (req, res) => {
+    try {
+        const { orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
+        const isVerified = await verifyPaymentService(orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature);
+        if (isVerified) {
+            return res.status(STATUS_CODES.OK).json({ success: true, message: CONSTANTS.PAYMENT_VERIFIED_SUCCESSFULLY });
+        } else {
+            return res
+                .status(STATUS_CODES.BAD_REQUEST)
+                .json({ success: false, message: ERROR_MESSAGES.INVALID_PAYMENT_SIGNATURE });
+        }
+    } catch (error) {
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        }); 
     }
 };

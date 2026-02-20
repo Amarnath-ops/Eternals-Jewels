@@ -15,7 +15,7 @@ export const useMoveToCart = () => {
         },
         onError: (error) => {
             console.error(error);
-            toast.error(error.message || "Failed to move to cart");
+            toast.error(error?.response?.data?.message || error.message || "Failed to move to cart");
         },
     });
 };

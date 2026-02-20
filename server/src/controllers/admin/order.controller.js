@@ -6,7 +6,7 @@ import {
 } from "../../services/admin/order.service.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
 import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
-
+import { CONSTANTS } from "../../constants/constants.js";
 export const getAllOrders = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -20,7 +20,7 @@ export const getAllOrders = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Orders fetched successfully",
+            message: CONSTANTS.ORDERS_FETCHED_SUCCESSFULLY,
             data: {
                 orders,
                 totalPages,
@@ -43,7 +43,7 @@ export const getOrderById = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Order fetched successfully",
+            message: CONSTANTS.ORDERS_FETCHED_SUCCESSFULLY,
             data: order
         });
     } catch (error) {
@@ -60,17 +60,16 @@ export const updateOrderStatus = async (req, res) => {
         const { status } = req.body;
         
         if (!status) {
-            return res.status(STATUS_CODES.BAD_REQUEST).json({
-                success: false,
-                message: "Status is required"
-            });
+            const error = new Error(ERROR_MESSAGES.STATUS_IS_REQUIRED);
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
         }
 
         const order = await updateOrderStatusService(orderId, status);
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Order status updated successfully",
+            message: CONSTANTS.ORDER_STATUS_UPDATED,
             data: order
         });
     } catch (error) {
@@ -87,17 +86,16 @@ export const updateOrderItemStatus = async (req, res) => {
         const { status } = req.body;
 
         if (!status) {
-             return res.status(STATUS_CODES.BAD_REQUEST).json({
-                success: false,
-                message: "Status is required"
-            });
+            const error = new Error(ERROR_MESSAGES.STATUS_IS_REQUIRED);
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
         }
 
         const order = await updateOrderItemStatusService(orderId, itemId, status);
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Order item status updated successfully",
+            message: CONSTANTS.ORDER_ITEM_STATUS_UPDATED,
             data: order
         });
     } catch (error) {

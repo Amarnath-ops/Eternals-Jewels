@@ -47,7 +47,6 @@ const OrderDetails = () => {
         { status: "Delivered", label: "Delivered", icon: CheckCircle, date: order.deliveryDate },
     ];
     
-    // Simple logic to determine active step based on current status index
     const currentStatusIndex = ORDER_STATUSES.indexOf(order.orderStatus);
 
     return (

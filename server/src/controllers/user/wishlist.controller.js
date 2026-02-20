@@ -7,6 +7,7 @@ import {
     clearWishlistService,
     moveItemToCartService,
 } from "../../services/user/wishlist.service.js";
+import { CONSTANTS } from "../../constants/constants.js";
 
 export const addToWishlist = async (req, res) => {
     try {
@@ -70,7 +71,7 @@ export const clearWishlist = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Wishlist cleared successfully.",
+            message: CONSTANTS.WISHLIST_CLEARED_SUCCESSFULLY,
         });
     } catch (error) {
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
@@ -89,7 +90,7 @@ export const moveItemToCart = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Item moved to cart successfully.",
+            message: CONSTANTS.WISHLIST_ITEM_MOVED_TO_CART_SUCCESSFULLY,
         });
     } catch (error) {
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({

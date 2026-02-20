@@ -79,7 +79,7 @@ export const getWishlistService = async (userId) => {
 export const removeFromWishlistService = async (userId, productId, variantId) => {
     const wishlist = await wishlistRepository.findWishlistByUser(userId);
     if (!wishlist) {
-        const error = new Error(ERROR_MESSAGES.WISHLIST_NOT_FOUND); // You might need to add this constant or use generic
+        const error = new Error(ERROR_MESSAGES.WISHLIST_NOT_FOUND); 
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
@@ -96,12 +96,7 @@ export const clearWishlistService = async (userId) => {
 };
 
 export const moveItemToCartService = async (userId, productId, variantId) => {
-    // 1. Add to Cart (reuse cart service which handles validation and stock check)
-    // We assume quantity 1 for move to cart from wishlist
     await addToCartService(userId, productId, variantId, 1);
-
-    // 2. Remove from Wishlist
     await removeFromWishlistService(userId, productId, variantId);
-
     return { success: true };
 };

@@ -8,7 +8,6 @@ const OrderCard = ({ order, onOrderCancelled }) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
-    // Helper to format currency
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-IN', {
             style: 'currency',
@@ -16,7 +15,6 @@ const OrderCard = ({ order, onOrderCancelled }) => {
             maximumFractionDigits: 2,
         }).format(amount);
     };
-    // Helper to format date
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-GB', {
             day: '2-digit',
@@ -24,7 +22,6 @@ const OrderCard = ({ order, onOrderCancelled }) => {
             year: 'numeric'
         });
     };
-    // Determine status color
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case 'delivered':
@@ -35,7 +32,7 @@ const OrderCard = ({ order, onOrderCancelled }) => {
                 return 'text-red-500';
             case 'refunded':
                 return 'text-purple-600';
-            default: // pending, processing
+            default: 
                 return 'text-orange-500';
         }
     };

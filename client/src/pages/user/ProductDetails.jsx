@@ -15,6 +15,7 @@ import { useRemoveFromCart } from "@/hooks/tanstack_Queries/user/cart/useRemoveF
 import { useAddToWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useAddToWishlist";
 import { useGetWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useGetWishlist";
 import { useRemoveFromWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useRemoveFromWishlist";
+import toast from "react-hot-toast";
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -130,6 +131,11 @@ const ProductDetails = () => {
     }).format(regularPrice);
     
     const handleAddToCart = async (product) => {
+        if (!isLogin) {
+            toast.error("Please login to add to cart");
+            return;
+        }
+        
         const data = {
             productId: product._id,
             variantId: selectedMaterial._id,

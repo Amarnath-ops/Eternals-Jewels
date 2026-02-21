@@ -19,7 +19,8 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
 
     for (const item of cart.cartItems) {
         const product = await productRepository.findById(item.product._id);
-
+        
+        console.log("pRODUCT",product)
         if (!product || !product.isListed || product.isDeleted) {
             const error = new Error(`Product ${product ? product.productName : ""} is unavailable`);
             error.statusCode = STATUS_CODES.BAD_REQUEST;
@@ -93,14 +94,16 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
     const newOrder = await orderRepository.createOrder(orderData);
     let razorpayOrder = null;
     if (paymentMethod === "RazorPay") {
+        console.log(finalAmount)
         const options = {
-            amount: finalAmount * 100,
+            amount: Math.round(finalAmount * 100),
             currency: "INR",
             receipt: newOrder._id.toString(),
         };
         try {
             razorpayOrder = await razorpay.orders.create(options);
         } catch (error) {
+            console.log(error);
             error.message = ERROR_MESSAGES.RAZORPAY_ERROR;
             error.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR;
             throw error;
@@ -149,9 +152,14 @@ export const cancelOrderService = async (userId, orderId) => {
         throw error;
     }
 
-    for (const item of order.orderItems) {
-        await productRepository.updateStock(item.product, item.variantId, -item.quantity);
-    }
+    await Promise.all(
+        order.orderItems.map(item => {
+            if (item.itemStatus !== "Cancelled" && item.itemStatus !== "Returned") {
+                return productRepository.updateStock(item.product, item.variantId, -item.quantity);
+            }
+            return Promise.resolve();
+        })
+    );
     return await orderRepository.cancelOrder(orderId);
 };
 
@@ -219,4 +227,49 @@ export const verifyPaymentService = async (orderId, razorpayPaymentId, razorpayO
         await orderRepository.saveOrder(order);
         return false
     }
+};
+
+export const retryPaymentService = async (userId, orderId) => {
+    const order = await orderRepository.findOrderByIdAndUser(orderId, userId);
+    
+    if (!order) {
+        const error = new Error(ERROR_MESSAGES.ORDER_NOT_FOUND);
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+
+    if (order.paymentMethod !== "RazorPay") {
+        const error = new Error("Payment method is not RazorPay");
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+
+    if (order.paymentStatus === "Completed") {
+        const error = new Error("Payment is already completed");
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+
+    let razorpayOrder = null;
+    const options = {
+        amount: Math.round(order.finalAmount * 100),
+        currency: "INR",
+        receipt: order._id.toString(),
+    };
+    
+    try {
+        razorpayOrder = await razorpay.orders.create(options);
+    } catch (error) {
+        console.error(error);
+        const err = new Error(ERROR_MESSAGES.RAZORPAY_ERROR);
+        err.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR;
+        throw err;
+    }
+
+    return {
+        ...order.toObject(),
+        razorpayOrderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        key: process.env.RAZORPAY_KEY_ID
+    };
 };

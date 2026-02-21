@@ -29,6 +29,7 @@ import CheckoutPage from "@/pages/user/Checkout";
 import OrderSuccessPage from "@/pages/user/OrderSuccess";
 import MyOrders from "@/pages/user/MyOrders";
 import OrderDetails from "@/pages/user/OrderDetails";
+import PaymentFailurePage from "@/pages/user/PaymentFailure";
 
 const UserRoutes = () => {
     const dispatch = useDispatch();
@@ -69,6 +70,7 @@ const UserRoutes = () => {
                 <Route path="/wishlist" element={isLogin ? <Wishlist /> : <LoginPage />} />
                 <Route path="/checkout" element={isLogin ? <CheckoutPage /> : <LoginPage />} />
                 <Route path="/order-success" element={isLogin ? <OrderSuccessPage /> : <LoginPage />} />
+                <Route path="/payment-failed" element={isLogin ? <PaymentFailurePage /> : <LoginPage />} />
                 <Route path="/account" element={isLogin ? <ProfileDashboard /> : <LoginPage />}>
                     <Route index path="profile" element={<MyProfile />}></Route>
                     <Route path="edit-profile" element={<EditProfile />}></Route>

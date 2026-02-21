@@ -7,5 +7,5 @@ export const getAllCustomersApi = async(params)=>{
 }
 
 export const toggleBlockUserApi = (userId)=>{
-  return axiosInstance.patch(`admin/customers/${userId}/status`)
+  return axiosInstance.patch(`/admin/customers/${userId}/status`)  
 }

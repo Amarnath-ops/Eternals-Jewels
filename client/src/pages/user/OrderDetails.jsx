@@ -1,19 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { orderService } from "@/services/user/order.service";
 import { SpinnerBadge } from "@/components/Spinner";
 import { ArrowLeft, Download, RefreshCcw, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import downloadInvoice from "@/lib/downloadInvoice";
+import useRetryPayment from "@/hooks/tanstack_Queries/user/order/useRetryPayment";
+import useVerifyPayment from "@/hooks/tanstack_Queries/user/order/useVerifyPayment";
+
+const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+    });
+};
 
 const OrderDetails = () => {
     const { orderId } = useParams();
+    const navigate = useNavigate();
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
     const [selectedItemForReturn, setSelectedItemForReturn] = useState(null);
     const [returnReason, setReturnReason] = useState("");
+    const { mutateAsync: retryPayment, isPending: isRetrying } = useRetryPayment();
+    const { mutateAsync: verifyPayment } = useVerifyPayment();
 
     const returnReasons = [
         "Product damaged",
@@ -65,6 +80,74 @@ const OrderDetails = () => {
             toast.error(err.response?.data?.message || "Failed to cancel item");
         }
     };
+
+    const handleRetryPayment = async () => {
+        try {
+            const response = await retryPayment(order._id);
+            
+            const isScriptLoaded = await loadRazorpayScript();
+            if (!isScriptLoaded) {
+                 toast.error("Failed to load Razorpay SDK. Are you online?");
+                 return;
+            }
+
+            const options = {
+                 key: response.key,
+                 amount: response.amount,
+                 currency: "INR",
+                 name: "Eternals Jewels",
+                 description: "Jewelry Purchase",
+                 order_id: response.razorpayOrderId, 
+                 handler: async function (paymentResponse) {
+                      const verificationData = {
+                           orderId: response.orderId,
+                           razorpayPaymentId: paymentResponse.razorpay_payment_id,
+                           razorpayOrderId: paymentResponse.razorpay_order_id,
+                           razorpaySignature: paymentResponse.razorpay_signature
+                      };
+                      
+                      try {
+                           await verifyPayment(verificationData);
+                           toast.success("Payment Successful!");
+                           const updatedOrderData = await orderService.getOrderById(order._id);
+                           setOrder(updatedOrderData.order);
+                      } catch (error) {
+                           toast.error("Payment verification failed.");
+                      }
+                 },
+                 prefill: {
+                      name: order.shippingAddress?.fullname || "Customer",
+                      contact: order.shippingAddress?.phone || ""
+                 },
+                 theme: { color: "#8B6D51" },
+                 modal: {
+                      ondismiss: function() {
+                           navigate("/payment-failed", { state: { error: "Payment was cancelled.", orderId: order._id } });
+                      }
+                 }
+            };
+
+            const paymentObject = new window.Razorpay(options);
+            paymentObject.on("payment.failed", function (res) {
+                 toast.error(res.error.description || "Payment failed!");
+                 try {
+                     const razorpayContainer = document.querySelector(".razorpay-container");
+                     if (razorpayContainer) {
+                         razorpayContainer.style.display = "none";
+                         razorpayContainer.remove();
+                     }
+                 } catch (e) {
+                     console.log(e);
+                 }
+                 navigate("/payment-failed", { state: { error: res.error.description || "Your payment could not be processed at this time.", orderId: order._id } });
+            });
+            paymentObject.open();
+
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.message || "Failed to initiate payment retry");
+        }
+    }
 
 
     useEffect(() => {
@@ -270,6 +353,18 @@ const OrderDetails = () => {
                                             {order.paymentStatus}
                                         </span>
                                     </div>
+                                    {order.paymentMethod === 'RazorPay' && (order.paymentStatus === 'Pending' || order.paymentStatus === 'Failed') && !isCancelled && !isReturned && (
+                                        <div className="mt-4 pt-3 border-t border-gray-200 flex justify-end">
+                                            <button 
+                                                onClick={handleRetryPayment}
+                                                disabled={isRetrying}
+                                                className="bg-black text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+                                            >
+                                                {isRetrying ? <RefreshCcw className="w-4 h-4 animate-spin" /> : null}
+                                                Retry Payment
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div>

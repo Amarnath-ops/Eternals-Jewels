@@ -9,6 +9,7 @@ import {
     returnOrderService,
     cancelOrderItemService,
     verifyPaymentService,
+    retryPaymentService,
 } from "../../services/user/order.service.js";
 
 export const placeOrder = async (req, res) => {
@@ -158,5 +159,26 @@ export const verifyPayment = async (req, res) => {
             success: false,
             message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         }); 
+    }
+};
+
+export const retryPayment = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await retryPaymentService(req.user._id, orderId);
+
+        return res.status(STATUS_CODES.OK).json({
+            success: true,
+            message: "Payment retry initiated successfully",
+            orderId: order._id,
+            razorpayOrderId: order.razorpayOrderId,
+            amount: order.amount,
+            key: order.key,
+        });
+    } catch (error) {
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
     }
 };

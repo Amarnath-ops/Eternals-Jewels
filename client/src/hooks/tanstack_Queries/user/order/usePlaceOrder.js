@@ -9,5 +9,8 @@ export const usePlaceOrder = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_CART] });
         },
+        onError: (error) => {
+            console.log(error);
+        },
     });
 };

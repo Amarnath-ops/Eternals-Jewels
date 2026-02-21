@@ -17,7 +17,7 @@ export const cancelOrderApi = async (orderId) => {
 
 export const getOrderByIdApi = async (orderId) => {
     const res = await axiosInstance.get(`/orders/${orderId}`);
-    console.log(res)
+    console.log(res);
     return res.data;
 };
 
@@ -28,5 +28,15 @@ export const returnOrderApi = async (orderId, itemId, reason) => {
 
 export const cancelOrderItemApi = async (orderId, itemId) => {
     const res = await axiosInstance.patch(`/orders/${orderId}/cancel/${itemId}`);
+    return res.data;
+};
+
+export const verifyPaymentApi = async (data) => {
+    const res = await axiosInstance.post(`/orders/verify-payment`, data);
+    return res.data
+};
+
+export const retryPaymentApi = async (orderId) => {
+    const res = await axiosInstance.post(`/orders/${orderId}/retry-payment`);
     return res.data;
 };

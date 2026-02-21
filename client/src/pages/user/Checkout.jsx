@@ -8,18 +8,30 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import AddressModal from "@/components/user/AddressModal";
 import { usePlaceOrder } from "@/hooks/tanstack_Queries/user/order/usePlaceOrder";
+import useVerifyPayment from "@/hooks/tanstack_Queries/user/order/useVerifyPayment";
+
+const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+    });
+};
 
 const CheckoutPage = () => {
     const { data: cartData, isLoading: isCartLoading } = useGetCartItems();
     const { data: addressData, isLoading: isAddressLoading } = useGetAddress();
     const { mutateAsync: placeOrder, isPending: isPlacingOrder } = usePlaceOrder();
+    const { mutateAsync: verifyPayment } = useVerifyPayment();
     const navigate = useNavigate();
 
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState("RazorPay");
 
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-    const [modalMode, setModalMode] = useState("add"); 
+    const [modalMode, setModalMode] = useState("add");
     const [addressToEdit, setAddressToEdit] = useState(null);
 
     React.useEffect(() => {
@@ -40,7 +52,7 @@ const CheckoutPage = () => {
     };
 
     const handleEditAddress = (e, addr) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         setModalMode("edit");
         setAddressToEdit(addr);
         setIsAddressModalOpen(true);
@@ -50,7 +62,7 @@ const CheckoutPage = () => {
         return <SpinnerBadge content={"Loading checkout..."} />;
     }
 
-    if (!cartData?.cart?.items || cartData.cart.items.length === 0) {
+    if (!cartData?.cart?.items || (cartData.cart.items.length === 0 && paymentMethod !== "RazorPay")) {
         toast.error("You don't have any products in your cart to proceed with checkout.");
         return <Navigate to="/cart" />;
     }
@@ -66,23 +78,93 @@ const CheckoutPage = () => {
             toast.error("Please select a delivery address.");
             return;
         }
-        console.log(paymentMethod)
-        if (paymentMethod === "RazorPay"  || paymentMethod === "Wallet") {
-            toast.error("Only cash on delivery is implemented, Other payment method will add in the next week.");
-            return;
-        }
-
         try {
             const orderData = {
                 addressId: selectedAddressId,
                 paymentMethod: paymentMethod,
             };
 
-            await placeOrder(orderData);
-            toast.success("Order placed successfully!");
-            navigate("/order-success");
+            const response = await placeOrder(orderData);
+
+            if (paymentMethod === "RazorPay") {
+                const isScriptedLoaded = await loadRazorpayScript();
+                if (!isScriptedLoaded) {
+                    toast.error("Failed to load Razorpay SDK. Are you online?");
+                    return;
+                }
+                const options = {
+                    key: response.key,
+                    amount: response.amount,
+                    currency: "INR",
+                    name: "Eternals Jewels",
+                    description: "Jewellery Purchase",
+                    order_id: response.razorpayOrderId,
+                    handler: async (paymentResponse) => {
+                        const verificationData = {
+                            orderId: response.orderId,
+                            razorpayPaymentId: paymentResponse.razorpay_payment_id,
+                            razorpayOrderId: paymentResponse.razorpay_order_id,
+                            razorpaySignature: paymentResponse.razorpay_signature,
+                        };
+                        try {
+                            await verifyPayment(verificationData);
+                            toast.success("Payment Successful! Order placed.");
+                            navigate("/order-success");
+                        } catch (error) {
+                            toast.error("Payment Verification failed");
+                            console.log(error);
+                        }
+                    },
+                    prefill: {
+                        name: addressData.find((a) => a._id === selectedAddressId)?.fullname || "Customer",
+                        contact: addressData.find((a) => a._id === selectedAddressId)?.phone || "",
+                    },
+                    theme: {
+                        color: "#8B6D51",
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            navigate("/payment-failed", {
+                                state: { error: "Payment was cancelled.", orderId: response.orderId },
+                            });
+                        },
+                    },
+                };
+
+                const paymentObject = new window.Razorpay(options);
+                paymentObject.on("payment.failed", function (failResponse) {
+                    toast.error(failResponse.error.description || "Payment failed!");
+                    document.body.style.overflow = "auto";
+                    try {
+                        const razorpayContainer = document.querySelector(".razorpay-container");
+                        if (razorpayContainer) {
+                            razorpayContainer.style.display = "none";
+                            razorpayContainer.remove();
+                        }
+                    } catch (e) {
+                        console.log(e);
+                    }
+                    navigate("/payment-failed", {
+                        state: {
+                            error: failResponse.error.description || "Your payment could not be processed at this time.",
+                            orderId: response.orderId,
+                        },
+                    });
+                });
+                paymentObject.open();
+                paymentObject.on("payment.success", () => {
+                    document.body.style.overflow = "auto";
+                });
+                paymentObject.on("modal.closed", () => {
+                    document.body.style.overflow = "auto";
+                });
+            } else {
+                toast.success("Order Placed successfully!");
+                navigate("/order-success");
+            }
         } catch (error) {
             console.error("Order placement failed", error);
+            toast.error(error?.response?.data?.message || "Something went wrong.");
         }
     };
 
@@ -202,7 +284,7 @@ const CheckoutPage = () => {
                             {/* Add New Address Card */}
                             <button
                                 onClick={handleAddAddress}
-                                className="flex flex-col items-center justify-center p-6 bg-[#EBEBEB] rounded-lg cursor-pointer hover:bg-gray-200 transition-colors min-h-[200px]"
+                                className="flex flex-col items-center justify-center p-6 bg-[#EBEBEB] rounded-lg cursor-pointer hover:bg-gray-200 transition-colors min-h-50"
                             >
                                 <span className="font-medium text-gray-700 mb-2">Add new Address</span>
                                 <Plus className="text-gray-600" />

@@ -15,7 +15,7 @@ export const useUpdateCartQuantity = () => {
         },
         onError: (error) => {
             console.error(error);
-            toast.error(error.message || "Failed to update cart");
+            toast.error(error?.response?.data?.message || error.message || "Failed to update cart");
         },
     });
 };

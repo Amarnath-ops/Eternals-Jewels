@@ -33,7 +33,7 @@ export const updateAddressApi = async ({addressId,data})=>{
   }
 }
 
-export const deleteAddressApi = async (addressId)=>{
+export const deleteAddressApi = async (addressId)=>{  
   const res = await axiosInstance.delete(`/users/address/${addressId}`)
   return res.data
 }

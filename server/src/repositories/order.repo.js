@@ -18,6 +18,9 @@ export const orderRepository = {
         order.orderItems.forEach((item) => {
             item.itemStatus = "Cancelled";
         });
+        
+        order.totalAmount = 0;
+        order.finalAmount = 0;
 
         return await order.save();
     },
@@ -82,8 +85,12 @@ export const orderRepository = {
         });
 
         order.totalAmount = newTotalAmount;
-        order.finalAmount = newTotalAmount - (order.discountAmount || 0) + deliveryCharge;
-        if (order.finalAmount < 0) order.finalAmount = 0;
+        if (newTotalAmount === 0) {
+            order.finalAmount = 0;
+        } else {
+            order.finalAmount = newTotalAmount - (order.discountAmount || 0) + deliveryCharge;
+            if (order.finalAmount < 0) order.finalAmount = 0;
+        }
 
         return await order.save();
     },
@@ -154,6 +161,18 @@ export const orderRepository = {
                     item.itemStatus = "Cancelled";
                 }
             });
+            order.totalAmount = 0;
+            order.finalAmount = 0;
+        }
+
+        if (status === "Returned") {
+            order.orderItems.forEach((item) => {
+                if (item.itemStatus !== "Cancelled" && item.itemStatus !== "Returned") {
+                    item.itemStatus = "Returned";
+                }
+            });
+            order.totalAmount = 0;
+            order.finalAmount = 0;
         }
 
         return await order.save();
@@ -225,8 +244,12 @@ export const orderRepository = {
         });
 
         order.totalAmount = newTotalAmount;
-        order.finalAmount = newTotalAmount - (order.discountAmount || 0) + deliveryCharge;
-        if (order.finalAmount < 0) order.finalAmount = 0;
+        if (newTotalAmount === 0) {
+            order.finalAmount = 0;
+        } else {
+            order.finalAmount = newTotalAmount - (order.discountAmount || 0) + deliveryCharge;
+            if (order.finalAmount < 0) order.finalAmount = 0;
+        }
 
         return await order.save();
     },

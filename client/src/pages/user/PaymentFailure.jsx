@@ -19,7 +19,6 @@ const loadRazorpayScript = () => {
 const PaymentFailurePage = () => {
     const location = useLocation();
     
-    // You can pass the actual error message inside navigate state if needed, e.g. navigate("/payment-failed", { state: { error: "Bank declined", orderId: "..." } })
     const errorMessage = location.state?.error || "Your payment could not be processed at this time.";
     const fallbackOrderId = location.state?.orderId;
     const navigate = useNavigate();
@@ -104,7 +103,7 @@ const PaymentFailurePage = () => {
             <main className="flex-grow w-full flex flex-col items-center justify-center px-4 py-16 text-center">
                 <div className="max-w-xl w-full bg-white px-8 py-16 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
                     
-                    {/* Error Icon Bubble */}
+                    {}
                     <div className="mb-8">
                         <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto shadow-inner">
                             <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center shadow-lg transform transition-transform hover:scale-105 duration-300">
@@ -121,7 +120,7 @@ const PaymentFailurePage = () => {
                         {errorMessage}
                     </p>
 
-                    {/* Razorpay Badge */}
+                    {}
                     <div className="flex items-center gap-2 mb-10 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M22.43 2.73199L12 20.893C11.666 21.493 11 21.849 10.334 21.849H2.33301L3.92101 19.141H8.79901C9.68901 19.141 10.51 18.666 10.96 17.882L15.309 10.233L10.312 2.73199H22.43Z" fill="#3395FF"/>

@@ -57,7 +57,6 @@ const OrderDetails = () => {
             
             toast.success("Return request submitted successfully");
             
-            // Refetch order details
             const response = await orderService.getOrderById(order._id);
             setOrder(response.order);
             setIsReturnModalOpen(false);
@@ -171,12 +170,10 @@ const OrderDetails = () => {
     if (error) return <div className="h-screen flex items-center justify-center text-red-500">{error}</div>;
     if (!order) return <div className="h-screen flex items-center justify-center">Order not found</div>;
 
-    // Helper functions
     const formatCurrency = (amount) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(amount);
     const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     const formatEstimatedDate = (dateString) => new Date(dateString).toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' });
 
-    // Progress Steps
     const steps = ["Order Confirmed", "Shipped", "Out For Delivery", "Delivered"];
     const isCancelled = order.orderStatus === "Cancelled";
     const isReturned = order.orderStatus === "Returned";
@@ -184,7 +181,7 @@ const OrderDetails = () => {
     return (
         <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans">
             <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm p-8">
-                {/* Header */}
+                {}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b pb-6">
                     <div>
                         <Link to="/account/orders" className="text-gray-500 hover:text-gray-900 flex items-center gap-2 mb-4 text-sm font-medium transition-colors">
@@ -222,13 +219,13 @@ const OrderDetails = () => {
                     </div>
                 </div>
 
-                {/* Progress Bar */}
+                {}
                 {!isCancelled && !isReturned && (
                     <div className="mb-12 relative px-4 mt-8">
-                        {/* Connecting Line - Background */}
+                        {}
                         <div className="hidden md:block absolute top-12.5 left-[12.5%] w-[75%] h-1 bg-gray-200 -z-10"></div>
                         
-                        {/* Connecting Line - Progress */}
+                        {}
                         <div 
                             className="hidden md:block absolute top-12.5 left-[12.5%] h-1 bg-blue-600 transition-all duration-500 z-0"  
                             style={{ 
@@ -241,7 +238,6 @@ const OrderDetails = () => {
                                         'delivered': 3
                                     };
                                     let idx = statusMap[order.orderStatus.toLowerCase()] || 0;
-                                    // Make sure Delivered fills the whole bar
                                     if (order.orderStatus === 'Delivered') idx = 3;
                                     return (idx / 3) * 75; 
                                 })()) )}%` 
@@ -257,7 +253,6 @@ const OrderDetails = () => {
                                 else if (s === 'delivered') statusIndex = 3;
                                 else statusIndex = 0; // Pending default
                                 
-                                // Override for visual progress
                                 const isCompleted = index <= statusIndex;
 
                                 let statusColor = "text-gray-400";
@@ -287,7 +282,7 @@ const OrderDetails = () => {
                     </div>
                 )}
 
-                {/* Order Items */}
+                {}
                 <div className="mb-8">
                     {order.orderItems.map((item, index) => (
                         <div key={index} className="flex flex-col sm:flex-row gap-6 py-6 border-b last:border-0 border-gray-100">
@@ -378,7 +373,7 @@ const OrderDetails = () => {
                             </div>
                         </div>
 
-                        {/* Right Column: Order Summary */}
+                        {}
                         <div>
                              <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
                              <div className="space-y-3 text-sm">
@@ -404,7 +399,7 @@ const OrderDetails = () => {
                 </div>
             </div>
 
-            {/* Return Modal */}
+            {}
             {isReturnModalOpen && (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300">
                     <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl transform transition-all scale-100 opacity-100">

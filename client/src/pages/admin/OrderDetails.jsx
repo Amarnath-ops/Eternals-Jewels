@@ -61,11 +61,11 @@ const OrderDetails = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column - Main Info */}
+                {}
                 <div className="lg:col-span-2 space-y-6">
-                    {/* Top Cards */}
+                    {}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Order Info */}
+                        {}
                         <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div>
@@ -99,7 +99,7 @@ const OrderDetails = () => {
                             </div>
                         </div>
 
-                        {/* Customer Info */}
+                        {}
                         <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                             <h3 className="text-sm font-medium text-gray-500 mb-4">Customer</h3>
                             <div className="space-y-3">
@@ -133,7 +133,7 @@ const OrderDetails = () => {
                             </div>
                         </div>
 
-                        {/* Address Info */}
+                        {}
                         <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                             <h3 className="text-sm font-medium text-gray-500 mb-4">Address</h3>
                             <div className="flex items-start gap-3">
@@ -150,7 +150,7 @@ const OrderDetails = () => {
                         </div>
                     </div>
 
-                    {/* Order List Table */}
+                    {}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="p-5 border-b border-gray-100 flex justify-between items-center">
                             <h3 className="font-medium text-gray-800">Order List <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full ml-2">{order.orderItems.length} Products</span></h3>
@@ -303,9 +303,9 @@ const OrderDetails = () => {
                             </select>
                         </div>
 
-                        {/* Timeline Visualization */}
+                        {}
                         <div className="space-y-6 relative pl-2">
-                            {/* Vertical Line */}
+                            {}
                             <div className="absolute left-3 top-2 bottom-4 w-0.5 bg-gray-100" />
                             
                             {timelineSteps.map((step) => {

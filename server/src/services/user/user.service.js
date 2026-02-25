@@ -3,7 +3,6 @@ import { CONSTANTS } from "../../constants/constants.js";
 import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
 import { findUserByEmail, findUserById, updateUserById } from "../../repositories/user.repo.js";
-import generateAvatar from "../../utils/avatar.js";
 import cache from "../../utils/node.cache.js";
 import { sendMail } from "../../utils/nodemailer.js";
 import generateOTP from "../../utils/otp.generator.js";

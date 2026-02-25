@@ -49,7 +49,7 @@ const Wishlist = () => {
             
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16">
                 
-                {/* Header */}
+                {}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-4 border-b border-white/50">
                     <div className="flex items-center gap-4 mb-4 md:mb-0">
                         <Heart className="w-6 h-6 text-gray-800" strokeWidth={1.5} />
@@ -66,7 +66,7 @@ const Wishlist = () => {
                     )}
                 </div>
 
-                {/* Content */}
+                {}
                 {wishlistItems.length === 0 ? (
                     <div className="text-center py-20">
                         <Heart className="w-16 h-16 text-gray-300 mx-auto mb-6" strokeWidth={1} />
@@ -83,18 +83,18 @@ const Wishlist = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                             {wishlistItems.map((item) => (
                                 <div key={item._id} className="bg-[#F6F1EC] p-4 rounded-sm shadow-sm flex flex-col h-full group">
-                                    {/* Image Area */}
+                                    {}
                                     <div className="relative aspect-[3/4] bg-white w-full overflow-hidden rounded-sm mb-4">
                                         <img 
                                             src={item.image} 
                                             alt={item.productName} 
                                             className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                                         />
-                                        {/* Simple link overlay */}
+                                        {}
                                         <Link to={`/product/${item.productId}`} className="absolute inset-0" />
                                     </div>
 
-                                    {/* Content Area */}
+                                    {}
                                     <div className="flex-1 flex flex-col text-center">
                                         <h3 className="text-sm font-bold uppercase tracking-widest text-gray-800 mb-1 truncate">
                                             <Link to={`/product/${item.productId}`}>{item.productName}</Link>
@@ -121,7 +121,7 @@ const Wishlist = () => {
                                             </div>
                                         </div>
 
-                                        {/* Action Buttons */}
+                                        {}
                                         <div className="mt-auto space-y-3 pt-2">
                                             <button 
                                                 onClick={() => handleRemove(item.productId, item.variantId)}

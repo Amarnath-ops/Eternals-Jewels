@@ -175,7 +175,7 @@ const CheckoutPage = () => {
                 <h1 className="sr-only">Checkout</h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    {/* Left Column: Order Summary */}
+                    {}
                     <div className="bg-[#F8F5F2] p-6 md:p-10 rounded-xl h-fit">
                         <h2 className="text-3xl font-serif text-[#1c1c1c] mb-8 font-medium">Order Summary</h2>
                         <div className="space-y-6">
@@ -200,14 +200,14 @@ const CheckoutPage = () => {
                             ))}
                         </div>
 
-                        {/* Coupon Section */}
+                        {}
                         <div className="mt-8">
                             <button className="w-full bg-[#8B6D51] text-white font-medium py-3 rounded-md uppercase tracking-wide hover:bg-[#725841] transition-colors shadow-md">
                                 Apply Coupon
                             </button>
                         </div>
 
-                        {/* Price Breakdown */}
+                        {}
                         <div className="mt-8 space-y-3 border-t border-gray-200 pt-6">
                             <div className="flex justify-between text-gray-700">
                                 <span>Subtotal :</span>
@@ -235,7 +235,7 @@ const CheckoutPage = () => {
                         </div>
                     </div>
 
-                    {/* Right Column: Delivery & Payment */}
+                    {}
                     <div>
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-lg font-bold uppercase tracking-wide text-gray-900">
@@ -243,7 +243,7 @@ const CheckoutPage = () => {
                             </h2>
                         </div>
 
-                        {/* Address Grid */}
+                        {}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
                             {addressData?.map((addr) => (
                                 <div
@@ -281,7 +281,7 @@ const CheckoutPage = () => {
                                 </div>
                             ))}
 
-                            {/* Add New Address Card */}
+                            {}
                             <button
                                 onClick={handleAddAddress}
                                 className="flex flex-col items-center justify-center p-6 bg-[#EBEBEB] rounded-lg cursor-pointer hover:bg-gray-200 transition-colors min-h-50"
@@ -291,7 +291,7 @@ const CheckoutPage = () => {
                             </button>
                         </div>
 
-                        {/* Payment Method */}
+                        {}
                         <div className="bg-[#F4F1EE] p-8 rounded-xl">
                             <h2 className="text-3xl font-serif text-[#1c1c1c] mb-6 font-normal">Payment Method</h2>
 
@@ -360,7 +360,7 @@ const CheckoutPage = () => {
                 </div>
             </main>
 
-            {/* Address Modal */}
+            {}
             <AddressModal
                 isOpen={isAddressModalOpen}
                 onClose={() => setIsAddressModalOpen(false)}

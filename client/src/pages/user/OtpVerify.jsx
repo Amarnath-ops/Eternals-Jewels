@@ -76,7 +76,7 @@ const OtpVerification = () => {
                         <span className="font-bold text-black">{email}</span>
                     </p>
 
-                    {/* OTP Inputs */}
+                    {}
                     <div className="flex flex-col items-center justify-center w-full min-h-75">
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             <Controller
@@ -96,12 +96,12 @@ const OtpVerification = () => {
                                             </InputOTPGroup>
                                         </InputOTP>
 
-                                        {/* Manual Error Message */}
+                                        {}
                                         {errors.otp && <p className="text-red-500 text-sm mt-2">{errors.otp.message}</p>}
                                     </div>
                                 )}
                             />
-                            {/* Timer */}
+                            {}
                             <p className="text-[#4F4F4F] text-sm font-medium mb-4">
                                 Send code again{" "}
                                 <span className="text-[#4F4F4F]">
@@ -109,7 +109,7 @@ const OtpVerification = () => {
                                 </span>
                             </p>
 
-                            {/* Resend Link */}
+                            {}
                             <p className="text-[#4F4F4F] text-sm mb-12">
                                 I didn't receive a code{" "}
                                 <button

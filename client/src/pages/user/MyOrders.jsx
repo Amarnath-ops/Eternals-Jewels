@@ -60,7 +60,7 @@ const MyOrders = () => {
                 </div>
             )}
 
-            {/* Pagination */}
+            {}
             <Pagination 
                 currentPage={page} 
                 totalPages={totalPages} 

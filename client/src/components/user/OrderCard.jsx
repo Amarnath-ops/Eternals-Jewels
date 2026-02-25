@@ -55,7 +55,7 @@ const OrderCard = ({ order, onOrderCancelled }) => {
 
     return (
         <div className="bg-white rounded-lg p-6 mb-6 shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            {/* Product Images Group */}
+            {}
             <div className="flex -space-x-4 overflow-hidden">
                 {order.orderItems.slice(0, 3).map((item, index) => (
                     <div key={index} className="w-16 h-16 rounded-full border-2 border-white bg-gray-100 shrink-0 overflow-hidden relative z-[3] first:z-[1] last:z-[3]">
@@ -72,13 +72,13 @@ const OrderCard = ({ order, onOrderCancelled }) => {
                     </div>
                 )}
             </div>
-            {/* Order Details */}
+            {}
             <div className="flex-1 space-y-1">
                 <p className="text-gray-900 font-medium">Order Id : {order._id.slice(-10).toUpperCase()}</p>
                 <p className="text-gray-600 text-sm">Payable amount : {formatCurrency(order.finalAmount)}</p>
                 <p className="text-gray-500 text-sm">Order Date : {formatDate(order.createdAt)}</p>
             </div>
-            {/* Status and Actions */}
+            {}
             <div className="flex flex-col items-end gap-3 min-w-[140px]">
                 <p className="text-sm font-medium">
                     Status : <span className={`uppercase ${getStatusColor(order.orderStatus)}`}>{order.orderStatus}</span>

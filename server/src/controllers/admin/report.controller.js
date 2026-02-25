@@ -13,7 +13,7 @@ export const getDashboardStats = async (req, res) => {
         const stats = await getDashboardStatsService();
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: CONSTANTS.MESSAGES.DASHBOARD_STATS_FETCHED_SUCCESSFULLY,
+            message: CONSTANTS.DASHBOARD_STATS_FETCHED_SUCCESSFULLY,
             data: stats
         });
     } catch (error) {
@@ -40,7 +40,7 @@ export const getSalesReport = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: CONSTANTS.MESSAGES.SALES_REPORT_FETCHED_SUCCESSFULLY,
+            message: CONSTANTS.SALES_REPORT_FETCHED_SUCCESSFULLY,
             data: reportData
         });
     } catch (error) {
@@ -63,7 +63,7 @@ export const downloadSalesReport = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: CONSTANTS.MESSAGES.SALES_REPORT_DATA_FOR_DOWNLOAD_FETCHED_SUCCESSFULLY,
+            message: CONSTANTS.SALES_REPORT_DATA_FOR_DOWNLOAD_FETCHED_SUCCESSFULLY,
             data: reportData
         });
     } catch (error) {

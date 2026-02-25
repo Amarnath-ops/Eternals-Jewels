@@ -54,4 +54,7 @@ export const CONSTANTS = Object.freeze({
     OFFER_UPDATED_SUCCESSFULLY: "Offer updated successfully",
     COUPON_APPLIED_SUCCESSFULLY: "Coupon applied successfully",
     COUPONS_FETCHED_SUCCESSFULLY: "Coupons fetched successfully",
+    DASHBOARD_STATS_FETCHED_SUCCESSFULLY: "Dashboard stats fetched successfully",
+    SALES_REPORT_FETCHED_SUCCESSFULLY: "Sales report fetched successfully",
+    SALES_REPORT_DATA_FOR_DOWNLOAD_FETCHED_SUCCESSFULLY: "Sales report data for download fetched successfully", 
 });

@@ -16,6 +16,7 @@ import adminOrderRoutes from "./routes/admin/order.routes.js";
 import adminOfferRoutes from "./routes/admin/offer.routes.js";
 import couponRoutes from "./routes/user/coupon.route.js"
 import adminCouponRoutes from "./routes/admin/coupon.routes.js"
+import adminReportRoutes from "./routes/admin/report.routes.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import "./config/passport.js";
@@ -52,6 +53,7 @@ app.use("/api/v1/admin/products", adminProductRoutes);
 app.use("/api/v1/admin/orders", adminOrderRoutes);
 app.use("/api/v1/admin/coupons", adminCouponRoutes);
 app.use("/api/v1/admin/offers", adminOfferRoutes);
+app.use("/api/v1/admin/reports", adminReportRoutes);
 
 
 export default app;

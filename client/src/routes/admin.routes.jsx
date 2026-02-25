@@ -16,6 +16,7 @@ import AddProduct from "@/pages/admin/AddProduct";
 
 import EditProduct from "@/pages/admin/EditProduct";
 import OrderDetails from "@/pages/admin/OrderDetails";
+import SalesReport from "@/pages/admin/SalesReport";
 import CouponList from "@/pages/admin/CouponList";
 import AddCoupon from "@/pages/admin/AddCoupon";
 import EditCoupon from "@/pages/admin/EditCoupon";
@@ -54,6 +55,7 @@ const AdminRoutes = () => {
                     <Route path="products/edit-product/:id" element={<EditProduct />} />
                     <Route path="orders" element={<OrderList />} />
                     <Route path="orders/:orderId" element={<OrderDetails />} />
+                    <Route path="sales" element={<SalesReport />} />
                     <Route path="coupons" element={<CouponList />} />
                     <Route path="coupons/add-coupon" element={<AddCoupon />} />
                     <Route path="coupons/edit-coupon/:id" element={<EditCoupon />} />

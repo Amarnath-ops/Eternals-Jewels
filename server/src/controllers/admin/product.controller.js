@@ -15,7 +15,6 @@ import { addProductSchema, updateProductSchema } from "../../validations/product
 const parseBody = (body) => {
     const data = { ...body };
 
-    
     if (data.variants && typeof data.variants === "string") {
         try {
             data.variants = JSON.parse(data.variants);
@@ -29,7 +28,6 @@ const parseBody = (body) => {
         data.variants = data.variants ? [data.variants] : [];
     }
 
-    
     if (Array.isArray(data.variants)) {
         data.variants = data.variants.map((v) => {
             if (v.images && !Array.isArray(v.images)) {
@@ -39,12 +37,10 @@ const parseBody = (body) => {
         });
     }
 
-    
     if (data.isListed !== undefined) {
         data.isListed = data.isListed === "true" || data.isListed === true;
     }
 
-    
     if (data.variantImageMappings) {
         if (typeof data.variantImageMappings === "string") {
             try {
@@ -56,6 +52,10 @@ const parseBody = (body) => {
         if (!Array.isArray(data.variantImageMappings)) {
             data.variantImageMappings = [data.variantImageMappings];
         }
+    }
+
+    if (data.offer === "") {
+        data.offer = null;
     }
 
     return data;

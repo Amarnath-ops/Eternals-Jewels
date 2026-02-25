@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetCouponById } from "@/hooks/tanstack_Queries/admin/coupon/useGetAdminCoupons";
 import { useUpdateCoupon } from "@/hooks/tanstack_Queries/admin/coupon/useMutateCoupons";
 import { SpinnerBadge } from "@/components/Spinner";
+import { couponSchema } from "@/validations/coupon.schema";
+import useZodForm from "@/hooks/useZodForm";
+import FormInput from "@/components/form/FormInput";
 
 const EditCoupon = () => {
     const { id } = useParams();
@@ -11,23 +14,29 @@ const EditCoupon = () => {
     const { data: couponData, isLoading } = useGetCouponById(id);
     const { mutate: updateCoupon, isPending } = useUpdateCoupon();
 
-    const [formData, setFormData] = useState({
-        code: "",
-        discountType: "percentage",
-        discountAmount: "",
-        minPurchaseAmount: 0,
-        maxDiscountAmount: "",
-        usageLimitPerUser: 1,
-        startDate: "",
-        expiryDate: "",
+    const {
+        register,
+        handleSubmit,
+        watch,
+        reset,
+        formState: { errors },
+    } = useZodForm(couponSchema, {
+        defaultValues: {
+            code: "",
+            discountType: "percentage",
+            discountAmount: 0,
+            minPurchaseAmount: 0,
+            maxDiscountAmount: "",
+            usageLimitPerUser: 1,
+            startDate: "",
+            expiryDate: "",
+        }
     });
-
-    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (couponData?.data) {
             const c = couponData.data;
-            setFormData({
+            reset({
                 code: c.code,
                 discountType: c.discountType,
                 discountAmount: c.discountAmount,
@@ -38,184 +47,123 @@ const EditCoupon = () => {
                 expiryDate: c.expiryDate ? new Date(c.expiryDate).toISOString().split('T')[0] : "",
             });
         }
-    }, [couponData]);
+    }, [couponData, reset]);
 
-    const validate = () => {
-        let valid = true;
-        const newErrors = {};
+    const discountType = watch("discountType");
 
-        if (!formData.code.trim()) {
-            newErrors.code = "Coupon code is required";
-            valid = false;
+    const onSubmit = (data) => {
+        const dataToSubmit = { ...data };
+        if (dataToSubmit.discountType !== "percentage") {
+            delete dataToSubmit.maxDiscountAmount;
+        }
+        if (dataToSubmit.maxDiscountAmount === "") {
+            dataToSubmit.maxDiscountAmount = null;
         }
 
-        if (!formData.discountAmount || formData.discountAmount <= 0) {
-            newErrors.discountAmount = "Discount amount must be strictly greater than 0";
-            valid = false;
-        }
-
-        if (formData.discountType === "percentage" && formData.discountAmount > 100) {
-            newErrors.discountAmount = "Percentage cannot exceed 100";
-            valid = false;
-        }
-        
-        if (!formData.startDate) {
-            newErrors.startDate = "Start date is required";
-            valid = false;
-        }
-
-        if (!formData.expiryDate) {
-            newErrors.expiryDate = "Expiry date is required";
-            valid = false;
-        } else if (formData.startDate && new Date(formData.startDate) >= new Date(formData.expiryDate)) {
-             newErrors.expiryDate = "Expiry date must be after the start date";
-             valid = false;
-        }
-
-        setErrors(newErrors);
-        return valid;
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-        if (errors[name]) setErrors({ ...errors, [name]: null });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (validate()) {
-            const dataToSubmit = { ...formData };
-            if (dataToSubmit.discountType !== "percentage") {
-                delete dataToSubmit.maxDiscountAmount;
-            }
-            if (!dataToSubmit.maxDiscountAmount) {
-                delete dataToSubmit.maxDiscountAmount; // Handle empty string clearing for DB
-            }
-
-            updateCoupon(
-                { id, data: dataToSubmit },
-                { onSuccess: () => navigate("/admin/coupons") }
-            );
-        }
+        updateCoupon(
+            { id, data: dataToSubmit },
+            { onSuccess: () => navigate("/admin/coupons") }
+        );
     };
 
     if (isLoading) return <SpinnerBadge content="Loading coupon details..." />;
+
+    const inputClasses = "w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#A47F64]";
 
     return (
         <div className="p-6 max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Coupon</h1>
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-6">
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Coupon Code *</label>
-                        <input
-                            type="text"
-                            name="code"
-                            value={formData.code}
-                            onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 uppercase focus:outline-none focus:ring-2 focus:ring-[#A47F64]"
-                        />
-                        {errors.code && <p className="text-red-500 text-sm mt-1">{errors.code}</p>}
-                    </div>
+                    <FormInput
+                        label="Coupon Code *"
+                        name="code"
+                        register={register}
+                        error={errors.code}
+                        className={`${inputClasses} uppercase`}
+                    />
 
                     <div className="flex gap-4">
                         <div className="w-1/2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Start Date *</label>
-                            <input
+                            <FormInput
+                                label="Start Date *"
                                 type="date"
                                 name="startDate"
-                                value={formData.startDate}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#A47F64] focus:border-transparent"
+                                register={register}
+                                error={errors.startDate}
+                                className={inputClasses}
                             />
-                            {errors.startDate && <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>}
                         </div>
                         <div className="w-1/2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date *</label>
-                            <input
+                            <FormInput
+                                label="Expiry Date *"
                                 type="date"
                                 name="expiryDate"
-                                value={formData.expiryDate}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#A47F64] focus:border-transparent"
+                                register={register}
+                                error={errors.expiryDate}
+                                className={inputClasses}
                             />
-                            {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
                         </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Discount Type *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2 font-medium ml-1">Discount Type *</label>
                         <select
-                            name="discountType"
-                            value={formData.discountType}
-                            onChange={handleChange}
+                            {...register("discountType")}
                             className="w-full border border-gray-300 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#A47F64]"
                         >
                             <option value="percentage">Percentage</option>
                             <option value="fixed">Fixed </option>
                         </select>
+                        {errors.discountType && <p className="text-red-500 text-sm mt-1">{errors.discountType.message}</p>}
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Discount Amount * {formData.discountType === "percentage" ? "(%)" : "(₹)"}
-                        </label>
-                        <input
-                            type="number"
-                            name="discountAmount"
-                            value={formData.discountAmount}
-                            onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#A47F64]"
-                        />
-                        {errors.discountAmount && <p className="text-red-500 text-sm mt-1">{errors.discountAmount}</p>}
-                    </div>
+                    <FormInput
+                        label={`Discount Amount * ${discountType === "percentage" ? "(%)" : "(₹)"}`}
+                        type="number"
+                        name="discountAmount"
+                        register={register}
+                        error={errors.discountAmount}
+                        className={inputClasses}
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Purchase Amount (₹)</label>
-                        <input
-                            type="number"
-                            name="minPurchaseAmount"
-                            value={formData.minPurchaseAmount}
-                            onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#A47F64]"
-                        />
-                    </div>
+                    <FormInput
+                        label="Minimum Purchase Amount (₹)"
+                        type="number"
+                        name="minPurchaseAmount"
+                        register={register}
+                        error={errors.minPurchaseAmount}
+                        className={inputClasses}
+                    />
 
-                    <div>
-                        <label className={`block text-sm font-medium mb-2 ${formData.discountType === "percentage" ? "text-gray-700" : "text-gray-400"}`}>
-                            Max Discount Amount (₹)
-                        </label>
-                        <input
-                            type="number"
-                            name="maxDiscountAmount"
-                            value={formData.maxDiscountAmount}
-                            onChange={handleChange}
-                            disabled={formData.discountType !== "percentage"}
-                            placeholder={formData.discountType !== "percentage" ? "N/A for fixed amount" : ""}
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#A47F64] disabled:bg-gray-100 disabled:text-gray-400"
-                        />
-                    </div>
+                    <FormInput
+                        label="Max Discount Amount (₹)"
+                        type="number"
+                        name="maxDiscountAmount"
+                        register={register}
+                        error={errors.maxDiscountAmount}
+                        disabled={discountType !== "percentage"}
+                        placeholder={discountType !== "percentage" ? "N/A for fixed amount" : ""}
+                        className={`${inputClasses} disabled:bg-gray-100 disabled:text-gray-400`}
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Usage Limit Per User</label>
-                        <input
-                            type="number"
-                            name="usageLimitPerUser"
-                            min="1"
-                            value={formData.usageLimitPerUser}
-                            onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#A47F64]"
-                        />
-                    </div>
+                    <FormInput
+                        label="Usage Limit Per User"
+                        type="number"
+                        name="usageLimitPerUser"
+                        register={register}
+                        error={errors.usageLimitPerUser}
+                        className={inputClasses}
+                        min="1"
+                    />
                 </div>
 
                 <div className="pt-6 border-t border-gray-100 flex justify-end gap-4">

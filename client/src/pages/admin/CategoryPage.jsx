@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Eye, Edit, Trash2, Search, Loader, ChevronRight } from "lucide-react";
+import { Eye, Edit, Trash2, Search, Loader, ChevronRight, X } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import { Link } from "react-router-dom";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -108,11 +108,22 @@ const CategoryPage = () => {
                         </div>
                         <input
                             type="text"
-                            className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-black focus:ring-1 focus:ring-black sm:text-sm transition duration-150 ease-in-out"
+                            className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-black focus:ring-1 focus:ring-black sm:text-sm transition duration-150 ease-in-out"
                             placeholder="Search category name..."
                             value={searchTerm}
                             onChange={handleSearch}
                         />
+                        {searchTerm && (
+                            <button
+                                onClick={() => {
+                                    setSearchTerm("");
+                                    setCurrentPage(1);
+                                }}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        )}
                     </div>
 
                     {}
@@ -229,8 +240,15 @@ const CategoryPage = () => {
                                                     </div>
                                                 </td>
 
-                                                <td className="p-4 font-medium text-gray-900">
-                                                    {item.categoryOffer && item.categoryOffer + " %"}
+                                                <td className="p-4 font-medium text-gray-900 text-center">
+                                                    {item.offer ? (
+                                                        <div className="flex flex-col items-center">
+                                                            <span className="text-xs font-bold text-green-600 uppercase">{item.offer.offerName}</span>
+                                                            <span className="text-[10px] text-gray-500">({item.offer.discountPercentage}% OFF)</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-gray-400">No Offer</span>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))

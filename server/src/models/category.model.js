@@ -15,6 +15,11 @@ const categorySchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        offer: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Offer",
+            default: null,
+        },
         maxRedeem: {
             type: Number,
             default: 0,

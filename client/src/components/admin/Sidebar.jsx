@@ -1,5 +1,5 @@
 import { useLogoutAdmin } from "@/hooks/tanstack_Queries/admin/auth/useAdminLogout";
-import { Box, DollarSign, Grid, ImageIcon, LayoutDashboard, List, Tag, Users, LogOut} from "lucide-react";
+import { Box, DollarSign, Grid, ImageIcon, LayoutDashboard, List, Tag, Users, LogOut, Gift} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -16,7 +16,7 @@ const Sidebar = () => {
     { name: 'Sales', icon: DollarSign, active: false, path:"sales" },
     { name: 'Category', icon: Grid, active: false, path:"categories"},
     { name: 'Coupons', icon: Tag, active: false , path:"coupons"},
-    { name: 'Banner', icon: ImageIcon, active: false, path:"banners" },
+    { name: 'Offers', icon: Gift, active: false, path:"offers"},
   ];
 
   const isActive = (path)=> location.pathname.includes(path)

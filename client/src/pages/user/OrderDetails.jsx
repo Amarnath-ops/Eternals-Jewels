@@ -112,6 +112,7 @@ const OrderDetails = () => {
                            setOrder(updatedOrderData.order);
                       } catch (error) {
                            toast.error("Payment verification failed.");
+                           console.log(error)
                       }
                  },
                  prefill: {
@@ -297,8 +298,18 @@ const OrderDetails = () => {
                                 })()}
                                 <p className="text-sm font-medium text-orange-500">Status : {item.itemStatus || order.orderStatus}</p>
                             </div>
-                            <div className="text-right flex flex-col items-end gap-2">
+                            <div className="text-right flex flex-col items-end gap-1">
                                 <p className="text-lg font-bold text-gray-900">{formatCurrency(item.price)}</p>
+                                {item.regularPrice > item.price && (
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-sm text-gray-400 line-through">{formatCurrency(item.regularPrice)}</p>
+                                        {item.appliedOffer?.discountPercentage > 0 && (
+                                            <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-bold border border-green-100 uppercase">
+                                                {item.appliedOffer.discountPercentage}% Offer
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                                 <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                                 {item.itemStatus === "Delivered" && (
                                     <button 

@@ -4,12 +4,12 @@ import Product from "../models/product.model.js";
 export const productRepository = {
     create: (data) => Product.create(data),
 
-    findById: (id) => Product.findOne({ _id: id, isDeleted: false }).populate("category"),
+    findById: (id) => Product.findOne({ _id: id, isDeleted: false }).populate("category").populate("offer"),
 
-    findByIdListed: (id) => Product.findOne({ _id: id, isDeleted: false, isListed: true }).populate("category"),
+    findByIdListed: (id) => Product.findOne({ _id: id, isDeleted: false, isListed: true }).populate("category").populate("offer"),
 
     updateById: (id, data) =>
-        Product.findOneAndUpdate({ _id: id, isDeleted: false }, data, { new: true }).populate("category"),
+        Product.findOneAndUpdate({ _id: id, isDeleted: false }, data, { new: true }).populate("category").populate("offer"),
     softDelete: (id) => Product.findOneAndUpdate({ _id: id, isDeleted: false }, { isDeleted: true }, { new: true }),
 
     toggleList: (id, isListed) => Product.findOneAndUpdate({ _id: id, isDeleted: false }, { isListed }, { new: true }),
@@ -55,6 +55,20 @@ export const productRepository = {
                 },
             },
             { $unwind: "$category" },
+            {
+                $lookup: {
+                    from: "offers",
+                    localField: "offer",
+                    foreignField: "_id",
+                    as: "offer",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$offer",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
             { $match: { "category.isListed": true } },
             { $sort: sortObj },
             { $skip: (page - 1) * limit },

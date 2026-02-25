@@ -9,6 +9,7 @@ import FormInput from "@/components/form/FormInput";
 import { useUpdateProduct } from "@/hooks/tanstack_Queries/admin/products/useUpdateProduct";
 import { useGetProductById } from "@/hooks/tanstack_Queries/admin/products/useGetProductById";
 import { useGetCategories } from "@/hooks/tanstack_Queries/admin/categories/useGetCategories";
+import { useGetActiveOffersByType } from "@/hooks/tanstack_Queries/admin/offer/useGetActiveOffersByType";
 import { useFieldArray } from "react-hook-form";
 import { SpinnerBadge } from "@/components/Spinner";
 import ReactCrop from "react-image-crop";
@@ -34,11 +35,13 @@ const EditProduct = () => {
     const { data: productData, isLoading: isLoadingProduct } = useGetProductById(id);
     const { mutateAsync: updateProduct, isPending } = useUpdateProduct();
     const { data: categoriesData } = useGetCategories({ page: 1, limit: 100, sort: "categoryName" });
+    const { data: productOffers } = useGetActiveOffersByType("Product");
 
     const {
         handleSubmit,
         register,
         setValue,
+        setError,
         getValues,
         watch,
         control,
@@ -48,6 +51,7 @@ const EditProduct = () => {
         defaultValues: {
             variants: [],
             isListed: true,
+            offer: "",
         },
     });
     const { fields, append, remove } = useFieldArray({
@@ -65,6 +69,7 @@ const EditProduct = () => {
                 category: productData.category?._id || productData.category,
                 isListed: productData.isListed,
                 variants: productData.variants,
+                offer: productData.offer?._id || productData.offer || "",
             });
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setStatus(productData.isListed ? "Listed" : "Unlisted");
@@ -146,8 +151,7 @@ const EditProduct = () => {
         for (const file of files) {
             const result = imageSchema.safeParse(file);
             if (!result.success) {
-                const zodError = z.treeifyError(result.error)
-                const errorMsg = zodError.errors[0];
+                const errorMsg = result.error.errors[0].message;
                 toast.error(`Error with file ${file.name}: ${errorMsg}`);
                 continue;
             }
@@ -205,6 +209,23 @@ const EditProduct = () => {
             formData.append("description", data.description);
             formData.append("category", data.category);
             formData.append("isListed", data.isListed);
+            for (let i = 0; i < data.variants.length; i++) {
+                const existingCount = data.variants[i]?.images?.length || 0;
+                const newCount = variantImages[i]?.length || 0;
+                const totalCount = existingCount + newCount;
+                
+                if (totalCount < 3) {
+                    setError(`variants.${i}.images`, {
+                        message: `Variant ${i + 1} requires at least 3 images (currently has ${totalCount})`,
+                    });
+                    toast.error(`Variant ${i + 1} requires at least 3 images`);
+                    return;
+                }
+            }
+
+            if (data.offer) {
+                formData.append("offer", data.offer);
+            }
 
             
             const variantImageMappings = [];
@@ -286,6 +307,22 @@ const EditProduct = () => {
                                     ))}
                                 </select>
                                 {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>}
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-600 mb-2 font-medium">Product Offer</label>
+                                <select
+                                    {...register("offer")}
+                                    className="w-full bg-[#F5F6FA] border-none rounded-lg px-4 py-3 text-gray-700 outline-none focus:ring-2 focus:ring-gray-200 cursor-pointer appearance-none"
+                                >
+                                    <option value="">No Offer</option>
+                                    {productOffers?.data?.map((off) => (
+                                        <option key={off._id} value={off._id}>
+                                            {off.offerName} ({off.discountPercentage}% OFF)
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.offer && <p className="text-red-500 text-xs mt-1">{errors.offer.message}</p>}
                             </div>
 
                             <div className="flex items-center gap-6">

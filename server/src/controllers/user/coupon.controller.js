@@ -1,3 +1,4 @@
+import { CONSTANTS } from "../../constants/constants.js";
 import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
 import { validateCouponService, getCouponsService } from "../../services/user/coupon.service.js";
@@ -10,7 +11,7 @@ export const applyCoupon = async (req, res,) => {
         if (!code || !totalAmount) {
             return res.status(STATUS_CODES.BAD_REQUEST).json({
                 success: false,
-                message: "Coupon code and total amount are required",
+                message: ERROR_MESSAGES.COUPON_CODE_AND_TOTAL_AMOUNT_REQUIRED,
             });
         }
 
@@ -19,7 +20,7 @@ export const applyCoupon = async (req, res,) => {
         res.status(STATUS_CODES.OK).json({
             success: true,
             data: result,
-            message: "Coupon applied successfully",
+            message: CONSTANTS.COUPON_APPLIED_SUCCESSFULLY,
         });
     } catch (error) {
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
@@ -34,6 +35,7 @@ export const getCoupons = async (req, res) => {
         const coupons = await getCouponsService();
         res.status(STATUS_CODES.OK).json({
             success: true,
+            message: CONSTANTS.COUPONS_FETCHED_SUCCESSFULLY,    
             data: coupons,
         });
     } catch (error) {

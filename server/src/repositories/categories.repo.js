@@ -9,14 +9,14 @@ export const categoryRepository = {
 
   create: (data) => Category.create(data),
   findById: (id) =>
-    Category.findOne({ _id: id, isDeleted: false }),
+    Category.findOne({ _id: id, isDeleted: false }).populate("offer"),
 
   updateById: (id, data) =>
     Category.findOneAndUpdate(
       { _id: id, isDeleted: false },
       data,
       { new: true }
-    ),
+    ).populate("offer"),
 
   softDelete: (id) =>
     Category.findOneAndUpdate(
@@ -48,7 +48,7 @@ export const categoryRepository = {
       Category.find(query)
         .sort(sort)
         .skip((page - 1) * limit)
-        .limit(limit).select(select),
+        .limit(limit).select(select).populate("offer"),
       Category.countDocuments(query),
     ]);
   },

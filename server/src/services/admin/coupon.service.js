@@ -1,3 +1,4 @@
+import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { couponRepository } from "../../repositories/coupon.repo.js";
 
 export const getAdminCouponsService = async (page = 1, limit = 10, search = "") => {
@@ -20,14 +21,14 @@ export const getAdminCouponsService = async (page = 1, limit = 10, search = "") 
 export const createCouponService = async (data) => {
     const existing = await couponRepository.findByCodeString(data.code.toUpperCase());
     if (existing) {
-        const error = new Error("Coupon with this code already exists");
+        const error = new Error(ERROR_MESSAGES.COUPON_CODE_ALREADY_EXISTS);
         error.statusCode = 400;
         throw error;
     }
 
     if (data.expiryDate) {
         if (new Date(data.expiryDate) <= new Date()) {
-            const error = new Error("Expiry date must be in the future");
+            const error = new Error(ERROR_MESSAGES.EXPIRY_DATE_MUST_BE_IN_FUTURE);
             error.statusCode = 400;
             throw error;
         }
@@ -35,7 +36,7 @@ export const createCouponService = async (data) => {
     
     if (data.startDate && data.expiryDate) {
         if (new Date(data.startDate) >= new Date(data.expiryDate)) {
-            const error = new Error("Expiry date must be after the start date");
+            const error = new Error(ERROR_MESSAGES.EXPIRY_DATE_MUST_BE_AFTER_START_DATE);
             error.statusCode = 400;
             throw error;
         }
@@ -47,7 +48,7 @@ export const createCouponService = async (data) => {
 export const getCouponByIdService = async (id) => {
     const coupon = await couponRepository.findById(id);
     if (!coupon) {
-        const error = new Error("Coupon not found");
+        const error = new Error(ERROR_MESSAGES.COUPON_NOT_FOUND);
         error.statusCode = 404;
         throw error;
     }
@@ -58,7 +59,7 @@ export const updateCouponService = async (id, data) => {
     if (data.code) {
         const existing = await couponRepository.findByCodeString(data.code.toUpperCase());
         if (existing && existing._id.toString() !== id) {
-            const error = new Error("Coupon code already taken");
+            const error = new Error(ERROR_MESSAGES.COUPON_CODE_ALREADY_EXISTS);
             error.statusCode = 400;
             throw error;
         }
@@ -67,7 +68,7 @@ export const updateCouponService = async (id, data) => {
 
     if (data.expiryDate) {
         if (new Date(data.expiryDate) <= new Date()) {
-            const error = new Error("Expiry date must be in the future");
+            const error = new Error(ERROR_MESSAGES.EXPIRY_DATE_MUST_BE_IN_FUTURE);
             error.statusCode = 400;
             throw error;
         }
@@ -75,7 +76,7 @@ export const updateCouponService = async (id, data) => {
 
     if (data.startDate && data.expiryDate) {
         if (new Date(data.startDate) >= new Date(data.expiryDate)) {
-            const error = new Error("Expiry date must be after the start date");
+            const error = new Error(ERROR_MESSAGES.EXPIRY_DATE_MUST_BE_AFTER_START_DATE);
             error.statusCode = 400;
             throw error;
         }
@@ -85,7 +86,7 @@ export const updateCouponService = async (id, data) => {
         const end = data.expiryDate ? new Date(data.expiryDate) : new Date(existingCoupon.expiryDate);
 
         if (start >= end) {
-            const error = new Error("Expiry date must be after the start date");
+            const error = new Error(ERROR_MESSAGES.EXPIRY_DATE_MUST_BE_AFTER_START_DATE);
             error.statusCode = 400;
             throw error;
         }
@@ -93,7 +94,7 @@ export const updateCouponService = async (id, data) => {
 
     const updated = await couponRepository.update(id, data);
     if (!updated) {
-        const error = new Error("Coupon not found");
+        const error = new Error(ERROR_MESSAGES.COUPON_NOT_FOUND);
         error.statusCode = 404;
         throw error;
     }
@@ -103,7 +104,7 @@ export const updateCouponService = async (id, data) => {
 export const toggleCouponStatusService = async (id) => {
     const coupon = await couponRepository.findById(id);
     if (!coupon) {
-        const error = new Error("Coupon not found");
+        const error = new Error(ERROR_MESSAGES.COUPON_NOT_FOUND);
         error.statusCode = 404;
         throw error;
     }

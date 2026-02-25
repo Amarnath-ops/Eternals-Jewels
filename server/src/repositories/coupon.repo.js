@@ -43,16 +43,20 @@ export const couponRepository = {
     },
 
     recordUsage: async (couponId, userId) => {
-        return await Coupon.findOneAndUpdate(
-            {
-                _id: couponId,
-                "usedBy.user": { $ne: userId }
-            },
-            {
-                $push: { usedBy: { user: userId, usedCount: 1 } }
-            },
-            { new: true }
-        );
+        const coupon = await Coupon.findOne({ _id: couponId, "usedBy.user": userId });
+        if (coupon) {
+            return await Coupon.findOneAndUpdate(
+                { _id: couponId, "usedBy.user": userId },
+                { $inc: { "usedBy.$.usedCount": 1 } },
+                { new: true }
+            );
+        } else {
+            return await Coupon.findOneAndUpdate(
+                { _id: couponId },
+                { $push: { usedBy: { user: userId, usedCount: 1 } } },
+                { new: true }
+            );
+        }
     },
     
     incrementUsage: async (couponId, userId) => {

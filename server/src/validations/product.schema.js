@@ -1,14 +1,14 @@
 import z from "zod";
 
 const variantSchema = z.object({
-    material: z.string().trim().min(1, "Material is required"),
+    material: z.string().trim().min(3, "Material is required (min 3)").max(30),
     quantity: z.coerce.number().min(0, "Quantity must be non-negative"),
     regularPrice: z.coerce.number().min(0.01, "Regular price must be greater than 0"),
-    salePrice: z.coerce.number().min(0, "Sale price must be non-negative"),
-    sku: z.string().trim().min(1, "SKU is required"),
+    salePrice: z.coerce.number().min(0).optional(),
+    sku: z.string().trim().min(3, "SKU is required (min 3)").max(30),
     images: z.any().optional(),
 }).superRefine((data, ctx) => {
-    if (data.salePrice > data.regularPrice) {
+    if (data.salePrice && data.salePrice > data.regularPrice) {
         ctx.addIssue({
             path: ["salePrice"],
             message: "Sale price cannot be greater than regular price",
@@ -23,6 +23,7 @@ export const addProductSchema = z.object({
     variants: z.array(variantSchema).min(1, "At least one variant is required"),
     isListed: z.coerce.boolean().optional(),
     variantImageMappings: z.array(z.array(z.number())).optional(),
+    offer: z.string().nullable().optional(),
 });
 
 export const updateProductSchema = addProductSchema.partial();

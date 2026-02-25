@@ -22,6 +22,14 @@ const orderItemSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    regularPrice: {
+        type: Number,
+        required: true,
+    },
+    appliedOffer: {
+        name: { type: String },
+        discountPercentage: { type: Number },
+    },
     quantity: {
         type: Number,
         required: true,

@@ -69,27 +69,41 @@ export const orderRepository = {
         if (!order) return null;
 
         const item = order.orderItems.find((item) => item._id.toString() === itemId);
+        const deliveryCharge = order.finalAmount - (order.totalAmount - (order.discountAmount || 0));
+        const originalTotal = order.totalAmount;
+        const originalDiscount = order.discountAmount || 0;
+
         item.itemStatus = "Cancelled";
 
         const allCancelled = order.orderItems.every((item) => item.itemStatus === "Cancelled");
         if (allCancelled) {
             order.orderStatus = "Cancelled";
-        }
-
-        const deliveryCharge = order.finalAmount - (order.totalAmount - (order.discountAmount || 0));
-        let newTotalAmount = 0;
-        order.orderItems.forEach((i) => {
-            if (i.itemStatus !== "Cancelled" && i.itemStatus !== "Returned") {
-                newTotalAmount += i.price * i.quantity;
-            }
-        });
-
-        order.totalAmount = newTotalAmount;
-        if (newTotalAmount === 0) {
+            order.totalAmount = 0;
+            order.discountAmount = 0;
             order.finalAmount = 0;
         } else {
-            order.finalAmount = newTotalAmount - (order.discountAmount || 0) + deliveryCharge;
-            if (order.finalAmount < 0) order.finalAmount = 0;
+            const itemTotal = item.price * item.quantity;
+            let itemDiscountShare = 0;
+            if (originalTotal > 0) {
+                itemDiscountShare = (itemTotal / originalTotal) * originalDiscount;
+            }
+
+            let newTotalAmount = 0;
+            order.orderItems.forEach((i) => {
+                if (i.itemStatus !== "Cancelled" && i.itemStatus !== "Returned") {
+                    newTotalAmount += i.price * i.quantity;
+                }
+            });
+
+            order.totalAmount = newTotalAmount;
+            order.discountAmount = Math.max(0, originalDiscount - itemDiscountShare);
+            
+            if (newTotalAmount === 0) {
+                order.finalAmount = 0;
+                order.discountAmount = 0;
+            } else {
+                order.finalAmount = Math.max(0, newTotalAmount - order.discountAmount + deliveryCharge);
+            }
         }
 
         return await order.save();
@@ -236,6 +250,18 @@ export const orderRepository = {
         }
 
         const deliveryCharge = order.finalAmount - (order.totalAmount - (order.discountAmount || 0));
+        const originalTotal = order.totalAmount;
+        const originalDiscount = order.discountAmount || 0;
+
+        if (status === "Cancelled" || status === "Returned") {
+             const itemTotal = item.price * item.quantity;
+             let itemDiscountShare = 0;
+             if (originalTotal > 0) {
+                 itemDiscountShare = (itemTotal / originalTotal) * originalDiscount;
+             }
+             order.discountAmount = Math.max(0, originalDiscount - itemDiscountShare);
+        }
+
         let newTotalAmount = 0;
         order.orderItems.forEach((i) => {
             if (i.itemStatus !== "Cancelled" && i.itemStatus !== "Returned") {
@@ -246,9 +272,9 @@ export const orderRepository = {
         order.totalAmount = newTotalAmount;
         if (newTotalAmount === 0) {
             order.finalAmount = 0;
+            order.discountAmount = 0;
         } else {
-            order.finalAmount = newTotalAmount - (order.discountAmount || 0) + deliveryCharge;
-            if (order.finalAmount < 0) order.finalAmount = 0;
+            order.finalAmount = Math.max(0, newTotalAmount - (order.discountAmount || 0) + deliveryCharge);
         }
 
         return await order.save();

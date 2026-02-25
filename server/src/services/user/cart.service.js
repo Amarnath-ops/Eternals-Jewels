@@ -2,6 +2,7 @@ import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
 import { cartRepository } from "../../repositories/cart.repo.js";
 import { productRepository } from "../../repositories/product.repo.js";
+import { applyOffersToProducts } from "../../utils/offerHelper.js";
 
 export const addToCartService = async (userId, productId, variantId, quantity) => {
     const product = await productRepository.findById(productId);
@@ -61,14 +62,19 @@ export const getCartService = async (userId) => {
     const cart = await cartRepository.findCartByUser(userId);
     if (!cart)
         return {
-            item: [],
+            items: [],
             total: 0,
         };
+
+    const cartProducts = cart.cartItems.map((item) => item.product);
+    const cartProductsWithOffers = await applyOffersToProducts(cartProducts);
 
     let total = 0;
     const items = cart.cartItems
         .map((item) => {
-            const product = item.product;
+            const product = cartProductsWithOffers.find((p) => p._id.toString() === item.product._id.toString());
+            if (!product) return null;
+
             const variant = product.variants.find((v) => v._id.toString() === item.variantId.toString());
 
             if (!variant) return null;

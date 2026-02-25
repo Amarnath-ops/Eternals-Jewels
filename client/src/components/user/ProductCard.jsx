@@ -80,11 +80,25 @@ const ProductCard = ({ product }) => {
             <p className="mt-0.5 text-xs text-gray-500 font-medium">{category?.categoryName}</p>
             
             <div className="mt-2 flex items-center justify-between">
-                 <p className="text-sm font-medium text-gray-900">{formattedPrice}</p>
-                 <div className="flex text-yellow-400 text-[10px] gap-0.5">
-                     {'★★★★★'.split('').map((star, i) => (
-                         <span key={i}>{star}</span>
-                     ))}
+                 <div className="flex flex-col">
+                      <p className="text-sm font-bold text-gray-900">{formattedPrice}</p>
+                      {variants?.[0]?.regularPrice > variants?.[0]?.salePrice && (
+                          <div className="flex items-center gap-2 mt-0.5">
+                               <p className="text-[10px] text-gray-400 line-through">
+                                   ₹{variants[0].regularPrice}
+                               </p>
+                               <span className="text-[9px] text-green-600 font-bold">
+                                   {Math.round(((variants[0].regularPrice - variants[0].salePrice) / variants[0].regularPrice) * 100)}% OFF
+                               </span>
+                          </div>
+                      )}
+                 </div>
+                 <div className="flex flex-col items-end gap-1">
+                      <div className="flex text-yellow-400 text-[10px] gap-0.5">
+                          {'★★★★★'.split('').map((star, i) => (
+                              <span key={i}>{star}</span>
+                          ))}
+                      </div>
                  </div>
             </div>
 

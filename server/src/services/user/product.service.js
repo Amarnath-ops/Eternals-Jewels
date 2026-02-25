@@ -1,6 +1,7 @@
 import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
 import { productRepository } from "../../repositories/product.repo.js";
+import { applyOffersToProducts } from "../../utils/offerHelper.js";
 
 export const getProducts = async (query) => {
     const { page = 1, limit = 12, search, sort = "-createdAt", category, minPrice, maxPrice } = query;
@@ -21,8 +22,11 @@ export const getProducts = async (query) => {
         maxPrice: maxPrice !== undefined && maxPrice !== "" ? Number(maxPrice) : undefined,
         material: materials,
     });
+
+    const productsWithOffers = await applyOffersToProducts(products);
+
     return {
-        products,
+        products: productsWithOffers,
         total,
         page: Number(page),
         totalPages: Math.ceil(total / limit),
@@ -42,7 +46,9 @@ export const getProductById = async (id) => {
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
-    return product;
+
+    const productWithOffer = await applyOffersToProducts(product);
+    return productWithOffer;
 };
 
 export const getUniqueMaterials = async () => {

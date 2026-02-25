@@ -3,7 +3,7 @@ import { useGetOrders } from "@/hooks/tanstack_Queries/user/order/useGetOrders";
 import { SpinnerBadge } from "@/components/Spinner";
 import OrderCard from "@/components/user/OrderCard";
 import Pagination from "@/components/Pagination";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 const MyOrders = () => {
     const [page, setPage] = useState(1);
@@ -40,8 +40,19 @@ const MyOrders = () => {
                     placeholder="Search orders by ID or Product Name..." 
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7e6b58] focus:border-transparent bg-white"
+                    className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7e6b58] focus:border-transparent bg-white"
                 />
+                {search && (
+                    <button
+                        onClick={() => {
+                            setSearch("");
+                            setPage(1);
+                        }}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        <X size={20} />
+                    </button>
+                )}
             </div>
 
             {orders.length === 0 ? (

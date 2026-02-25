@@ -13,6 +13,9 @@ import { addCategorySchema, updateCategorySchema } from "../../validations/categ
 
 export const addCategory = async (req, res) => {
     try {
+        if (req.body.offer === "") {
+            req.body.offer = null;
+        }
         const validData = await validateData(req.body, addCategorySchema);
         console.log(validData, req.body);
         const result = await addCategoryService(validData.data, req.file);
@@ -53,6 +56,9 @@ export const getCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
     try {
         console.log(req.file);
+        if (req.body.offer === "") {
+            req.body.offer = null;
+        }
         const validData = await validateData(req.body, updateCategorySchema);
         const result = await updateCategoryService(req.params.id, validData.data, req.file);
 

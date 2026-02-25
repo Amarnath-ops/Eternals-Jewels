@@ -1,4 +1,4 @@
-import { User, MapPin, ShoppingBag, Heart, Wallet, Lock, Users, LogOut } from "lucide-react";
+import { User, MapPin, ShoppingBag, Heart, Wallet, Lock, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = ({ user }) => {
@@ -12,7 +12,6 @@ const Sidebar = ({ user }) => {
         { icon: Wallet, label: "My Wallet", path: "/account/wallet" },
         { icon: Lock, label: "Change password", path: "/account/change-password" },
         { icon: Users, label: "Referral Code", path: "/account/referral" }, 
-        { icon: LogOut, label: "Log out", path: "/account/logout" },
     ];
 
     

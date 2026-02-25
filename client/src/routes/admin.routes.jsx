@@ -16,6 +16,13 @@ import AddProduct from "@/pages/admin/AddProduct";
 
 import EditProduct from "@/pages/admin/EditProduct";
 import OrderDetails from "@/pages/admin/OrderDetails";
+import CouponList from "@/pages/admin/CouponList";
+import AddCoupon from "@/pages/admin/AddCoupon";
+import EditCoupon from "@/pages/admin/EditCoupon";
+import OfferList from "@/pages/admin/OfferList";
+import AddOffer from "@/pages/admin/AddOffer";
+import EditOffer from "@/pages/admin/EditOffer";
+
 const AdminRoutes = () => {
     const dispatch = useDispatch();
     const restoreToken = async () => {
@@ -47,6 +54,12 @@ const AdminRoutes = () => {
                     <Route path="products/edit-product/:id" element={<EditProduct />} />
                     <Route path="orders" element={<OrderList />} />
                     <Route path="orders/:orderId" element={<OrderDetails />} />
+                    <Route path="coupons" element={<CouponList />} />
+                    <Route path="coupons/add-coupon" element={<AddCoupon />} />
+                    <Route path="coupons/edit-coupon/:id" element={<EditCoupon />} />
+                    <Route path="offers" element={<OfferList />} />
+                    <Route path="offers/add-offer" element={<AddOffer />} />
+                    <Route path="offers/edit-offer/:id" element={<EditOffer />} />
                 </Route>
             </Routes>
         </>

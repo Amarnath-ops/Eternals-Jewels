@@ -66,6 +66,7 @@ const ProductDetails = () => {
 
     useEffect(() => {
         if (product) {
+            console.log(product);
             // eslint-disable-next-line react-hooks/set-state-in-effect
             if (product.thumbnail) setActiveImage(product.thumbnail.image_url);
 
@@ -170,7 +171,7 @@ const ProductDetails = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-xs text-gray-500 mb-8 uppercase tracking-wide">
                         <span className="cursor-pointer hover:text-black" onClick={() => navigate("/")}>
-                            Home {!isInWishlist&& "haia"}
+                            Home 
                         </span>
                         <span className="mx-2">/</span>
                         <span className="cursor-pointer hover:text-black" onClick={() => navigate("/shop")}>

@@ -30,6 +30,8 @@ import OrderSuccessPage from "@/pages/user/OrderSuccess";
 import MyOrders from "@/pages/user/MyOrders";
 import OrderDetails from "@/pages/user/OrderDetails";
 import PaymentFailurePage from "@/pages/user/PaymentFailure";
+import WalletPage from "@/pages/user/Wallet";
+import ReferralPage from "@/pages/user/Referral";
 
 const UserRoutes = () => {
     const dispatch = useDispatch();
@@ -80,6 +82,9 @@ const UserRoutes = () => {
                     <Route path="orders" element={<MyOrders />}></Route>
                     <Route path="orders/:orderId" element={<OrderDetails />}></Route>
                     <Route path="change-password" element={<ChangePassword />}></Route>
+                    <Route path="wallet" element={<WalletPage />}></Route>
+                    <Route path="referral" element={<ReferralPage />}></Route>
+                    
                 </Route>
             </Routes>
             <Footer />

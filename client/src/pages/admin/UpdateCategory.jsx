@@ -10,6 +10,8 @@ import { getCroppedImage } from "@/lib/cropUtils";
 import FormInput from "@/components/form/FormInput";
 import { SpinnerBadge } from "@/components/Spinner";
 import { useUpdateCategory } from "@/hooks/tanstack_Queries/admin/categories/useUpdateCategory";
+import { useGetActiveOffersByType } from "@/hooks/tanstack_Queries/admin/offer/useGetActiveOffersByType";
+
 const UpdateCategory = () => {
     const {categoryId} = useParams()
     const {state:{category}} = useLocation()    
@@ -23,6 +25,7 @@ const UpdateCategory = () => {
     const canvasRef = useRef(null);
 
     const { mutateAsync, isPending } = useUpdateCategory();
+    const { data: offersData } = useGetActiveOffersByType("Category");
 
     const {
         handleSubmit,
@@ -35,8 +38,7 @@ const UpdateCategory = () => {
         defaultValues: {
             categoryName: "",
             categoryDescription: "",
-            categoryOffer: "",
-            maxRedeem: "",
+            offer: "",
             isListed: true,
             thumbnail: null,
         },
@@ -47,8 +49,7 @@ const UpdateCategory = () => {
         reset({
             categoryName: category.categoryName || "",
             categoryDescription: category.categoryDescription || "",
-            categoryOffer: category.categoryOffer || "",
-            maxRedeem: category.maxRedeem || "",
+            offer: category.offer?._id || category.offer || "",
             thumbnail: null, 
         },{
             keepDirty:false
@@ -60,15 +61,14 @@ const UpdateCategory = () => {
     const onSubmit = async (data) => {
         try {
             const formData = new FormData();
-            console.log(data);
             if (data.thumbnail) {
                 formData.append("thumbnail", data.thumbnail);
             }
             formData.append("categoryName", data.categoryName);
             formData.append("categoryDescription", data.categoryDescription);
-            formData.append("categoryOffer", data.categoryOffer);
-            formData.append("maxRedeem", data.maxRedeem);
-            console.log(categoryId)
+            if (data.offer) {
+                formData.append("offer", data.offer);
+            }
             await mutateAsync({ categoryId, data: formData });
         } catch (error) {
             console.log(error);
@@ -229,37 +229,22 @@ const UpdateCategory = () => {
                     {}
                     <div className="space-y-6">
                         {}
-                        <div className="flex flex-col md:flex-row gap-4 md:gap-8">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
-                                <label className="text-gray-900 font-medium text-base whitespace-nowrap">
-                                    Category Offer:
-                                </label>
-                                <FormInput
-                                    name="categoryOffer"
-                                    register={register}
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    error={errors.categoryOffer}
-                                    onWheel={(e) => e.target.blur()}
-                                    className="bg-gray-200 rounded px-3 py-2 w-full sm:w-32 outline-none focus:ring-2 focus:ring-gray-400 transition"
-                                />
-                            </div>
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
-                                <label className="text-gray-900 font-medium text-base whitespace-nowrap">
-                                    Max Redeemable:
-                                </label>
-                                <FormInput
-                                    name="maxRedeem"
-                                    register={register}
-                                    error={errors.maxRedeem}
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    onWheel={(e) => e.target.blur()}
-                                    className="bg-gray-200 rounded px-3 py-2 w-full sm:w-32 outline-none focus:ring-2 focus:ring-gray-400 transition"
-                                />
-                            </div>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-gray-900 font-medium text-base whitespace-nowrap">
+                                Apply Category Offer:
+                            </label>
+                            <select
+                                {...register("offer")}
+                                className="bg-[#F5F6FA] border-none rounded-lg px-4 py-3 text-gray-700 outline-none focus:ring-2 focus:ring-gray-200"
+                            >
+                                <option value="">No Offer</option>
+                                {offersData?.data?.map((offer) => (
+                                    <option key={offer._id} value={offer._id}>
+                                        {offer.offerName} ({offer.discountPercentage}% OFF)
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.offer && <p className="text-red-500 text-[10px] mt-1">{errors.offer.message}</p>}
                         </div>
 
                         {}

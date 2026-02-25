@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Eye, Edit, Trash2, Search, ChevronRight } from "lucide-react";
+import { Eye, Edit, Trash2, Search, ChevronRight, X } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import { Link } from "react-router-dom";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -146,11 +146,22 @@ const ProductList = () => {
                         </div>
                         <input
                             type="text"
-                            className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-black focus:ring-1 focus:ring-black sm:text-sm transition duration-150 ease-in-out shadow-sm"
+                            className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-black focus:ring-1 focus:ring-black sm:text-sm transition duration-150 ease-in-out shadow-sm"
                             placeholder="Search product..."
                             value={searchTerm}
                             onChange={handleSearch}
                         />
+                        {searchTerm && (
+                            <button
+                                onClick={() => {
+                                    setSearchTerm("");
+                                    setCurrentPage(1);
+                                }}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        )}
                     </div>
 
                     <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white text-sm font-medium shadow-sm">
@@ -185,6 +196,7 @@ const ProductList = () => {
                                 <th className="p-4 py-5 rounded-tl-lg">Image</th>
                                 <th className="p-4 py-5">Product Name</th>
                                 <th className="p-4 py-5">Category</th>
+                                <th className="p-4 py-5 text-center">Offer</th>
                                 <th className="p-4 py-5 text-center">Product Details</th>
                                 <th className="p-4 py-5 text-center">List</th>
                                 <th className="p-4 py-5 rounded-tr-lg">Action</th>
@@ -193,7 +205,7 @@ const ProductList = () => {
                         <tbody className="bg-white text-gray-700 text-sm">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={6} className="p-8 border border-gray-200">
+                                    <td colSpan={7} className="p-8 border border-gray-200">
                                         <div className="flex justify-center items-center">
                                             <SpinnerBadge content={"Loading..."} />
                                         </div>
@@ -230,6 +242,17 @@ const ProductList = () => {
                                                         <span className="inline-block px-3 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
                                                             {item.category?.categoryName || "Uncategorized"}
                                                         </span>
+                                                    </td>
+
+                                                    <td className="p-4 text-center border-r border-gray-100">
+                                                        {item.offer ? (
+                                                            <div className="flex flex-col items-center">
+                                                                <span className="text-xs font-bold text-green-600">{item.offer.offerName}</span>
+                                                                <span className="text-[10px] text-gray-500">({item.offer.discountPercentage}%)</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-gray-400">None</span>
+                                                        )}
                                                     </td>
 
                                                     <td className="p-4 text-center border-r border-gray-100">

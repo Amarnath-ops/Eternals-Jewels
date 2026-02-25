@@ -121,13 +121,7 @@ export const updateProductService = async (id, data, files) => {
         
         for (const [variantIdx, imageFiles] of Object.entries(variantImagesMap)) {
             const variantIdxNum = Number(variantIdx);
-            
-            
-            
-            
-            
-            
-
+        
             const uploadPromises = imageFiles.map(async (file) => {
                 if (!file.mimetype.startsWith("image/")) {
                     throw new Error(ERROR_MESSAGES.INVALID_IMAGE_FORMAT);

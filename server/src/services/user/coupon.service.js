@@ -8,7 +8,7 @@ export const getCouponsService = async () => {
 
 export const validateCouponService = async (userId, code, totalAmount) => {
     if (!userId) {
-        const error = new Error("User validation failed for coupon.");
+        const error = new Error(ERROR_MESSAGES.USER_VALIDATION_FAILED_FOR_COUPON);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
@@ -16,7 +16,7 @@ export const validateCouponService = async (userId, code, totalAmount) => {
     const coupon = await couponRepository.findByCode(code.toUpperCase());
 
     if (!coupon) {
-        const error = new Error("Invalid or inactive coupon code.");
+        const error = new Error(ERROR_MESSAGES.INVALID_OR_INACTIVE_COUPON_CODE);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
@@ -24,13 +24,13 @@ export const validateCouponService = async (userId, code, totalAmount) => {
     const now = new Date();
     
     if (new Date(coupon.startDate) > now) {
-        const error = new Error("This coupon is not yet valid.");
+        const error = new Error(ERROR_MESSAGES.COUPON_NOT_YET_VALID);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
 
     if (now > new Date(coupon.expiryDate)) {
-        const error = new Error("This coupon has expired.");
+        const error = new Error(ERROR_MESSAGES.COUPON_EXPIRED);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }

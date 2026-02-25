@@ -6,7 +6,12 @@ import { productRepository } from "../../repositories/product.repo.js";
 import { findAddressById } from "../../repositories/address.repo.js";
 import  razorpay  from "../../config/razorpay.js";
 import { verifySignature } from "../../utils/verify.signature.js";
-export const placeOrderService = async (userId, { addressId, paymentMethod }) => {
+import { validateCouponService } from "./coupon.service.js";
+import { walletRepository } from "../../repositories/wallet.repo.js";
+import { couponRepository } from "../../repositories/coupon.repo.js";
+import { applyOffersToProducts } from "../../utils/offerHelper.js";
+
+export const placeOrderService = async (userId, { addressId, paymentMethod, couponCode }) => {
     const cart = await cartRepository.findCartByUser(userId);
     if (!cart || cart.cartItems.length === 0) {
         const error = new Error(ERROR_MESSAGES.CART_EMPTY);
@@ -14,13 +19,15 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
         throw error;
     }
 
+    const cartProducts = cart.cartItems.map((item) => item.product);
+    const cartProductsWithOffers = await applyOffersToProducts(cartProducts);
+
     let totalAmount = 0;
     const orderItems = [];
 
     for (const item of cart.cartItems) {
-        const product = await productRepository.findById(item.product._id);
+        const product = cartProductsWithOffers.find((p) => p._id.toString() === item.product._id.toString());
         
-        console.log("pRODUCT",product)
         if (!product || !product.isListed || product.isDeleted) {
             const error = new Error(`Product ${product ? product.productName : ""} is unavailable`);
             error.statusCode = STATUS_CODES.BAD_REQUEST;
@@ -50,6 +57,11 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
             productName: product.productName,
             image: variant.images[0].image_url,
             price: price,
+            regularPrice: variant.regularPrice,
+            appliedOffer: variant.appliedOffer ? {
+                name: variant.appliedOffer.name,
+                discountPercentage: variant.appliedOffer.discountPercentage
+            } : null,
             quantity: item.quantity,
             itemStatus: "Pending",
         });
@@ -62,12 +74,17 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
         throw error;
     }
 
-    let deliveryCharge = 0;
-    if (totalAmount < 1000) {
-        deliveryCharge = 50;
+    let deliveryCharge = totalAmount < 1000 ? 50 : 0;
+    let discountAmount = 0;
+    let validCouponId = null;
+
+    if (couponCode) {
+        const couponResult = await validateCouponService(userId, couponCode, totalAmount);
+        discountAmount = couponResult.discountAmount;
+        validCouponId = couponResult.couponId;
     }
 
-    const finalAmount = totalAmount + deliveryCharge;
+    const finalAmount = totalAmount + deliveryCharge - discountAmount;
 
     const orderData = {
         user: userId,
@@ -85,13 +102,19 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
         paymentMethod,
         totalAmount,
         finalAmount,
-        discountAmount: 0,
+        discountAmount,
+        couponCode,
         orderStatus: "Pending",
         paymentStatus: "Pending",
         deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     };
 
     const newOrder = await orderRepository.createOrder(orderData);
+
+    if (validCouponId) {
+        await couponRepository.recordUsage(validCouponId, userId);
+    }
+
     let razorpayOrder = null;
     if (paymentMethod === "RazorPay") {
         console.log(finalAmount)
@@ -106,6 +129,21 @@ export const placeOrderService = async (userId, { addressId, paymentMethod }) =>
             console.log(error);
             error.message = ERROR_MESSAGES.RAZORPAY_ERROR;
             error.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR;
+            throw error;
+        }
+    } else if (paymentMethod === "Wallet") {
+        try {
+            await walletRepository.debitWallet(
+                userId,
+                finalAmount,
+                `Payment for order #${newOrder._id.toString().slice(-6).toUpperCase()}`,
+                newOrder._id
+            );
+            newOrder.paymentStatus = "Completed";
+            newOrder.transactionId = `WLT_${newOrder._id}`;
+            await orderRepository.saveOrder(newOrder);
+        } catch (error) {
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
             throw error;
         }
     }
@@ -160,6 +198,19 @@ export const cancelOrderService = async (userId, orderId) => {
             return Promise.resolve();
         })
     );
+
+    if (order.paymentStatus === "Completed") {
+        if (order.paymentMethod === "Wallet" || order.paymentMethod === "RazorPay") {
+            await walletRepository.creditWallet(
+                userId,
+                order.finalAmount,
+                `Refund for cancelled order #${order._id.toString().slice(-6).toUpperCase()}`,
+                order._id
+            );
+            order.paymentStatus = "Refunded";
+        }
+    }
+
     return await orderRepository.cancelOrder(orderId);
 };
 
@@ -202,9 +253,31 @@ export const cancelOrderItemService = async (userId, orderId, itemId) => {
         throw new Error(`Cannot cancel item in ${item.itemStatus} state`);
     }
 
+    const oldFinalAmount = order.finalAmount;
+
     await productRepository.updateStock(item.product, item.variantId, -item.quantity);
 
-    return await orderRepository.cancelOrderItem(orderId, itemId);
+    const updatedOrder = await orderRepository.cancelOrderItem(orderId, itemId);
+
+    const refundAmount = oldFinalAmount - updatedOrder.finalAmount;
+
+    if (refundAmount > 0 && order.paymentStatus === "Completed") {
+        if (order.paymentMethod === "Wallet" || order.paymentMethod === "RazorPay") {
+            await walletRepository.creditWallet(
+                userId,
+                refundAmount,
+                `Refund for cancelled item: ${item.productName}`,
+                order._id
+            );
+
+            if (updatedOrder.finalAmount === 0 && updatedOrder.orderStatus === "Cancelled") {
+                updatedOrder.paymentStatus = "Refunded";
+                await orderRepository.saveOrder(updatedOrder);
+            }
+        }
+    }
+
+    return updatedOrder;
 };
 
 export const verifyPaymentService = async (orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature) => {
@@ -239,13 +312,13 @@ export const retryPaymentService = async (userId, orderId) => {
     }
 
     if (order.paymentMethod !== "RazorPay") {
-        const error = new Error("Payment method is not RazorPay");
+        const error = new Error(ERROR_MESSAGES.PAYMENT_METHOD_NOT_RAZORPAY);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
 
     if (order.paymentStatus === "Completed") {
-        const error = new Error("Payment is already completed");
+        const error = new Error(ERROR_MESSAGES.PAYMENT_ALREADY_COMPLETED);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }

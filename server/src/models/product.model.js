@@ -40,6 +40,11 @@ const productSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        offer: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Offer",
+            default: null,
+        },
     },
     { timestamps: true }
 );

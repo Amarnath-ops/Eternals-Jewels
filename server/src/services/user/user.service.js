@@ -19,7 +19,7 @@ export const getUserDataService = async (userId) => {
         error.statusCode = STATUS_CODES.FORBIDDEN;
         throw error;
     }
-
+console.log(user);
     return {
         user: {
             _id: user._id,
@@ -29,6 +29,7 @@ export const getUserDataService = async (userId) => {
             provider: user.provider,
             isVerified: user.isVerified,
             avatar: user.avatar.url,
+            referralCode: user.referralCode,
         },
     };
 };

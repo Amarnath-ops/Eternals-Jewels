@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Search, X } from "lucide-react";
 import { useGetAdminCoupons } from "@/hooks/tanstack_Queries/admin/coupon/useGetAdminCoupons";
 import { useToggleCouponStatus } from "@/hooks/tanstack_Queries/admin/coupon/useMutateCoupons";
 import { SpinnerBadge } from "@/components/Spinner";
 import { useDebounce } from "@/hooks/useDebounce";
+import Pagination from "@/components/Pagination";
 
 const CouponList = () => {
     const [page, setPage] = useState(1);
@@ -36,13 +37,29 @@ const CouponList = () => {
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div className="mb-6 flex justify-between items-center">
-                    <input
-                        type="text"
-                        placeholder="Search coupons by code..."
-                        value={search}
-                        onChange={handleSearch}
-                        className="border border-gray-300 rounded-lg px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-[#A47F64] focus:border-transparent"
-                    />
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Search size={18} className="text-gray-400" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search coupons by code..."
+                            value={search}
+                            onChange={handleSearch}
+                            className="border border-gray-300 rounded-lg pl-10 pr-10 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-[#A47F64] focus:border-transparent"
+                        />
+                        {search && (
+                            <button
+                                onClick={() => {
+                                    setSearch("");
+                                    setPage(1);
+                                }}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -124,24 +141,12 @@ const CouponList = () => {
                     </table>
                 </div>
                 {couponsData?.totalPages > 1 && (
-                    <div className="flex justify-center mt-6 gap-2">
-                        <button
-                            disabled={page === 1}
-                            onClick={() => setPage(p => p - 1)}
-                            className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 hover:bg-gray-50 text-sm font-medium"
-                        >
-                            Previous
-                        </button>
-                        <span className="px-4 py-2 text-sm text-gray-700 flex items-center">
-                            Page {page} of {couponsData.totalPages}
-                        </span>
-                        <button
-                            disabled={page === couponsData.totalPages}
-                            onClick={() => setPage(p => p + 1)}
-                            className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 hover:bg-gray-50 text-sm font-medium"
-                        >
-                            Next
-                        </button>
+                    <div className="mt-6 flex justify-center">
+                        <Pagination 
+                            currentPage={page}
+                            totalPages={couponsData.totalPages}
+                            onPageChange={setPage}
+                        />
                     </div>
                 )}
             </div>

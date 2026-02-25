@@ -14,7 +14,7 @@ import {
 
 export const placeOrder = async (req, res) => {
     try {
-        const { addressId, paymentMethod } = req.body;
+        const { addressId, paymentMethod, couponCode } = req.body;
 
         if (!addressId || !paymentMethod) {
             const error = new Error(ERROR_MESSAGES.ADDRESS_AND_PAYMENT_METHOD_REQUIRED);
@@ -22,7 +22,7 @@ export const placeOrder = async (req, res) => {
             throw error;
         }
 
-        const order = await placeOrderService(req.user._id, { addressId, paymentMethod });
+        const order = await placeOrderService(req.user._id, { addressId, paymentMethod, couponCode });
 
         return res.status(STATUS_CODES.CREATED).json({
             success: true,
@@ -169,7 +169,7 @@ export const retryPayment = async (req, res) => {
 
         return res.status(STATUS_CODES.OK).json({
             success: true,
-            message: "Payment retry initiated successfully",
+            message: CONSTANTS.PAYMENT_RETRY_INITIATED_SUCCESSFULLY,
             orderId: order._id,
             razorpayOrderId: order.razorpayOrderId,
             amount: order.amount,

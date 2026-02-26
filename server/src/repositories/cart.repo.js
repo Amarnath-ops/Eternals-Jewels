@@ -2,7 +2,13 @@ import Cart from "../models/cart.model.js";
 
 export const cartRepository = {
     findCartByUser: (userId) => {
-        return Cart.findOne({ user: userId }).populate("cartItems.product");
+        return Cart.findOne({ user: userId }).populate({
+            path: "cartItems.product",
+            populate: [
+                { path: "category" },
+                { path: "offer" }
+            ]
+        });
     },
     createCart: (data) => {
         return Cart.create(data);

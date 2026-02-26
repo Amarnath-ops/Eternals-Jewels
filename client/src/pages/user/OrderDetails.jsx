@@ -303,9 +303,9 @@ const OrderDetails = () => {
                                 {item.regularPrice > item.price && (
                                     <div className="flex items-center gap-2">
                                         <p className="text-sm text-gray-400 line-through">{formatCurrency(item.regularPrice)}</p>
-                                        {item.appliedOffer?.discountPercentage > 0 && (
+                                        {item.regularPrice > item.price && (
                                             <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-bold border border-green-100 uppercase">
-                                                {item.appliedOffer.discountPercentage}% Offer
+                                                {Math.round(((item.regularPrice - item.price) / item.regularPrice) * 100)}% Offer
                                             </span>
                                         )}
                                     </div>

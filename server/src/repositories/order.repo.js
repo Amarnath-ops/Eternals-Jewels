@@ -1,4 +1,5 @@
 import Order from "../models/order.model.js";
+import { walletRepository } from "../repositories/wallet.repo.js";
 
 export const orderRepository = {
     createOrder: async (orderData) => {
@@ -179,6 +180,9 @@ export const orderRepository = {
             order.finalAmount = 0;
         }
 
+        const originalTotal = order.totalAmount;
+        const originalDiscount = order.discountAmount || 0;
+
         if (status === "Returned") {
             order.orderItems.forEach((item) => {
                 if (item.itemStatus !== "Cancelled" && item.itemStatus !== "Returned") {
@@ -187,8 +191,22 @@ export const orderRepository = {
             });
             order.totalAmount = 0;
             order.finalAmount = 0;
+            order.discountAmount = 0;
         }
 
+        if (status === "Returned" && (order.paymentMethod === "Wallet" || order.paymentMethod === "RazorPay") && order.paymentStatus === "Completed") {
+            const refundAmount = Math.max(0, originalTotal - originalDiscount);
+            if (refundAmount > 0) {
+                await walletRepository.creditWallet(
+                    order.user,
+                    refundAmount,
+                    `Refund for returned order #${order._id.toString().slice(-6).toUpperCase()}`,
+                    order._id
+                );
+                order.paymentStatus = "Refunded";
+            }
+        }
+        
         return await order.save();
     },
 
@@ -277,7 +295,32 @@ export const orderRepository = {
             order.finalAmount = Math.max(0, newTotalAmount - (order.discountAmount || 0) + deliveryCharge);
         }
 
-        return await order.save();
+        const updatedOrder = await order.save();
+
+        if (status === "Returned" && (order.paymentMethod === "Wallet" || order.paymentMethod === "RazorPay") && order.paymentStatus === "Completed") {
+            const itemTotal = item.price * item.quantity;
+            let itemDiscountShare = 0;
+            if (originalTotal > 0) {
+                itemDiscountShare = (itemTotal / originalTotal) * originalDiscount;
+            }
+            const itemRefundAmount = Math.max(0, itemTotal - itemDiscountShare);
+            
+            if (itemRefundAmount > 0) {
+                await walletRepository.creditWallet(
+                    order.user,
+                    itemRefundAmount,
+                    `Refund for returned item: ${item.productName}`,
+                    order._id
+                );
+                
+                if (updatedOrder.orderStatus === "Returned") {
+                    updatedOrder.paymentStatus = "Refunded";
+                    await updatedOrder.save();
+                }
+            }
+        }
+
+        return updatedOrder;
     },
     saveOrder: (order) => {
         return order.save();

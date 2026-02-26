@@ -2,7 +2,13 @@ import Wishlist from "../models/wishlist.model.js";
 
 export const wishlistRepository = {
     findWishlistByUser: (userId) => {
-        return Wishlist.findOne({ user: userId }).populate("items.product");
+        return Wishlist.findOne({ user: userId }).populate({
+            path: "items.product",
+            populate: [
+                { path: "category" },
+                { path: "offer" }
+            ]
+        });
     },
     createWishlist: (data) => {
         return Wishlist.create(data);

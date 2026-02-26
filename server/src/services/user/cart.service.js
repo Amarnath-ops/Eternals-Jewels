@@ -16,7 +16,7 @@ export const addToCartService = async (userId, productId, variantId, quantity) =
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
-    const variant = product.variants.id(variantId);
+    const variant = product.variants.find((v) => v._id.toString() === variantId.toString());
     if (!variant) {
         const error = new Error(ERROR_MESSAGES.VARIANT_IS_NOT_FOUND);
         error.statusCode = STATUS_CODES.NOT_FOUND;
@@ -36,11 +36,14 @@ export const addToCartService = async (userId, productId, variantId, quantity) =
             items: [],
         });
     }
+    const productWithOffers = await applyOffersToProducts(product);
+    const variantWithOffers = productWithOffers.variants.find((v) => v._id.toString() === variantId.toString());
+
     const existingItem = cart.cartItems.find(
         (item) => String(item.product._id) === String(productId) && String(item.variantId) === String(variantId),
     );
     if (existingItem) {
-        if (existingItem.quantity + quantity > variant.quantity) {
+        if (existingItem.quantity + quantity > variantWithOffers.quantity) {
              const error = new Error(ERROR_MESSAGES.NOT_ENOUGH_STOCK);
              error.statusCode = STATUS_CODES.BAD_REQUEST;
              throw error;
@@ -49,7 +52,7 @@ export const addToCartService = async (userId, productId, variantId, quantity) =
     } else {
         cart.cartItems.push({
             product: productId,
-            priceSnapshot: variant.salePrice,
+            priceSnapshot: variantWithOffers.salePrice,
             variantId,
             quantity,
         });
@@ -123,7 +126,7 @@ export const updateQuantityService = async (userId, productId, variantId, qty) =
         error.statusCode = STATUS_CODES.NOT_FOUND;
         throw error;
     }
-    const variant = product.variants.id(variantId);
+    const variant = product.variants.find((v) => v._id.toString() === variantId.toString());
     if (!variant) {
         const error = new Error(ERROR_MESSAGES.VARIANT_IS_NOT_FOUND);
         error.statusCode = STATUS_CODES.NOT_FOUND;

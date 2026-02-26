@@ -3,6 +3,7 @@ import { STATUS_CODES } from "../../constants/statusCode.js";
 import { wishlistRepository } from "../../repositories/wishlist.repo.js";
 import { productRepository } from "../../repositories/product.repo.js";
 import { addToCartService } from "./cart.service.js";
+import { applyOffersToProducts } from "../../utils/offerHelper.js";
 
 export const addToWishlistService = async (userId, productId, variantId) => {
     const product = await productRepository.findById(productId);
@@ -12,7 +13,7 @@ export const addToWishlistService = async (userId, productId, variantId) => {
         throw error;
     }
 
-    const variant = product.variants.id(variantId);
+    const variant = product.variants.find((v) => v._id.toString() === variantId.toString());
     if (!variant) {
         const error = new Error(ERROR_MESSAGES.VARIANT_IS_NOT_FOUND);
         error.statusCode = STATUS_CODES.NOT_FOUND;
@@ -49,9 +50,12 @@ export const getWishlistService = async (userId) => {
         return { items: [] };
     }
 
+    const wishlistProducts = wishlist.items.map((item) => item.product);
+    const wishlistProductsWithOffers = await applyOffersToProducts(wishlistProducts);
+
     const items = wishlist.items
         .map((item) => {
-            const product = item.product;
+            const product = wishlistProductsWithOffers.find((p) => p._id.toString() === item.product._id.toString());
             if (!product) return null; 
 
             const variant = product.variants.find((v) => v._id.toString() === item.variantId.toString());

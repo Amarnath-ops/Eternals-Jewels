@@ -34,7 +34,7 @@ export const placeOrderService = async (userId, { addressId, paymentMethod, coup
             throw error;
         }
 
-        const variant = product.variants.id(item.variantId);
+        const variant = product.variants.find((v) => v._id.toString() === item.variantId.toString());
         if (!variant) {
             const error = new Error(`Variant not found for product ${product.productName}`);
             error.statusCode = STATUS_CODES.BAD_REQUEST;

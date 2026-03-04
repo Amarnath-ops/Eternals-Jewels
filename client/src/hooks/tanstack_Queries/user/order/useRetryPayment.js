@@ -1,10 +1,15 @@
 import { orderService } from '@/services/user/order.service'
-import { useMutation } from '@tanstack/react-query'
-
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+ 
 const useRetryPayment = () => {
-  return useMutation({
-    mutationFn: orderService.retryPayment
-  })
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: orderService.retryPayment,
+        onSuccess: (_, orderId) => {
+            queryClient.invalidateQueries({ queryKey: ["order", orderId] });
+            queryClient.invalidateQueries({ queryKey: ["userOrders"] });
+        }
+    })
 }
 
 export default useRetryPayment

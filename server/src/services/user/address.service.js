@@ -67,12 +67,15 @@ export const updateAddressService = async (userId, addressId, payload) => {
         throw error;
     }
 
-    if (address.userId === userId) {
+    if (address.userId.toString() !== userId.toString()) {
         const error = new Error(ERROR_MESSAGES.UNAUTHORIZED);
         error.statusCode = STATUS_CODES.UNAUTHORIZED;
         throw error;
     }
-    if (address.length === 0) {
+
+    const userAddresses = await findAddressesByUser(userId);
+
+    if (userAddresses.length === 1) {
         payload.isDefault = true;
     }
     if (payload.isDefault) {
@@ -101,7 +104,7 @@ export const deleteAddressService = async (userId, addressId) => {
         throw error;
     }
 
-    if (address.userId === userId) {
+    if (address.userId.toString() !== userId.toString()) {
         const error = new Error(ERROR_MESSAGES.UNAUTHORIZED);
         error.statusCode = STATUS_CODES.UNAUTHORIZED;
         throw error;
@@ -110,9 +113,10 @@ export const deleteAddressService = async (userId, addressId) => {
 
 
     const addresses = await findAddressesByUser(userId);
-    addresses[0].isDefault = true;
-    console.log(addresses);
-    await addresses[0].save();
+    if (addresses.length > 0 && !addresses.some(addr => addr.isDefault)) {
+        addresses[0].isDefault = true;
+        await addresses[0].save();
+    }
 
     return deletedAddress
 };

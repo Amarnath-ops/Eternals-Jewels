@@ -1,12 +1,9 @@
-import React, { useState } from "react";
-import { orderService } from "@/services/user/order.service";
-import toast from "react-hot-toast";
-
+import { useCancelOrder } from "@/hooks/tanstack_Queries/user/order/useCancelOrder";
 import { useNavigate } from "react-router-dom";
 
 const OrderCard = ({ order, onOrderCancelled }) => {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+    const { mutateAsync: cancelOrder, isPending: loading } = useCancelOrder();
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-IN', {
@@ -41,15 +38,10 @@ const OrderCard = ({ order, onOrderCancelled }) => {
         if (!window.confirm("Are you sure you want to cancel this order?")) return;
         
         try {
-            setLoading(true);
-            await orderService.cancelOrder(order._id);
-            toast.success("Order cancelled successfully");
+            await cancelOrder(order._id);
             if (onOrderCancelled) onOrderCancelled();
         } catch (error) {
-            console.error(error);
-            toast.error(error.response?.data?.message || "Failed to cancel order");
-        } finally {
-            setLoading(false);
+            // Error handled in hook
         }
     };
 
@@ -90,7 +82,7 @@ const OrderCard = ({ order, onOrderCancelled }) => {
                         className="px-4 py-2 bg-black text-white text-xs uppercase font-medium rounded hover:bg-gray-800 transition-colors">
                         View Details
                     </button>
-                    {order.orderStatus !== "Cancelled" && order.orderStatus !== "Delivered" && order.orderStatus !== "Returned" && (
+                    {(order.orderStatus === "Pending" || order.orderStatus === "Processing") && (
                          <button 
                             onClick={handleCancelOrder}
                             disabled={loading}

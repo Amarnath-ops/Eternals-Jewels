@@ -6,12 +6,12 @@ import FormWrapper from "@/components/form/Form";
 import { addProductSchema } from "@/validations/product.schema";
 import FormInput from "@/components/form/FormInput";
 import { useAddProduct } from "@/hooks/tanstack_Queries/admin/products/useAddProduct";
-import { useGetCategories } from "@/hooks/tanstack_Queries/admin/categories/useGetCategories";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImage } from "@/lib/cropUtils";
 import { useFieldArray } from "react-hook-form";
 import { useGetActiveOffersByType } from "@/hooks/tanstack_Queries/admin/offer/useGetActiveOffersByType";
+import { useGetCategories } from "@/hooks/tanstack_Queries/user/categories/useGetCategories";
 
 const AddProduct = () => {
     const [status, setStatus] = useState("Listed");
@@ -22,7 +22,7 @@ const AddProduct = () => {
     const canvasRef = useRef(null);
 
     const { mutateAsync: addProduct, isPending } = useAddProduct();
-    const { data: categoriesData } = useGetCategories({ page: 1, limit: 100, sort: "categoryName" });
+    const { data: categoriesData } = useGetCategories();
     const { data: productOffers } = useGetActiveOffersByType("Product");
 
     const {
@@ -217,7 +217,7 @@ const AddProduct = () => {
                                     className="w-full bg-[#F5F6FA] border-none rounded-lg px-4 py-3 text-gray-700 outline-none focus:ring-2 focus:ring-gray-200 cursor-pointer appearance-none"
                                 >
                                     <option value="">Select Category</option>
-                                    {categoriesData?.categories?.map((cat) => (
+                                    {categoriesData?.data?.map((cat) => (
                                         <option key={cat._id} value={cat._id}>
                                             {cat.categoryName}
                                         </option>

@@ -51,6 +51,7 @@ const AddressEditPage = () => {
                     city: address.city,
                     pincode: address.pincode,
                     landmark: address.landmark,
+                    isDefault: address.isDefault,
                 }}
                 submitLabel="Update Address"
                 onSubmit={handleEdit}

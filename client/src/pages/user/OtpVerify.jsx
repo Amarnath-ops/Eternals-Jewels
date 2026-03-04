@@ -42,7 +42,6 @@ const OtpVerification = () => {
     });
 
     const onSubmit = async (data) => {
-        setTimeLeft(59);
         try {
             await mutateAsync({...data,email})
         } catch (error) {

@@ -1,12 +1,12 @@
 import z from "zod";
 
 const variantSchema = z.object({
+    _id: z.string().optional(),
     material: z.string().trim().min(3, "Material is required (min 3)").max(30),
     quantity: z.coerce.number().min(0, "Quantity must be non-negative"),
     regularPrice: z.coerce.number().min(0.01, "Regular price must be greater than 0"),
     salePrice: z.coerce.number().min(0).optional(),
     sku: z.string().trim().min(3, "SKU is required (min 3)").max(30),
-    images: z.any().optional(),
 }).superRefine((data, ctx) => {
     if (data.salePrice && data.salePrice > data.regularPrice) {
         ctx.addIssue({

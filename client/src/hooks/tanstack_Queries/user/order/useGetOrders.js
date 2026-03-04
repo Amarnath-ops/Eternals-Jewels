@@ -6,6 +6,5 @@ export const useGetOrders = (page = 1, limit = 5, search = "") => {
         queryKey: ["userOrders", page, limit, search],
         queryFn: () => orderService.getOrders(page, limit, search),
         keepPreviousData: true,
-        staleTime: 5 * 60 * 1000, 
     });
 };

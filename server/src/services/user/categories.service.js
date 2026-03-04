@@ -7,6 +7,7 @@ export const getLandingCategoriesService = async () => {
         limit: 5,
         sort: "-createdAt",
         select: "categoryName categoryDescription thumbnail",
+        isListed:true
     });
     return categories;
 };

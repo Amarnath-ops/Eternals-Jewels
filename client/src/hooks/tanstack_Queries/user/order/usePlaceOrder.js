@@ -8,6 +8,7 @@ export const usePlaceOrder = () => {
         mutationFn: orderService.placeOrder,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_CART] });
+            queryClient.invalidateQueries({ queryKey: ["userOrders"] });
         },
         onError: (error) => {
             console.log(error);

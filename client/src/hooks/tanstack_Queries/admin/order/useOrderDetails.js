@@ -18,6 +18,8 @@ export const useUpdateOrderStatus = () => {
             toast.success("Order status updated successfully");
             queryClient.invalidateQueries(["adminOrder", variables.orderId]);
             queryClient.invalidateQueries(["adminOrders"]);
+            queryClient.invalidateQueries({ queryKey: ["order", variables.orderId] });
+            queryClient.invalidateQueries({ queryKey: ["userOrders"] });
         },
         onError: (error) => {
             toast.error(error.response?.data?.message || "Failed to update order status");
@@ -33,6 +35,8 @@ export const useUpdateOrderItemStatus = () => {
             toast.success("Item status updated successfully");
             queryClient.invalidateQueries(["adminOrder", variables.orderId]);
             queryClient.invalidateQueries(["adminOrders"]);
+            queryClient.invalidateQueries({ queryKey: ["order", variables.orderId] });
+            queryClient.invalidateQueries({ queryKey: ["userOrders"] });
         },
         onError: (error) => {
             toast.error(error.response?.data?.message || "Failed to update item status");

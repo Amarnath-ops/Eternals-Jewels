@@ -1,10 +1,15 @@
 import { orderService } from '@/services/user/order.service'
-import { useMutation } from '@tanstack/react-query'
-import React from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 const useVerifyPayment = () => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn:orderService.verifyPayment
+    mutationFn: orderService.verifyPayment,
+    onSuccess: (_, variables) => {
+      const orderId = variables.orderId;
+      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
+      queryClient.invalidateQueries({ queryKey: ["userOrders"] });
+    }
   })
 }
 

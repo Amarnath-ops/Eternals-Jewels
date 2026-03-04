@@ -111,8 +111,12 @@ const HomePage = () => {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
-                        {data?.data?.map((cat, index) => (
-                            <div key={index} className="flex flex-col items-center group cursor-pointer">
+                        {data?.data?.slice(0, 5).map((cat, index) => (
+                            <Link
+                                to={`/shop?category=${cat._id}`}
+                                key={index}
+                                className="flex flex-col items-center group cursor-pointer"
+                            >
                                 <div className="w-full aspect-square overflow-hidden mb-4">
                                     <img
                                         src={cat.thumbnail?.image_url}
@@ -123,7 +127,7 @@ const HomePage = () => {
                                 <span className="font-cormorant  text-gray-700 text-lg group-hover:text-black">
                                     {cat.categoryName}
                                 </span>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </section>

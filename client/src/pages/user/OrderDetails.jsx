@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { orderService } from "@/services/user/order.service";
 import { SpinnerBadge } from "@/components/Spinner";
 import { ArrowLeft, Download, RefreshCcw, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import downloadInvoice from "@/lib/downloadInvoice";
 import useRetryPayment from "@/hooks/tanstack_Queries/user/order/useRetryPayment";
 import useVerifyPayment from "@/hooks/tanstack_Queries/user/order/useVerifyPayment";
+import { useGetOrderDetails } from "@/hooks/tanstack_Queries/user/order/useGetOrderDetails";
+import { useCancelOrderItem } from "@/hooks/tanstack_Queries/user/order/useCancelOrderItem";
+import { useReturnOrderItem } from "@/hooks/tanstack_Queries/user/order/useReturnOrderItem";
 
 const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -21,14 +23,18 @@ const loadRazorpayScript = () => {
 const OrderDetails = () => {
     const { orderId } = useParams();
     const navigate = useNavigate();
-    const [order, setOrder] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    
+    const { data: orderData, isLoading: loading, error, refetch } = useGetOrderDetails(orderId);
+    const { mutateAsync: cancelOrderItem } = useCancelOrderItem();
+    const { mutateAsync: returnOrderItem } = useReturnOrderItem();
+    const { mutateAsync: retryPayment, isPending: isRetrying } = useRetryPayment();
+    const { mutateAsync: verifyPayment } = useVerifyPayment();
+
+    const order = orderData?.order;
+
     const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
     const [selectedItemForReturn, setSelectedItemForReturn] = useState(null);
     const [returnReason, setReturnReason] = useState("");
-    const { mutateAsync: retryPayment, isPending: isRetrying } = useRetryPayment();
-    const { mutateAsync: verifyPayment } = useVerifyPayment();
 
     const returnReasons = [
         "Product damaged",
@@ -53,16 +59,14 @@ const OrderDetails = () => {
         }
         
         try {
-            await orderService.returnOrder(order._id, selectedItemForReturn._id, returnReason); 
-            
-            toast.success("Return request submitted successfully");
-            
-            const response = await orderService.getOrderById(order._id);
-            setOrder(response.order);
+            await returnOrderItem({ 
+                orderId: order._id, 
+                itemId: selectedItemForReturn._id, 
+                reason: returnReason 
+            }); 
             setIsReturnModalOpen(false);
         } catch (err) {
-            console.error(err);
-            toast.error(err.response?.data?.message || "Failed to submit return request");
+            console.log(err)
         }
     };
 
@@ -70,13 +74,12 @@ const OrderDetails = () => {
         if (!window.confirm(`Are you sure you want to cancel ${item.productName}?`)) return;
 
         try {
-            await orderService.cancelOrderItem(order._id, item._id);
-            toast.success("Item cancelled successfully");
-            const response = await orderService.getOrderById(order._id);
-            setOrder(response.order);
+            await cancelOrderItem({ 
+                orderId: order._id, 
+                itemId: item._id 
+            });
         } catch (err) {
-            console.error(err);
-            toast.error(err.response?.data?.message || "Failed to cancel item");
+            console.log(err)
         }
     };
 
@@ -108,8 +111,7 @@ const OrderDetails = () => {
                       try {
                            await verifyPayment(verificationData);
                            toast.success("Payment Successful!");
-                           const updatedOrderData = await orderService.getOrderById(order._id);
-                           setOrder(updatedOrderData.order);
+                           refetch();
                       } catch (error) {
                            toast.error("Payment verification failed.");
                            console.log(error)
@@ -148,24 +150,6 @@ const OrderDetails = () => {
             toast.error(err.response?.data?.message || "Failed to initiate payment retry");
         }
     }
-
-
-    useEffect(() => {
-        const fetchOrder = async () => {
-            try {
-                const response = await orderService.getOrderById(orderId);
-                setOrder(response.order);
-            } catch (err) {
-                setError(err.message || "Failed to fetch order details");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (orderId) {
-            fetchOrder();
-        }
-    }, [orderId]);
 
     if (loading) return <div className="h-screen flex items-center justify-center"><SpinnerBadge content="Loading Order Details..." /></div>;
     if (error) return <div className="h-screen flex items-center justify-center text-red-500">{error}</div>;

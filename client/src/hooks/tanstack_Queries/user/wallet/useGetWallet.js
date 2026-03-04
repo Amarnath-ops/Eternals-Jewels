@@ -5,6 +5,5 @@ export const useGetWallet = (page = 1, limit = 5) => {
     return useQuery({
         queryKey: ['wallet', page, limit],
         queryFn: () => walletService.getWallet(page, limit),
-        staleTime: 60 * 1000,
     });
 };

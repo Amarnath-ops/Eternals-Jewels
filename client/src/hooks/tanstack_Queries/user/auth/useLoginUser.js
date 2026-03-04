@@ -13,6 +13,10 @@ export const useLoginUser = () => {
     return useMutation({
         mutationFn: authService.login,
         onSuccess: (data) => {
+            if(!data.user.isVerified){
+                navigate("/verify-otp", {state:{email:data.user.email}})
+                return
+            }
             dispatch(setCredentials({ accessToken: data.token, user: data.user }));
             navigate("/");
             toast.success("You've Login successfully.");

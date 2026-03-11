@@ -73,4 +73,5 @@ export const ERROR_MESSAGES = Object.freeze({
     INVALID_OR_INACTIVE_COUPON_CODE: "Invalid or inactive coupon code.",
     COUPON_NOT_YET_VALID: "This coupon is not yet valid.",
     COUPON_EXPIRED: "This coupon has expired.",
+    MAX_QUANTITY_REACHED: "Maximum quantity per item in the cart is 5.",
 });

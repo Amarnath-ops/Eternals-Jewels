@@ -58,6 +58,10 @@ const ProductDetails = () => {
         if (newQty === 0) {
             await removeFromCart(data);
         } else {
+            if (newQty > 5) {
+                toast.error("Maximum 5 units per item allowed");
+                return;
+            }
             await updateQuantity({ ...data, quantity: newQty });
         }
     };
@@ -142,6 +146,12 @@ const ProductDetails = () => {
             variantId: selectedMaterial._id,
             quantity: 1
         };
+
+        if (cartItem && cartItem.quantity >= 5) {
+            toast.error("Maximum 5 units per item allowed in the cart");
+            return;
+        }
+
         await addtoCart(data);
     };
 
@@ -295,7 +305,8 @@ const ProductDetails = () => {
                                         </span>
                                         <button
                                             onClick={() => handleQuantityChange(cartItem.quantity + 1)}
-                                            className="p-1 hover:text-gray-300 transition-colors"
+                                            className={`p-1 ${cartItem.quantity >= 5 ? "opacity-30 cursor-not-allowed" : "hover:text-gray-300" } transition-colors`}
+                                            disabled={cartItem.quantity >= 5}
                                         >
                                             <Plus size={18} />
                                         </button>

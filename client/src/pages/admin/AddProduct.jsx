@@ -12,6 +12,7 @@ import { getCroppedImage } from "@/lib/cropUtils";
 import { useFieldArray } from "react-hook-form";
 import { useGetActiveOffersByType } from "@/hooks/tanstack_Queries/admin/offer/useGetActiveOffersByType";
 import { useGetCategories } from "@/hooks/tanstack_Queries/user/categories/useGetCategories";
+import { imageSchema } from "@/validations/common.schema";
 
 const AddProduct = () => {
     const [status, setStatus] = useState("Listed");
@@ -29,6 +30,7 @@ const AddProduct = () => {
         handleSubmit,
         register,
         setError,
+        clearErrors,
         setValue,
         control,
         formState: { errors },
@@ -49,6 +51,7 @@ const AddProduct = () => {
     }, [setValue]);
 
     const [variantImages, setVariantImages] = useState({});
+    const [imageErrors, setImageErrors] = useState({});
     const [currentVariantIndex, setCurrentVariantIndex] = useState(null);
     const [, setVariantCropQueue] = useState([]);
 
@@ -89,15 +92,24 @@ const AddProduct = () => {
 
     const handleVariantImages = (variantIndex, files) => {
         if (!files || files.length === 0) return;
-        setValue(`variants.${variantIndex}.images`, files, {
-            shouldValidate: false,
-        });
-        const validFiles = Array.from(files).filter((f) => f.type.startsWith("image/") && f.size < 2 * 1024 *1024);
+        
+        setImageErrors(prev => ({ ...prev, [variantIndex]: null }));
+
+        const validFiles = [];
+        for (const file of Array.from(files)) {
+            const result = imageSchema.safeParse(file);
+            if (!result.success) {
+                const errorMsg = result.error?.issues?.[0]?.message || result.error?.errors?.[0]?.message || "Invalid file format or size.";
+                setImageErrors(prev => ({ ...prev, [variantIndex]: errorMsg }));
+                toast.error(errorMsg);
+                return;
+            }
+            validFiles.push(file);
+        }
         
         const currentImages = variantImages[variantIndex] || [];
-        console.log(files);
         if (currentImages.length + validFiles.length > 4) {
-            setError(`variants.${variantIndex}.images`, { message: "Max 4 images per variant" });
+            setImageErrors(prev => ({ ...prev, [variantIndex]: "Max 4 images per variant allowed" }));
             return;
         }
 
@@ -106,6 +118,34 @@ const AddProduct = () => {
             setVariantCropQueue(validFiles);
             setSrc(URL.createObjectURL(validFiles[0]));
         }
+    };
+
+    const handleRemoveVariant = (index) => {
+        remove(index);
+        
+        setVariantImages(prev => {
+            const newState = { ...prev };
+            delete newState[index];
+            const shiftedState = {};
+            Object.keys(newState).forEach(key => {
+                const keyNum = parseInt(key);
+                if (keyNum < index) shiftedState[keyNum] = newState[keyNum];
+                else if (keyNum > index) shiftedState[keyNum - 1] = newState[keyNum];
+            });
+            return shiftedState;
+        });
+
+        setImageErrors(prev => {
+            const newState = { ...prev };
+            delete newState[index];
+            const shiftedState = {};
+            Object.keys(newState).forEach(key => {
+                const keyNum = parseInt(key);
+                if (keyNum < index) shiftedState[keyNum] = newState[keyNum];
+                else if (keyNum > index) shiftedState[keyNum - 1] = newState[keyNum];
+            });
+            return shiftedState;
+        });
     };
 
     const removeVariantImage = (variantIndex, imageIndex) => {
@@ -306,7 +346,7 @@ const AddProduct = () => {
                                     {fields.length > 1 && (
                                         <button
                                             type="button"
-                                            onClick={() => remove(index)}
+                                            onClick={() => handleRemoveVariant(index)}
                                             className="absolute top-4 right-4 text-red-400 hover:text-red-600"
                                         >
                                             <X size={18} />
@@ -421,8 +461,11 @@ const AddProduct = () => {
                                             )}
                                         </div>
                                     </div>
+                                    {imageErrors[index] && (
+                                        <p className="text-red-500 text-xs mt-2 font-semibold">{imageErrors[index]}</p>
+                                    )}
                                     {errors.variants?.[index]?.images && (
-                                        <p className="text-red-500 text-xs mt-2">{errors.variants[index].images.message}</p>
+                                        <p className="text-red-500 text-xs mt-2 font-semibold">{errors.variants[index].images.message}</p>
                                     )}
                                 </div>
                             ))}

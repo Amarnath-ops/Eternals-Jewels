@@ -29,6 +29,7 @@ const EditProduct = () => {
 
     
     const [variantImages, setVariantImages] = useState({});
+    const [imageErrors, setImageErrors] = useState({});
     const [currentVariantIndex, setCurrentVariantIndex] = useState(null);
     const [, setVariantCropQueue] = useState([]);
 
@@ -129,8 +130,6 @@ const EditProduct = () => {
             
             delete newState[index];
             
-            
-            
             const shiftedState = {};
             Object.keys(newState).forEach(key => {
                 const keyNum = parseInt(key);
@@ -142,17 +141,31 @@ const EditProduct = () => {
             });
             return shiftedState;
         });
+
+        setImageErrors(prev => {
+            const newState = { ...prev };
+            delete newState[index];
+            const shiftedState = {};
+            Object.keys(newState).forEach(key => {
+                const keyNum = parseInt(key);
+                if (keyNum < index) shiftedState[keyNum] = newState[keyNum];
+                else if (keyNum > index) shiftedState[keyNum - 1] = newState[keyNum];
+            });
+            return shiftedState;
+        });
     };
 
     const handleVariantImages = (variantIndex, files) => {
         if (!files || files.length === 0) return;
+        
+        setImageErrors(prev => ({ ...prev, [variantIndex]: null }));
 
         const validFiles = [];
-        for (const file of files) {
+        for (const file of Array.from(files)) {
             const result = imageSchema.safeParse(file);
             if (!result.success) {
-                const errorMsg = result.error.errors[0].message;
-                toast.error(`Error with file ${file.name}: ${errorMsg}`);
+                const errorMsg = result.error?.issues?.[0]?.message || result.error?.errors?.[0]?.message || "Invalid file format or size.";
+                setImageErrors(prev => ({ ...prev, [variantIndex]: errorMsg }));
                 continue;
             }
             validFiles.push(file);
@@ -163,7 +176,8 @@ const EditProduct = () => {
         const totalImages = currentImages.length + existingImages.length + validFiles.length;
         
         if (totalImages > 4) {
-            toast.error("Maximum 4 images per variant");
+            const errorMsg = "Maximum 4 images per variant allowed";
+            setImageErrors(prev => ({ ...prev, [variantIndex]: errorMsg }));
             return;
         }
 
@@ -216,9 +230,8 @@ const EditProduct = () => {
                 
                 if (totalCount < 3) {
                     setError(`variants.${i}.images`, {
-                        message: `Variant ${i + 1} requires at least 3 images (currently has ${totalCount})`,
+                        message: `At least 3 images required (current: ${totalCount})`,
                     });
-                    toast.error(`Variant ${i + 1} requires at least 3 images`);
                     return;
                 }
             }
@@ -471,6 +484,16 @@ const EditProduct = () => {
                                             )}
                                         </div>
                                     </div>
+                                    {imageErrors[index] && (
+                                        <p className="text-red-500 text-xs mt-2 font-bold  mb-1">
+                                             {imageErrors[index]}
+                                        </p>
+                                    )}
+                                    {errors.variants?.[index]?.images && (
+                                        <p className="text-red-500 text-xs mt-2 font-bold  mb-1">
+                                            {errors.variants[index].images.message}
+                                        </p>
+                                    )}
                                 </div>
                             ))}
                         </div>

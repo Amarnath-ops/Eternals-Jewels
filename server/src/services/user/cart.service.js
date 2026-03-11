@@ -2,6 +2,7 @@ import { ERROR_MESSAGES } from "../../constants/errorMessage.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
 import { cartRepository } from "../../repositories/cart.repo.js";
 import { productRepository } from "../../repositories/product.repo.js";
+import { CONSTANTS } from "../../constants/constants.js";
 import { applyOffersToProducts } from "../../utils/offerHelper.js";
 
 export const addToCartService = async (userId, productId, variantId, quantity) => {
@@ -43,6 +44,12 @@ export const addToCartService = async (userId, productId, variantId, quantity) =
         (item) => String(item.product._id) === String(productId) && String(item.variantId) === String(variantId),
     );
     if (existingItem) {
+        if (existingItem.quantity + quantity > CONSTANTS.CART_MAX_QUANTITY_PER_ITEM) {
+            const error = new Error(ERROR_MESSAGES.MAX_QUANTITY_REACHED);
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
+        }
+
         if (existingItem.quantity + quantity > variantWithOffers.quantity) {
              const error = new Error(ERROR_MESSAGES.NOT_ENOUGH_STOCK);
              error.statusCode = STATUS_CODES.BAD_REQUEST;
@@ -50,6 +57,11 @@ export const addToCartService = async (userId, productId, variantId, quantity) =
         }
         existingItem.quantity += quantity;
     } else {
+        if (quantity > CONSTANTS.CART_MAX_QUANTITY_PER_ITEM) {
+            const error = new Error(ERROR_MESSAGES.MAX_QUANTITY_REACHED);
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
+        }
         cart.cartItems.push({
             product: productId,
             priceSnapshot: variantWithOffers.salePrice,
@@ -130,6 +142,12 @@ export const updateQuantityService = async (userId, productId, variantId, qty) =
     if (!variant) {
         const error = new Error(ERROR_MESSAGES.VARIANT_IS_NOT_FOUND);
         error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+
+    if (qty > CONSTANTS.CART_MAX_QUANTITY_PER_ITEM) {
+        const error = new Error(ERROR_MESSAGES.MAX_QUANTITY_REACHED);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
 

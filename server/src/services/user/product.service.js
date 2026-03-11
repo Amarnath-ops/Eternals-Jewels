@@ -7,13 +7,21 @@ export const getProducts = async (query) => {
     const { page = 1, limit = 12, search, sort = "-createdAt", category, minPrice, maxPrice } = query;
     const isListed = true;
     let materials = query.material || query["material[]"];
+    let categories = query.category || query["category[]"];
 
-    if (materials && !Array.isArray(materials)) {
-        materials = [materials];
+    if (materials) {
+        if (!Array.isArray(materials)) {
+            materials = materials.split(",");
+        }
+    }
+    if (categories) {
+        if (!Array.isArray(categories)) {
+            categories = categories.split(",");
+        }
     }
     let { products, total } = await productRepository.findAll({
         search,
-        category,
+        category: categories,
         page: Number(page),
         limit: Number(limit),
         sort,

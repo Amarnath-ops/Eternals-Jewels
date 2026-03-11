@@ -57,7 +57,7 @@ const Shop = () => {
                     : sort === "z-a"
                     ? "-productName"
                     : "-createdAt",
-        category: selectedCategories.length > 0 ? selectedCategories[0] : undefined,
+        category: selectedCategories.length > 0 ? selectedCategories : undefined,
         minPrice: appliedMinPrice,
         maxPrice: appliedMaxPrice,
         material: selectedMaterials.length > 0 ? selectedMaterials : undefined,
@@ -77,11 +77,12 @@ const Shop = () => {
     };
 
     const handleCategoryChange = (catId) => {
-        if (selectedCategories.includes(catId)) {
-            setSelectedCategories([]);
-        } else {
-            setSelectedCategories([catId]);
-        }
+        setSelectedCategories((prev) => {
+            if (prev.includes(catId)) {
+                return prev.filter((id) => id !== catId);
+            }
+            return [...prev, catId];
+        });
         setCurrentPage(1);
     };
 

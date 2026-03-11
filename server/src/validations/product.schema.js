@@ -7,6 +7,10 @@ const variantSchema = z.object({
     regularPrice: z.coerce.number().min(0.01, "Regular price must be greater than 0"),
     salePrice: z.coerce.number().min(0).optional(),
     sku: z.string().trim().min(3, "SKU is required (min 3)").max(30),
+    images: z.array(z.object({
+        image_url: z.string(),
+        publicId: z.string(),
+    })).optional(),
 }).superRefine((data, ctx) => {
     if (data.salePrice && data.salePrice > data.regularPrice) {
         ctx.addIssue({

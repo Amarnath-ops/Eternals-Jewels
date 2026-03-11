@@ -7,6 +7,7 @@ import { useUpdateCartQuantity } from "@/hooks/tanstack_Queries/user/cart/useUpd
 import { useRemoveFromCart } from "@/hooks/tanstack_Queries/user/cart/useRemoveFromCart";
 import { useClearCart } from "@/hooks/tanstack_Queries/user/cart/useClearCart";
 import { Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const CartPage = () => {
     const { data, isLoading } = useGetCartItems();
@@ -29,6 +30,10 @@ const CartPage = () => {
         if (newQty === 0) {
             await removeFromCart(data);
         } else {
+            if (newQty > 5) {
+                toast.error("Maximum 5 units per item allowed");
+                return;
+            }
             await updateQuantity({ ...data, quantity: newQty });
         }
     };
@@ -94,7 +99,8 @@ const CartPage = () => {
                                         </span>
                                         <button
                                             onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                            className="p-2 bg-[#C4A484] text-white"
+                                            className={`p-2 ${item.quantity >= 5 ? "bg-gray-400 cursor-not-allowed" : "bg-[#C4A484]" } text-white`}
+                                            disabled={item.quantity >= 5}
                                         >
                                             <Plus size={16} />
                                         </button>

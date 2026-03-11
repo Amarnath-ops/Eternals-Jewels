@@ -24,7 +24,10 @@ export const productRepository = {
         }
 
         if (category) {
-            matchStage.category = new mongoose.Types.ObjectId(category);
+            const categories = Array.isArray(category) ? category : [category];
+            matchStage.category = {
+                $in: categories.map((cat) => new mongoose.Types.ObjectId(cat)),
+            };
         }
 
         if (minPrice !== undefined || maxPrice !== undefined) {

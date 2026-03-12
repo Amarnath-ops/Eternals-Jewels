@@ -19,3 +19,7 @@ export const updateCouponApi = async (id, data) => {
 export const toggleCouponStatusApi = async (id) => {
     return await axiosInstance.patch(`/admin/coupons/${id}/status`);
 };
+
+export const deleteCouponApi = async (id) => {
+    return await axiosInstance.delete(`/admin/coupons/${id}`);
+};

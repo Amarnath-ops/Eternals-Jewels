@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Edit, Trash2, Gift, Search, X } from "lucide-react";
+import ConfirmModal from "@/components/Modal";
+import { Plus, Edit, Trash2, Gift, Search, X, AlertCircle } from "lucide-react";
 import { useGetOffers } from "@/hooks/tanstack_Queries/admin/offer/useGetOffers";
 import { useToggleOfferStatus, useDeleteOffer } from "@/hooks/tanstack_Queries/admin/offer/useOfferMutations";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -20,10 +21,17 @@ const OfferList = () => {
         setPage(1);
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm("Are you sure you want to delete this offer?")) {
-            deleteOffer(id);
-        }
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedOfferId, setSelectedOfferId] = useState(null);
+
+    const handleDeleteClick = (id) => {
+        setSelectedOfferId(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDeleteOffer = () => {
+        if (selectedOfferId) deleteOffer(selectedOfferId);
+        setIsDeleteModalOpen(false);
     };
 
     return (
@@ -132,7 +140,7 @@ const OfferList = () => {
                                                 <Edit size={18} />
                                             </Link>
                                             <button 
-                                                onClick={() => handleDelete(offer._id)}
+                                                onClick={() => handleDeleteClick(offer._id)}
                                                 className="text-red-500 hover:text-red-700 p-1"
                                                 title="Delete Offer"
                                             >
@@ -162,6 +170,37 @@ const OfferList = () => {
                     </div>
                 )}
             </div>
+
+            <ConfirmModal open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+                <div className="w-full max-w-sm p-4">
+                    <div className="flex justify-center mb-4">
+                        <div className="bg-red-50 p-3 rounded-full">
+                            <AlertCircle size={32} className="text-red-500" />
+                        </div>
+                    </div>
+                    <div className="text-center mb-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Offer?</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Are you sure you want to delete this offer? This action cannot be undone.
+                        </p>
+                    </div>
+                    <div className="flex gap-3 justify-center">
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" 
+                            onClick={() => setIsDeleteModalOpen(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-red-600 text-white shadow-lg shadow-red-200 hover:bg-red-700 transition-colors" 
+                            onClick={confirmDeleteOffer}
+                        >
+                            Yes, delete it
+                        </button>
+                    </div>
+                </div>
+            </ConfirmModal>
+
         </div>
     );
 };

@@ -64,7 +64,7 @@ const WalletPage = () => {
                                                 {format(new Date(txn.date), 'dd - MM - yyyy')}
                                             </td>
                                             <td className="py-5 px-4 text-sm text-gray-700">
-                                                ₹{txn.amount}
+                                                ₹{Number(txn.amount).toFixed(2)}
                                             </td>
                                             <td className="py-5 px-4 text-sm text-gray-700 text-left" title={txn.description}>
                                                 {txn.description}

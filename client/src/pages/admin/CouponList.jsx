@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Edit, Trash2, Search, X } from "lucide-react";
+import ConfirmModal from "@/components/Modal";
+import { Plus, Edit, Trash2, Search, X, AlertCircle } from "lucide-react";
 import { useGetAdminCoupons } from "@/hooks/tanstack_Queries/admin/coupon/useGetAdminCoupons";
-import { useToggleCouponStatus } from "@/hooks/tanstack_Queries/admin/coupon/useMutateCoupons";
+import { useToggleCouponStatus, useDeleteCoupon } from "@/hooks/tanstack_Queries/admin/coupon/useMutateCoupons";
 import { SpinnerBadge } from "@/components/Spinner";
 import { useDebounce } from "@/hooks/useDebounce";
 import Pagination from "@/components/Pagination";
@@ -14,14 +15,28 @@ const CouponList = () => {
     
     const { data: couponsData, isLoading, isFetching } = useGetAdminCoupons(page, 10, debouncedSearch);
     const { mutate: toggleStatus } = useToggleCouponStatus();
+    const { mutate: deleteCoupon, isPending: isDeleting } = useDeleteCoupon();
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedCouponId, setSelectedCouponId] = useState(null);
 
     const handleSearch = (e) => {
         setSearch(e.target.value);
         setPage(1); // Reset to page 1 on new search stroke
     };
 
+    const handleDeleteClick = (id) => {
+        setSelectedCouponId(id);
+        setIsDeleteModalOpen(true);
+    };
 
-
+    const confirmDeleteCoupon = () => {
+        if (selectedCouponId) {
+            deleteCoupon(selectedCouponId, {
+                onSuccess: () => setIsDeleteModalOpen(false)
+            });
+        }
+    };
     return (
         <div className="p-6 max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
@@ -127,6 +142,13 @@ const CouponList = () => {
                                             >
                                                 {coupon.isActive ? "Deactivate" : "Activate"}
                                             </button>
+                                            <button 
+                                                onClick={() => handleDeleteClick(coupon._id)}
+                                                className="text-red-500 hover:text-red-700 p-1"
+                                                title="Delete Coupon"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -150,6 +172,39 @@ const CouponList = () => {
                     </div>
                 )}
             </div>
+
+            <ConfirmModal open={isDeleteModalOpen} onClose={() => !isDeleting && setIsDeleteModalOpen(false)}>
+                <div className="w-full max-w-sm p-4">
+                    <div className="flex justify-center mb-4">
+                        <div className="bg-red-50 p-3 rounded-full">
+                            <AlertCircle size={32} className="text-red-500" />
+                        </div>
+                    </div>
+                    <div className="text-center mb-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Coupon?</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Are you sure you want to delete this coupon? This action cannot be undone.
+                        </p>
+                    </div>
+                    <div className="flex gap-3 justify-center">
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" 
+                            onClick={() => setIsDeleteModalOpen(false)}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-red-600 text-white shadow-lg shadow-red-200 hover:bg-red-700 transition-colors disabled:opacity-50" 
+                            onClick={confirmDeleteCoupon}
+                            disabled={isDeleting}
+                        >
+                            {isDeleting ? 'Deleting...' : 'Yes, delete it'}
+                        </button>
+                    </div>
+                </div>
+            </ConfirmModal>
+
         </div>
     );
 };

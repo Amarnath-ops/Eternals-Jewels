@@ -30,11 +30,12 @@ const Dashboard = () => {
   // Format Orders Trend Data (Bar Chart)
   // Let's use the last 4 items for the bar chart as shown in the mockup
   const ordersTrendData = salesData.slice(-4);
-
+ console.log(stats)
   const summaryStats = [
-    { title: 'Total Customers', value: stats?.summary?.totalCustomers?.toLocaleString() || '0', sub: '16% this month', icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
+    { title: 'Total Customers', value: stats?.summary?.totalCustomers?.toLocaleString() || '0', sub: '', icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
     { title: 'Total Orders', value: stats?.summary?.totalOrders?.toLocaleString() || '0', sub: '', icon: Box, color: 'text-green-600', bg: 'bg-green-50' },
     { title: 'Total Sales', value: `₹${stats?.summary?.totalSales?.toLocaleString() || '0'}`, sub: '', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
+    { title: 'Total Discount', value: `₹${stats?.summary?.totalDiscount?.toLocaleString() || '0'}`, sub: '', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
     { title: 'Total Pending', value: stats?.summary?.pendingOrders?.toLocaleString() || '0', sub: '', icon: LayoutDashboard, color: 'text-gray-600', bg: 'bg-gray-50' },
   ];
 
@@ -56,7 +57,7 @@ const Dashboard = () => {
     <div className="p-8 bg-gray-50 min-h-screen">
       
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         {summaryStats.map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between transition-all hover:shadow-md">
              <div className={`w-14 h-14 rounded-full ${stat.bg} flex items-center justify-center`}>

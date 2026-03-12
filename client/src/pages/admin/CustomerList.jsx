@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Search, X, Loader } from "lucide-react";
+import ConfirmModal from "@/components/Modal";
+import { Search, X, Loader, AlertCircle } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import { useCustomers } from "@/hooks/tanstack_Queries/admin/customers/useCustomers";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -30,11 +31,19 @@ const CustomerList = () => {
 
 
 
-    const handleToggle = async (customer) => {
-        const confirm = window.confirm(`Are you sure you want to ${customer.isBlocked ? "unblock" : "block"} this user?`);
-        if (!confirm) return;
-        await toggleBlock(customer._id);
-        toast.success(`User ${customer.isBlocked ? "unblocked" : "blocked"} successfully.`)
+    const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+    const handleToggleClick = (customer) => {
+        setSelectedCustomer(customer);
+        setIsBlockModalOpen(true);
+    };
+
+    const confirmToggleBlock = async () => {
+        if (!selectedCustomer) return;
+        await toggleBlock(selectedCustomer._id);
+        toast.success(`User ${selectedCustomer.isBlocked ? "unblocked" : "blocked"} successfully.`);
+        setIsBlockModalOpen(false);
     };
 
     return (
@@ -172,7 +181,7 @@ const CustomerList = () => {
                                                             ? "bg-red-600 justify-end"
                                                             : "bg-gray-200 justify-start"
                                                     } ${isPending && "cursor-not-allowed"}`}
-                                                    onClick={() => handleToggle(customer)}
+                                                    onClick={() => handleToggleClick(customer)}
                                                     disabled={isPending}
                                                 >
                                                     <span
@@ -218,6 +227,39 @@ const CustomerList = () => {
                     />
                 </div>
             </div>
+
+            <ConfirmModal open={isBlockModalOpen} onClose={() => setIsBlockModalOpen(false)}>
+                <div className="w-full max-w-sm p-4">
+                    <div className="flex justify-center mb-4">
+                        <div className="bg-red-50 p-3 rounded-full">
+                            <AlertCircle size={32} className="text-red-500" />
+                        </div>
+                    </div>
+                    <div className="text-center mb-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                            {selectedCustomer && selectedCustomer.isBlocked ? "Unblock User?" : "Block User?"}
+                        </h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Are you sure you want to {selectedCustomer && selectedCustomer.isBlocked ? "unblock" : "block"} this user?
+                        </p>
+                    </div>
+                    <div className="flex gap-3 justify-center">
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" 
+                            onClick={() => setIsBlockModalOpen(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            className={`flex-1 py-2.5 px-4 font-medium rounded-xl text-white shadow-lg transition-colors ${selectedCustomer && selectedCustomer.isBlocked ? 'bg-green-600 shadow-green-200 hover:bg-green-700' : 'bg-red-600 shadow-red-200 hover:bg-red-700'}`} 
+                            onClick={confirmToggleBlock}
+                        >
+                            {selectedCustomer && selectedCustomer.isBlocked ? "Yes, Unblock" : "Yes, Block"}
+                        </button>
+                    </div>
+                </div>
+            </ConfirmModal>
+
         </div>
     );
 };

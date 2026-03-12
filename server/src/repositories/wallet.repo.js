@@ -12,28 +12,32 @@ export const walletRepository = {
 
     creditWallet: async (userId, amount, description, orderId = null) => {
         const wallet = await Wallet.findOne({ user: userId });
+        const roundedAmount = Math.round(amount * 100) / 100;
+        
         if (!wallet) {
             const newWallet = new Wallet({
                 user: userId,
-                balance: amount,
-                transactions: [{ type: "Credit", amount, description, orderId }],
+                balance: roundedAmount,
+                transactions: [{ type: "Credit", amount: roundedAmount, description, orderId }],
             });
             return await newWallet.save();
         }
 
-        wallet.balance += amount;
-        wallet.transactions.push({ type: "Credit", amount, description, orderId });
+        wallet.balance = Math.round((wallet.balance + roundedAmount) * 100) / 100;
+        wallet.transactions.push({ type: "Credit", amount: roundedAmount, description, orderId });
         return await wallet.save();
     },
 
     debitWallet: async (userId, amount, description, orderId = null) => {
         const wallet = await Wallet.findOne({ user: userId });
-        if (!wallet || wallet.balance < amount) {
+        const roundedAmount = Math.round(amount * 100) / 100;
+
+        if (!wallet || wallet.balance < roundedAmount) {
             throw new Error("Insufficient wallet balance");
         }
 
-        wallet.balance -= amount;
-        wallet.transactions.push({ type: "Debit", amount, description, orderId });
+        wallet.balance = Math.round((wallet.balance - roundedAmount) * 100) / 100;
+        wallet.transactions.push({ type: "Debit", amount: roundedAmount, description, orderId });
         return await wallet.save();
     }
 };

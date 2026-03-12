@@ -41,7 +41,7 @@ const downloadInvoice = (order) => {
   doc.text(`${address.city}, ${address.state} - ${address.pincode}`, 20, 72);
   doc.text(`Phone: ${address.phone}`, 20, 77);
 
-  const tableColumn = ["#", "Product", "Qty", "Unit Price", "Total"];
+  const tableColumn = ["#", "Product", "Qty", "Unit Price", "Status", "Total"];
   const tableRows = [];
 
   const orderItems = order.orderItems || [];
@@ -53,6 +53,7 @@ const downloadInvoice = (order) => {
       item.productName,
       item.quantity,
       `Rs. ${item.price.toLocaleString("en-IN")}`,
+      item.itemStatus,
       `Rs. ${itemTotal.toLocaleString("en-IN")}`,
     ];
     tableRows.push(row);
@@ -63,7 +64,7 @@ const downloadInvoice = (order) => {
     head: [tableColumn],
     body: tableRows,
     theme: "striped",
-    headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] }, // Black header
+    headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
     styles: { fontSize: 9, cellPadding: 3 },
   });
 

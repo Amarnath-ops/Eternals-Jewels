@@ -110,3 +110,13 @@ export const toggleCouponStatusService = async (id) => {
     }
     return await couponRepository.update(id, { isActive: !coupon.isActive });
 };
+
+export const deleteCouponService = async (id) => {
+    const coupon = await couponRepository.findById(id);
+    if (!coupon) {
+        const error = new Error(ERROR_MESSAGES.COUPON_NOT_FOUND);
+        error.statusCode = 404;
+        throw error;
+    }
+    return await couponRepository.delete(id);
+};

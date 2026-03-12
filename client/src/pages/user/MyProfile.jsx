@@ -13,8 +13,6 @@ const ProfileDetails = () => {
     }
     return (
         <>
-            {}
-            {}
             <div className="mb-4 md:mb-6 flex items-center gap-2 text-sm text-gray-600">
                 <Link to="/account/profile" className="hover:text-black transition-colors font-semibold text-black">
                     Profile
@@ -28,7 +26,7 @@ const ProfileDetails = () => {
                         <div className="relative">
                             {}
                             <img
-                                src={user?.avatar || "https://via.placeholder.com/150"}
+                                src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.fullname}`}
                                 alt="Profile"
                                 className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-gray-100 shadow-sm"
                             />

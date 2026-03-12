@@ -115,6 +115,7 @@ const SalesReport = () => {
         { title: 'Total Customers', value: reportData?.totalCustomers || 0, icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
         { title: 'Total Orders', value: reportData?.summary?.totalSalesCount || 0, icon: Box, color: 'text-green-600', bg: 'bg-green-50' },
         { title: 'Total Sales', value: `₹${reportData?.summary?.totalFinalAmount || 0}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
+        { title: 'Total Discount', value: `₹${reportData?.summary?.totalDiscount || 0}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
         { title: 'Total Pending', value: reportData?.pendingOrders || 0, icon: Clock, color: 'text-gray-600', bg: 'bg-gray-50' },
     ];
 
@@ -141,7 +142,7 @@ const SalesReport = () => {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
                         <div className={`w-14 h-14 rounded-full ${stat.bg} flex items-center justify-center`}>

@@ -4,6 +4,7 @@ import {
     getCouponByIdApi,
     updateCouponApi,
     toggleCouponStatusApi,
+    deleteCouponApi
 } from "../../api/admin/coupon.api";
 
 export const adminCouponService = {
@@ -51,4 +52,13 @@ export const adminCouponService = {
             throw error;
         }
     },
+
+    deleteCoupon: async (id) => {
+        try {
+            const response = await deleteCouponApi(id);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 };

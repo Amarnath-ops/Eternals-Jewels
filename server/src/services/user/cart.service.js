@@ -99,6 +99,8 @@ export const getCartService = async (userId) => {
             const itemTotal = salePrice * item.quantity;
             total += itemTotal;
 
+            const isActive = product.isListed && product.category?.isListed && !product.isDeleted;
+
             return {
                 productId: product._id,
                 variantId: item.variantId,
@@ -108,6 +110,8 @@ export const getCartService = async (userId) => {
                 salePrice,
                 regularPrice,
                 quantity: item.quantity,
+                stock: variant.quantity,
+                isActive,
                 total: itemTotal,
             };
         })

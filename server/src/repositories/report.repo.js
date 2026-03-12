@@ -73,7 +73,8 @@ export const reportRepository = {
             {
                 $group: {
                     _id: null,
-                    totalSales: { $sum: "$finalAmount" }
+                    totalSales: { $sum: "$finalAmount" },
+                    totalDiscount: { $sum: "$discountAmount" }
                 }
             }
         ]);
@@ -139,6 +140,7 @@ export const reportRepository = {
                 totalCustomers,
                 totalOrders,
                 totalSales: salesSummary[0]?.totalSales || 0,
+                totalDiscount: salesSummary[0]?.totalDiscount || 0,
                 pendingOrders
             },
             salesOverview,

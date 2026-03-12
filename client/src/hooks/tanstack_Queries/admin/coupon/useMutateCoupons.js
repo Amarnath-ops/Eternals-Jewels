@@ -44,3 +44,17 @@ export const useToggleCouponStatus = () => {
         },
     });
 };
+
+export const useDeleteCoupon = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: adminCouponService.deleteCoupon,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminCoupons"] });
+            toast.success("Coupon deleted successfully");
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message || "Failed to delete coupon");
+        },
+    });
+};

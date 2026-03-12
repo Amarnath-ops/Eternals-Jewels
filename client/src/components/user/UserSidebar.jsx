@@ -22,7 +22,7 @@ const Sidebar = ({ user }) => {
             <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
                 <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-full shrink-0 flex items-center justify-center">
                     <img
-                        src={user?.avatar || "https://via.placeholder.com/150"}
+                        src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.fullname}`}
                         alt="Profile"
                         className="w-full h-full rounded-full object-cover border-2 lg:border-4 border-gray-200 shadow-sm"
                     />

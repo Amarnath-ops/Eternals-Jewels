@@ -11,7 +11,14 @@ import { toast } from "react-hot-toast";
 
 const CartPage = () => {
     const { data, isLoading } = useGetCartItems();
-    console.log(data);
+    const getUnavailableMessage = (item) => {
+        if (!item.isActive) return 'Currently Unavailable';
+        if (item.stock === 0) return 'Out of Stock';
+        if (item.quantity > item.stock) return `Only ${item.stock} left in stock`;
+        return null;
+    };
+
+    const hasUnavailableItems = data?.cart?.items?.some(item => getUnavailableMessage(item) !== null);
     const { mutateAsync: updateQuantity } = useUpdateCartQuantity();
     const { mutateAsync: removeFromCart } = useRemoveFromCart();
     const { mutateAsync: clearCart } = useClearCart();
@@ -33,6 +40,10 @@ const CartPage = () => {
             if (newQty > 5) {
                 toast.error("Maximum 5 units per item allowed");
                 return;
+            }
+            if (newQty > item.stock) {
+                 toast.error(`Only ${item.stock} unit(s) available in stock`);
+                 return;
             }
             await updateQuantity({ ...data, quantity: newQty });
         }
@@ -70,14 +81,24 @@ const CartPage = () => {
 
                     {}
                     <div className="space-y-4">
-                        {data?.cart?.items?.map((item) => (
-                            <div key={item.productId} className="flex bg-[#F8F5F2] p-6 relative">
-                                <img src={item.image} alt={item.name} className="w-32 h-32 object-cover bg-white" />
+                        {data?.cart?.items?.map((item) => {
+                            const unavailableMsg = getUnavailableMessage(item);
+                            const isUnavailable = !!unavailableMsg;
+                            return (
+                            <div key={item.productId} className={`flex bg-[#F8F5F2] p-6 relative ${isUnavailable ? 'opacity-70' : ''}`}>
+                                <img src={item.image} alt={item.name} className={`w-32 h-32 object-cover bg-white ${isUnavailable ? 'grayscale' : ''}`} />
                                 <div className="ml-6 grow">
-                                    <h3 className="font-semibold text-sm tracking-widest uppercase">{item.name}</h3>
+                                    <div className="flex justify-between items-start">
+                                        <h3 className={`font-semibold text-sm tracking-widest uppercase ${isUnavailable ? 'text-gray-500' : ''}`}>{item.name}</h3>
+                                        {isUnavailable && (
+                                            <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-1 rounded">
+                                                {unavailableMsg}
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className="text-xs text-gray-500 mt-1">{item.material}</p>
 
-                                    <div className="mt-12 flex items-baseline gap-2">
+                                    <div className="mt-8 flex items-baseline gap-2">
                                         <span className="text-xs text-gray-400 line-through">
                                             ₹{item.regularPrice.toFixed(2)}
                                         </span>
@@ -99,8 +120,8 @@ const CartPage = () => {
                                         </span>
                                         <button
                                             onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                            className={`p-2 ${item.quantity >= 5 ? "bg-gray-400 cursor-not-allowed" : "bg-[#C4A484]" } text-white`}
-                                            disabled={item.quantity >= 5}
+                                            className={`p-2 ${item.quantity >= 5 || item.quantity >= item.stock || !item.isActive ? "bg-gray-400 cursor-not-allowed" : "bg-[#C4A484]" } text-white`}
+                                            disabled={item.quantity >= 5 || item.quantity >= item.stock || !item.isActive}
                                         >
                                             <Plus size={16} />
                                         </button>
@@ -113,7 +134,7 @@ const CartPage = () => {
                                     </button>
                                 </div>
                             </div>
-                        ))}
+                        )})}
                     </div>
 
                     {}
@@ -127,11 +148,20 @@ const CartPage = () => {
                         </p>
 
                         <div className="space-y-3">
-                            <Link to="/checkout">
-                                <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition mb-2">
+                            {hasUnavailableItems ? (
+                                <button 
+                                    onClick={() => toast.error("Please remove out of stock or unavailable items to proceed.")}
+                                    className="w-full bg-gray-400 text-gray-200 py-4 uppercase tracking-widest font-medium cursor-not-allowed transition mb-2"
+                                >
                                     Proceed to Checkout
                                 </button>
-                            </Link>
+                            ) : (
+                                <Link to="/checkout">
+                                    <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition mb-2">
+                                        Proceed to Checkout
+                                    </button>
+                                </Link>
+                            )}
                             <Link to="/shop">
                                 <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition">
                                     Continue Shopping

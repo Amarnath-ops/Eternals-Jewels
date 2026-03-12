@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { SpinnerBadge } from "@/components/Spinner";
-import { ArrowLeft, Download, RefreshCcw, XCircle } from "lucide-react";
+import { ArrowLeft, Download, RefreshCcw, XCircle, AlertCircle } from "lucide-react";
+import ConfirmModal from "@/components/Modal";
 import toast from "react-hot-toast";
 import downloadInvoice from "@/lib/downloadInvoice";
 import useRetryPayment from "@/hooks/tanstack_Queries/user/order/useRetryPayment";
@@ -35,6 +36,9 @@ const OrderDetails = () => {
     const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
     const [selectedItemForReturn, setSelectedItemForReturn] = useState(null);
     const [returnReason, setReturnReason] = useState("");
+
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [selectedItemForCancel, setSelectedItemForCancel] = useState(null);
 
     const returnReasons = [
         "Product damaged",
@@ -70,14 +74,20 @@ const OrderDetails = () => {
         }
     };
 
-    const handleCancelItem = async (item) => {
-        if (!window.confirm(`Are you sure you want to cancel ${item.productName}?`)) return;
+    const handleCancelItemClick = (item) => {
+        setSelectedItemForCancel(item);
+        setIsCancelModalOpen(true);
+    };
+
+    const confirmCancelItem = async () => {
+        if (!selectedItemForCancel) return;
 
         try {
             await cancelOrderItem({ 
                 orderId: order._id, 
-                itemId: item._id 
+                itemId: selectedItemForCancel._id 
             });
+            setIsCancelModalOpen(false);
         } catch (err) {
             console.log(err)
         }
@@ -308,7 +318,7 @@ const OrderDetails = () => {
                                 )}
                                 {["Pending", "Processing"].includes(item.itemStatus || order.orderStatus) && (
                                     <button 
-                                        onClick={() => handleCancelItem(item)}
+                                        onClick={() => handleCancelItemClick(item)}
                                         className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center gap-1 transition-colors"
                                     >
                                         <XCircle size={14} /> Cancel Item
@@ -444,6 +454,37 @@ const OrderDetails = () => {
                     </div>
                 </div>
             )}
+
+            <ConfirmModal open={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)}>
+                <div className="w-full max-w-sm p-4">
+                    <div className="flex justify-center mb-4">
+                        <div className="bg-red-50 p-3 rounded-full">
+                            <AlertCircle size={32} className="text-red-500" />
+                        </div>
+                    </div>
+                    <div className="text-center mb-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Cancel Item?</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Are you sure you want to cancel {selectedItemForCancel?.productName}? This action cannot be undone.
+                        </p>
+                    </div>
+                    <div className="flex gap-3 justify-center">
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" 
+                            onClick={() => setIsCancelModalOpen(false)}
+                        >
+                            No, keep it
+                        </button>
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-red-600 text-white shadow-lg shadow-red-200 hover:bg-red-700 transition-colors" 
+                            onClick={confirmCancelItem}
+                        >
+                            Yes, cancel item
+                        </button>
+                    </div>
+                </div>
+            </ConfirmModal>
+
         </div>
     );
 };

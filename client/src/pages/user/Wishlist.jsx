@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
-import { Heart, Star, ShoppingBag, X } from "lucide-react";
+import ConfirmModal from "@/components/Modal";
+import { AlertCircle, Heart, Star, ShoppingBag, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGetWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useGetWishlist";
 import { useRemoveFromWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useRemoveFromWishlist";
@@ -14,6 +15,7 @@ const Wishlist = () => {
     const { mutateAsync: moveToCart } = useMoveToCart();
     const { mutateAsync: clearWishlist } = useClearWishlist();
     
+    const [isClearModalOpen, setIsClearModalOpen] = useState(false);
     const wishlistItems = data?.wishlist?.items || [];
 
     const handleRemove = async (productId, variantId) => {
@@ -24,10 +26,13 @@ const Wishlist = () => {
         await moveToCart({ productId, variantId });
     };
 
-    const handleClearWishlist = async () => {
-        if (window.confirm("Are you sure you want to empty your wishlist?")) {
-            await clearWishlist();
-        }
+    const handleClearWishlistClick = () => {
+        setIsClearModalOpen(true);
+    };
+
+    const confirmClearWishlist = async () => {
+        await clearWishlist();
+        setIsClearModalOpen(false);
     };
     
 
@@ -58,7 +63,7 @@ const Wishlist = () => {
                     
                     {wishlistItems.length > 0 && (
                         <button 
-                            onClick={handleClearWishlist}
+                            onClick={handleClearWishlistClick}
                             className="bg-[#EAE5DF] border border-red-300 text-red-500 hover:bg-red-50 px-6 py-2 rounded-sm text-sm font-medium uppercase tracking-wider transition-colors"
                         >
                             Empty my wishlist
@@ -150,6 +155,36 @@ const Wishlist = () => {
                     </>
                 )}
             </div>
+            <ConfirmModal open={isClearModalOpen} onClose={() => setIsClearModalOpen(false)}>
+                <div className="w-full max-w-sm p-4">
+                    <div className="flex justify-center mb-4">
+                        <div className="bg-red-50 p-3 rounded-full">
+                            <AlertCircle size={32} className="text-red-500" />
+                        </div>
+                    </div>
+                    <div className="text-center mb-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Empty Wishlist?</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Are you sure you want to empty your wishlist? All items will be removed.
+                        </p>
+                    </div>
+                    <div className="flex gap-3 justify-center">
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" 
+                            onClick={() => setIsClearModalOpen(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-red-600 text-white shadow-lg shadow-red-200 hover:bg-red-700 transition-colors" 
+                            onClick={confirmClearWishlist}
+                        >
+                            Yes, empty it
+                        </button>
+                    </div>
+                </div>
+            </ConfirmModal>
+
         </div>
     );
 };

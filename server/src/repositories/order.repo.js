@@ -197,10 +197,23 @@ export const orderRepository = {
         if (status === "Returned" && (order.paymentMethod === "Wallet" || order.paymentMethod === "RazorPay") && order.paymentStatus === "Completed") {
             const refundAmount = Math.max(0, originalTotal - originalDiscount);
             if (refundAmount > 0) {
+                const userWallet = await walletRepository.findWalletByUser(order.user);
+                const refundDescription = `Refund for returned order #${order._id.toString().slice(-6).toUpperCase()}`;
+                
+                const alreadyRefunded = userWallet?.transactions?.some(
+                    (txn) => txn.description === refundDescription && String(txn.orderId) === String(order._id)
+                );
+
+                if (alreadyRefunded) {
+                    const error = new Error("Refund already processed for this order.");
+                    error.statusCode = 400;
+                    throw error;
+                }
+
                 await walletRepository.creditWallet(
                     order.user,
                     refundAmount,
-                    `Refund for returned order #${order._id.toString().slice(-6).toUpperCase()}`,
+                    refundDescription,
                     order._id
                 );
                 order.paymentStatus = "Refunded";
@@ -306,10 +319,23 @@ export const orderRepository = {
             const itemRefundAmount = Math.max(0, itemTotal - itemDiscountShare);
             
             if (itemRefundAmount > 0) {
+                const userWallet = await walletRepository.findWalletByUser(order.user);
+                const refundDescription = `Refund for returned item: ${item.productName}`;
+                
+                const alreadyRefunded = userWallet?.transactions?.some(
+                    (txn) => txn.description === refundDescription && String(txn.orderId) === String(order._id)
+                );
+
+                if (alreadyRefunded) {
+                    const error = new Error(`Refund already processed for item: ${item.productName}`);
+                    error.statusCode = 400;
+                    throw error;
+                }
+
                 await walletRepository.creditWallet(
                     order.user,
                     itemRefundAmount,
-                    `Refund for returned item: ${item.productName}`,
+                    refundDescription,
                     order._id
                 );
                 

@@ -5,7 +5,8 @@ import {
     createCouponService,
     getCouponByIdService,
     updateCouponService,
-    toggleCouponStatusService
+    toggleCouponStatusService,
+    deleteCouponService
 } from "../../services/admin/coupon.service.js";
 import validateData from "../../utils/validation.js";
 import { couponSchema, updateCouponSchema } from "../../validations/coupon.schema.js";
@@ -84,6 +85,22 @@ export const toggleCouponStatus = async (req, res) => {
             success: true,
             data: coupon,
             message: `Coupon ${coupon.isActive ? 'activated' : 'deactivated'} successfully`
+        });
+    } catch (error) {
+        return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
+export const deleteCoupon = async (req, res) => {
+    try {
+        const coupon = await deleteCouponService(req.params.id);
+        res.status(STATUS_CODES.OK).json({
+            success: true,
+            data: coupon,
+            message: "Coupon deleted successfully"
         });
     } catch (error) {
         return res.status(error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR).json({

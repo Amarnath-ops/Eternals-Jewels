@@ -1,5 +1,8 @@
 import { useCancelOrder } from "@/hooks/tanstack_Queries/user/order/useCancelOrder";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import ConfirmModal from "@/components/Modal";
+import { AlertCircle } from "lucide-react";
 
 const OrderCard = ({ order, onOrderCancelled }) => {
     const navigate = useNavigate();
@@ -34,12 +37,17 @@ const OrderCard = ({ order, onOrderCancelled }) => {
         }
     };
 
-    const handleCancelOrder = async () => {
-        if (!window.confirm("Are you sure you want to cancel this order?")) return;
-        
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
+    const handleCancelOrderClick = () => {
+        setIsCancelModalOpen(true);
+    };
+
+    const confirmCancelOrder = async () => {
         try {
             await cancelOrder(order._id);
             if (onOrderCancelled) onOrderCancelled();
+            setIsCancelModalOpen(false);
         } catch (error) {
             // Error handled in hook
         }
@@ -84,7 +92,7 @@ const OrderCard = ({ order, onOrderCancelled }) => {
                     </button>
                     {(order.orderStatus === "Pending" || order.orderStatus === "Processing") && (
                          <button 
-                            onClick={handleCancelOrder}
+                            onClick={handleCancelOrderClick}
                             disabled={loading}
                             className={`px-4 py-2 bg-red-500 text-white text-xs uppercase font-medium rounded hover:bg-red-600 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                          >
@@ -93,6 +101,38 @@ const OrderCard = ({ order, onOrderCancelled }) => {
                     )}
                 </div>
             </div>
+
+            <ConfirmModal open={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)}>
+                <div className="w-full max-w-sm p-4">
+                    <div className="flex justify-center mb-4">
+                        <div className="bg-red-50 p-3 rounded-full">
+                            <AlertCircle size={32} className="text-red-500" />
+                        </div>
+                    </div>
+                    <div className="text-center mb-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Cancel Order?</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Are you sure you want to cancel this order? This action cannot be undone.
+                        </p>
+                    </div>
+                    <div className="flex gap-3 justify-center">
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" 
+                            onClick={() => setIsCancelModalOpen(false)}
+                        >
+                            No, keep it
+                        </button>
+                        <button 
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-red-600 text-white shadow-lg shadow-red-200 hover:bg-red-700 transition-colors" 
+                            onClick={confirmCancelOrder}
+                            disabled={loading}
+                        >
+                            {loading ? 'Cancelling...' : 'Yes, cancel'}
+                        </button>
+                    </div>
+                </div>
+            </ConfirmModal>
+
         </div>
     );
 };

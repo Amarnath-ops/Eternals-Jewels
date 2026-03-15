@@ -3,14 +3,12 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { createUser, findUserByEmail, findUserByReferralCode } from "../repositories/user.repo.js";
 import { generateReferralCode } from "../utils/referralCode.js";
 import bcrypt from "bcrypt";
-import { ERROR_MESSAGES } from "../constants/errorMessage.js";
-import { STATUS_CODES } from "../constants/statusCode.js";
 passport.use(
     new GoogleStrategy(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "/api/v1/auth/google/callback",
+            callbackURL: `${process.env.BACKEND_URL}/api/v1/auth/google/callback`,
         },
         async (googleAccessToken, googleRefreshToken, profile, done) => {
             try {

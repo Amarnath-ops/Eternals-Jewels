@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import AdminRoutes from "./routes/Admin.routes";
-import UserRoutes from "./routes/User.routes";
+import AdminRoutes from "./routes/admin.routes";
+import UserRoutes from "./routes/user.routes";
 import { Toaster } from "react-hot-toast";
 
 function App() {

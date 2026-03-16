@@ -8,10 +8,10 @@ import useZodForm from "@/hooks/useZodForm";
 import FormWrapper from "@/components/form/Form";
 import FormInput from "@/components/form/FormInput";
 import { SpinnerBadge } from "@/components/Spinner";
-import {  useSignupUser } from "@/hooks/tanstack_Queries/user/auth/useSignupUser";
+import { useSignupUser } from "@/hooks/tanstack_Queries/user/auth/useSignupUser";
 const SignUpPage = () => {
-    const navigate = useNavigate()
-    const {mutateAsync,isPending} = useSignupUser()
+    const navigate = useNavigate();
+    const { mutateAsync, isPending } = useSignupUser();
     const initialState = {
         password: false,
         confirmPassword: false,
@@ -26,7 +26,7 @@ const SignUpPage = () => {
     const onSignup = async (data) => {
         data.phone = `+91 ${data.phone}`;
         try {
-            await mutateAsync(data)
+            await mutateAsync(data);
             navigate("/verify-otp", { state: { email: data.email } });
         } catch (error) {
             console.log(error);
@@ -35,9 +35,12 @@ const SignUpPage = () => {
             }
         }
     };
-    if(isPending){
-        return <SpinnerBadge content={"Sending OTP..."}/>
+    if (isPending) {
+        return <SpinnerBadge content={"Sending OTP..."} />;
     }
+    const handleGoogleLogin = () => {
+        window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
+    };
     return (
         <>
             <Navbar homePage={false} />
@@ -185,7 +188,10 @@ const SignUpPage = () => {
                             <span className="shrink mx-4 text-gray-900 text-sm ">Or Login with</span>
                             <div className="grow border-t border-gray-600/50"></div>
                         </div>
-                        <button className="w-full flex items-center justify-center py-3 px-4 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200">
+                        <button
+                            className="w-full flex items-center justify-center py-3 px-4 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200"
+                            onClick={handleGoogleLogin}
+                        >
                             <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
                                 <path
                                     fill="#EA4335"

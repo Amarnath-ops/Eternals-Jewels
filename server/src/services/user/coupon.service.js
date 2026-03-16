@@ -67,8 +67,10 @@ export const validateCouponService = async (userId, code, totalAmount) => {
     } else if (coupon.discountType === "fixed") {
         discount = coupon.discountAmount;
     }
-    if (discount > totalAmount) {
-        discount = totalAmount;
+    if (discount >= totalAmount) {
+        const error = new Error("Discount cannot be greater than or equal to total amount.");
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
     }
 
     return {

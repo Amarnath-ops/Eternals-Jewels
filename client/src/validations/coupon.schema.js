@@ -28,6 +28,14 @@ export const couponSchema = z.object({
     message: "Percentage discount cannot exceed 100%",
     path: ["discountAmount"],
 }).refine((data) => {
+    if (data.discountType === "fixed") {
+        return data.discountAmount < data.minPurchaseAmount;
+    }
+    return true;
+}, {
+    message: "Fixed discount must be less than minimum purchase amount",
+    path: ["discountAmount"],
+}).refine((data) => {
     if (data.startDate && data.expiryDate) {
         return new Date(data.startDate) < new Date(data.expiryDate);
     }

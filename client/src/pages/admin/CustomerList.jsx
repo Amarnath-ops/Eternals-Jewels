@@ -109,8 +109,6 @@ const CustomerList = () => {
                         <tr>
                             <th className="px-6 py-4">Customer Name</th>
                             <th className="px-6 py-4">Phone</th>
-                            <th className="px-6 py-4">Orders</th>
-                            <th className="px-6 py-4">Balance</th>
                             <th className="px-6 py-4">Status</th>
                             <th className="px-6 py-4">
                                 <div className="flex items-center gap-1 cursor-pointer">BLOCK/ UNBLOCK</div>
@@ -157,10 +155,6 @@ const CustomerList = () => {
                                             </td>
 
                                             <td className="px-6 py-4 text-sm text-gray-600">{customer.phone}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">{customer.orders || "0"}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">
-                                                ₹ {customer.balance || "0.00"}
-                                            </td>
 
                                             <td className="px-6 py-4">
                                                 <span
@@ -205,7 +199,7 @@ const CustomerList = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
                                             No customers found.
                                         </td>
                                     </tr>

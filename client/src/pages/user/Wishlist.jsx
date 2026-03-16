@@ -5,7 +5,7 @@ import { AlertCircle, Heart, Star, ShoppingBag, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGetWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useGetWishlist";
 import { useRemoveFromWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useRemoveFromWishlist";
-import { useMoveToCart } from "@/hooks/tanstack_Queries/user/wishlist/useMoveToCart"; 
+import { useMoveToCart } from "@/hooks/tanstack_Queries/user/wishlist/useMoveToCart";
 import { useClearWishlist } from "@/hooks/tanstack_Queries/user/wishlist/useClearWishlist";
 import { SpinnerBadge } from "@/components/Spinner";
 
@@ -14,7 +14,7 @@ const Wishlist = () => {
     const { mutateAsync: removeItem } = useRemoveFromWishlist();
     const { mutateAsync: moveToCart } = useMoveToCart();
     const { mutateAsync: clearWishlist } = useClearWishlist();
-    
+
     const [isClearModalOpen, setIsClearModalOpen] = useState(false);
     const wishlistItems = data?.wishlist?.items || [];
 
@@ -34,8 +34,6 @@ const Wishlist = () => {
         await clearWishlist();
         setIsClearModalOpen(false);
     };
-    
-
 
     if (isLoading) {
         return (
@@ -51,18 +49,17 @@ const Wishlist = () => {
     return (
         <div className="min-h-screen bg-[#EAE5DF] font-sans pb-20">
             <Navbar />
-            
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16">
-                
                 {}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-4 border-b border-white/50">
                     <div className="flex items-center gap-4 mb-4 md:mb-0">
                         <Heart className="w-6 h-6 text-gray-800" strokeWidth={1.5} />
                         <h1 className="text-2xl md:text-3xl font-cormorant text-gray-900 tracking-wide">My Wishlist</h1>
                     </div>
-                    
+
                     {wishlistItems.length > 0 && (
-                        <button 
+                        <button
                             onClick={handleClearWishlistClick}
                             className="bg-[#EAE5DF] border border-red-300 text-red-500 hover:bg-red-50 px-6 py-2 rounded-sm text-sm font-medium uppercase tracking-wider transition-colors"
                         >
@@ -76,8 +73,8 @@ const Wishlist = () => {
                     <div className="text-center py-20">
                         <Heart className="w-16 h-16 text-gray-300 mx-auto mb-6" strokeWidth={1} />
                         <h2 className="text-xl text-gray-600 font-medium mb-4">Your wishlist is empty</h2>
-                        <Link 
-                            to="/shop" 
+                        <Link
+                            to="/shop"
                             className="inline-block bg-[#CAB49E] text-white px-8 py-3 rounded-sm font-medium uppercase tracking-wide hover:bg-[#bfa38a] transition-colors"
                         >
                             Continue Shopping
@@ -87,12 +84,15 @@ const Wishlist = () => {
                     <>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                             {wishlistItems.map((item) => (
-                                <div key={item._id} className="bg-[#F6F1EC] p-4 rounded-sm shadow-sm flex flex-col h-full group">
+                                <div
+                                    key={item._id}
+                                    className="bg-[#F6F1EC] p-4 rounded-sm shadow-sm flex flex-col h-full group"
+                                >
                                     {}
                                     <div className="relative aspect-[3/4] bg-white w-full overflow-hidden rounded-sm mb-4">
-                                        <img 
-                                            src={item.image} 
-                                            alt={item.productName} 
+                                        <img
+                                            src={item.image}
+                                            alt={item.productName}
                                             className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                                         />
                                         {}
@@ -104,13 +104,15 @@ const Wishlist = () => {
                                         <h3 className="text-sm font-bold uppercase tracking-widest text-gray-800 mb-1 truncate">
                                             <Link to={`/product/${item.productId}`}>{item.productName}</Link>
                                         </h3>
-                                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">{item.category}</p>
-                                        
+                                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">
+                                            {item.category}
+                                        </p>
+
                                         <div className="flex items-center justify-center gap-2 mb-3">
                                             <span className="text-sm font-semibold text-gray-900">
-                                                {new Intl.NumberFormat('en-IN', {
-                                                    style: 'currency',
-                                                    currency: 'INR',
+                                                {new Intl.NumberFormat("en-IN", {
+                                                    style: "currency",
+                                                    currency: "INR",
                                                     maximumFractionDigits: 0,
                                                 }).format(item.price)}
                                             </span>
@@ -128,13 +130,13 @@ const Wishlist = () => {
 
                                         {}
                                         <div className="mt-auto space-y-3 pt-2">
-                                            <button 
+                                            <button
                                                 onClick={() => handleRemove(item.productId, item.variantId)}
                                                 className="w-full border border-red-300 text-red-500 text-xs font-bold uppercase tracking-widest py-2.5 rounded-sm hover:bg-red-50 transition-colors"
                                             >
                                                 Remove from wishlist
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => handleMoveToCart(item.productId, item.variantId)}
                                                 disabled={item.stock === 0}
                                                 className={`w-full border border-[#CAB49E] text-xs font-bold uppercase tracking-widest py-2.5 rounded-sm transition-colors ${
@@ -150,8 +152,11 @@ const Wishlist = () => {
                                 </div>
                             ))}
                         </div>
-
-
+                        <Link to="/shop">
+                            <button className="w-full bg-[#B69981] text-white py-4 uppercase tracking-widest font-medium hover:bg-[#a38870] transition mt-10">
+                                Continue Shopping
+                            </button>
+                        </Link>
                     </>
                 )}
             </div>
@@ -169,14 +174,14 @@ const Wishlist = () => {
                         </p>
                     </div>
                     <div className="flex gap-3 justify-center">
-                        <button 
-                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors" 
+                        <button
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                             onClick={() => setIsClearModalOpen(false)}
                         >
                             Cancel
                         </button>
-                        <button 
-                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-red-600 text-white shadow-lg shadow-red-200 hover:bg-red-700 transition-colors" 
+                        <button
+                            className="flex-1 py-2.5 px-4 font-medium rounded-xl bg-red-600 text-white shadow-lg shadow-red-200 hover:bg-red-700 transition-colors"
                             onClick={confirmClearWishlist}
                         >
                             Yes, empty it
@@ -184,7 +189,6 @@ const Wishlist = () => {
                     </div>
                 </div>
             </ConfirmModal>
-
         </div>
     );
 };

@@ -48,7 +48,10 @@ const ProductCard = ({ product }) => {
       }
   };
 
-  
+  const outOfStock = variants && variants.length > 0 
+    ? variants.every((v) => v.quantity === 0 || v.quantity === undefined || v.quantity === null) 
+    : true;
+
   const displayImage = variants && variants[0]?.images && variants[0].images.length > 0
     ? variants[0].images[0].image_url
     : thumbnail?.image_url;
@@ -58,11 +61,16 @@ const ProductCard = ({ product }) => {
         {}
         <div className="p-3 pb-0">
              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-sm bg-white">
+                {outOfStock && (
+                    <div className="absolute bottom-0 left-0 w-full z-10 bg-red-600/80 text-white text-center text-[10px] whitespace-nowrap font-bold uppercase tracking-widest py-1.5 backdrop-blur-sm">
+                        Out of Stock
+                    </div>
+                )}
                 {displayImage ? (
                     <img
                         src={displayImage}
                         alt={productName}
-                        className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                        className={`h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105 ${outOfStock ? 'opacity-70 grayscale-[0.3]' : ''}`}
                     />
                 ) : (
                     <div className="h-full w-full flex items-center justify-center text-gray-400 bg-gray-50">No Image</div>

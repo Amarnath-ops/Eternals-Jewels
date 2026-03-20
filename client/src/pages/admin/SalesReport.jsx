@@ -24,6 +24,9 @@ const SalesReport = () => {
 
     const reportData = reportResponse?.data;
 
+    const formatDecimals = (num) => Number(num || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    const formatCSVNum = (num) => Number(num || 0).toFixed(2);
+
     const handleFilterChange = (type) => {
         setFilterType(type);
         setPage(1);
@@ -62,9 +65,9 @@ const SalesReport = () => {
                 order._id.substring(0, 10) + '...',
                 new Date(order.createdAt).toLocaleDateString(),
                 order.user?.fullname || "N/A",
-                `INR ${order.totalAmount}`,
-                `INR ${order.discountAmount}`,
-                `INR ${order.finalAmount}`
+                `INR ${formatDecimals(order.totalAmount)}`,
+                `INR ${formatDecimals(order.discountAmount)}`,
+                `INR ${formatDecimals(order.finalAmount)}`
             ];
             tableRows.push(orderRow);
         });
@@ -89,9 +92,9 @@ const SalesReport = () => {
                 order._id,
                 formattedDate,
                 `"${order.user?.fullname || "N/A"}"`,
-                order.totalAmount,
-                order.discountAmount,
-                order.finalAmount,
+                formatCSVNum(order.totalAmount),
+                formatCSVNum(order.discountAmount),
+                formatCSVNum(order.finalAmount),
                 order.orderStatus,
                 order.paymentMethod
             ].join(",");
@@ -114,8 +117,8 @@ const SalesReport = () => {
     const stats = [
         { title: 'Total Customers', value: reportData?.totalCustomers || 0, icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
         { title: 'Total Orders', value: reportData?.summary?.totalSalesCount || 0, icon: Box, color: 'text-green-600', bg: 'bg-green-50' },
-        { title: 'Total Sales', value: `₹${reportData?.summary?.totalFinalAmount || 0}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
-        { title: 'Total Discount', value: `₹${reportData?.summary?.totalDiscount || 0}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
+        { title: 'Total Sales', value: `₹${formatDecimals(reportData?.summary?.totalFinalAmount)}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
+        { title: 'Total Discount', value: `₹${formatDecimals(reportData?.summary?.totalDiscount)}`, icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
         { title: 'Total Pending', value: reportData?.pendingOrders || 0, icon: Clock, color: 'text-gray-600', bg: 'bg-gray-50' },
     ];
 
@@ -142,15 +145,15 @@ const SalesReport = () => {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-                        <div className={`w-14 h-14 rounded-full ${stat.bg} flex items-center justify-center`}>
-                            <stat.icon className={`w-7 h-7 ${stat.color}`} />
+                    <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between gap-3">
+                        <div className={`w-12 h-12 shrink-0 rounded-full ${stat.bg} flex items-center justify-center`}>
+                            <stat.icon className={`w-6 h-6 ${stat.color}`} />
                         </div>
-                        <div className="text-right">
-                            <p className="text-sm text-gray-500 mb-1">{stat.title}</p>
-                            <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+                        <div className="text-right flex-1 min-w-0">
+                            <p className="text-sm text-gray-500 mb-1 truncate" title={stat.title}>{stat.title}</p>
+                            <h3 className="text-xl font-bold text-gray-900 truncate" title={stat.value}>{stat.value}</h3>
                         </div>
                     </div>
                 ))}
@@ -220,13 +223,13 @@ const SalesReport = () => {
             {/* Sales Table */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full text-left border-collapse whitespace-nowrap">
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-600 font-semibold">
-                                <th className="px-6 py-4">Order ID</th>
-                                <th className="px-6 py-4">Products</th>
-                                <th className="px-6 py-4">Buyer</th>
-                                <th className="px-6 py-4">Date</th>
+                                <th className="px-6 py-4 text-left">Order ID</th>
+                                <th className="px-6 py-4 text-left">Products</th>
+                                <th className="px-6 py-4 text-left">Buyer</th>
+                                <th className="px-6 py-4 text-left">Date</th>
                                 <th className="px-6 py-4 text-right">Total</th>
                             </tr>
                         </thead>
@@ -244,9 +247,11 @@ const SalesReport = () => {
                                             #{order._id.substring(order._id.length - 6).toUpperCase()}
                                         </td>
                                         <td className="px-6 py-4 text-sm font-semibold text-gray-700">
-                                            {order.orderItems.length > 0 
-                                                ? `${order.orderItems[0].productName}${order.orderItems.length > 1 ? ` + ${order.orderItems.length - 1} more` : ''}`
-                                                : 'No items'}
+                                            <div className="max-w-[200px] truncate" title={order.orderItems.length > 0 ? `${order.orderItems[0].productName}${order.orderItems.length > 1 ? ` + ${order.orderItems.length - 1} more` : ''}` : 'No items'}>
+                                                {order.orderItems.length > 0 
+                                                    ? `${order.orderItems[0].productName}${order.orderItems.length > 1 ? ` + ${order.orderItems.length - 1} more` : ''}`
+                                                    : 'No items'}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             {order.user?.email || 'N/A'}
@@ -259,7 +264,7 @@ const SalesReport = () => {
                                             }).replace(/\//g, ' - ')}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-right font-bold text-gray-900">
-                                            ₹{order.finalAmount}
+                                            ₹{formatDecimals(order.finalAmount)}
                                         </td>
                                     </tr>
                                 ))
@@ -274,15 +279,18 @@ const SalesReport = () => {
                     </table>
                 </div>
 
-                {reportData?.totalPages > 1 && (
-                    <div className="p-6 border-t border-gray-100">
+                <div className="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between bg-white gap-4">
+                    <span className="text-sm text-gray-500">
+                        Showing {reportData?.totalOrders === 0 ? 0 : (page - 1) * limit + 1}-{Math.min(page * limit, reportData?.totalOrders || 0)} from {reportData?.totalOrders || 0}
+                    </span>
+                    {reportData?.totalPages > 1 && (
                         <Pagination
                             currentPage={page}
                             totalPages={reportData.totalPages}
                             onPageChange={(newPage) => setPage(newPage)}
                         />
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

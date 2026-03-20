@@ -31,12 +31,14 @@ const Dashboard = () => {
   // Let's use the last 4 items for the bar chart as shown in the mockup
   const ordersTrendData = salesData.slice(-4);
  console.log(stats)
+  const formatNumber = (num) => Number(num || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+
   const summaryStats = [
-    { title: 'Total Customers', value: stats?.summary?.totalCustomers?.toLocaleString() || '0', sub: '', icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
-    { title: 'Total Orders', value: stats?.summary?.totalOrders?.toLocaleString() || '0', sub: '', icon: Box, color: 'text-green-600', bg: 'bg-green-50' },
-    { title: 'Total Sales', value: `₹${stats?.summary?.totalSales?.toLocaleString() || '0'}`, sub: '', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
-    { title: 'Total Discount', value: `₹${stats?.summary?.totalDiscount?.toLocaleString() || '0'}`, sub: '', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
-    { title: 'Total Pending', value: stats?.summary?.pendingOrders?.toLocaleString() || '0', sub: '', icon: LayoutDashboard, color: 'text-gray-600', bg: 'bg-gray-50' },
+    { title: 'Total Customers', value: formatNumber(stats?.summary?.totalCustomers), sub: '', icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
+    { title: 'Total Orders', value: formatNumber(stats?.summary?.totalOrders), sub: '', icon: Box, color: 'text-green-600', bg: 'bg-green-50' },
+    { title: 'Total Sales', value: `₹${formatNumber(stats?.summary?.totalSales)}`, sub: '', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
+    { title: 'Total Discount', value: `₹${formatNumber(stats?.summary?.totalDiscount)}`, sub: '', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
+    { title: 'Total Pending', value: formatNumber(stats?.summary?.pendingOrders), sub: '', icon: LayoutDashboard, color: 'text-gray-600', bg: 'bg-gray-50' },
   ];
 
   if (isLoading) {
@@ -57,15 +59,15 @@ const Dashboard = () => {
     <div className="p-8 bg-gray-50 min-h-screen">
       
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
         {summaryStats.map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between transition-all hover:shadow-md">
-             <div className={`w-14 h-14 rounded-full ${stat.bg} flex items-center justify-center`}>
-                <stat.icon className={`w-7 h-7 ${stat.color}`} />
+          <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between gap-3 transition-all hover:shadow-md">
+             <div className={`w-12 h-12 shrink-0 rounded-full ${stat.bg} flex items-center justify-center`}>
+                <stat.icon className={`w-6 h-6 ${stat.color}`} />
              </div>
-             <div className="text-right">
-                <p className="text-sm text-gray-500 mb-1 font-medium">{stat.title}</p>
-                <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+             <div className="text-right flex-1 min-w-0">
+                <p className="text-sm text-gray-500 mb-1 font-medium truncate" title={stat.title}>{stat.title}</p>
+                <h3 className="text-xl font-bold text-gray-900 truncate" title={stat.value}>{stat.value}</h3>
                 {stat.sub && <p className="text-xs text-green-500 font-medium mt-1">▲ {stat.sub}</p>}
              </div>
           </div>
@@ -174,10 +176,10 @@ const Dashboard = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase text-green-600 font-semibold">
-                <th className="px-6 py-4">Order ID</th>
-                <th className="px-6 py-4">Customer</th>
-                <th className="px-6 py-4">Buyer Email</th>
-                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4 text-left">Order ID</th>
+                <th className="px-6 py-4 text-left">Customer</th>
+                <th className="px-6 py-4 text-left">Buyer Email</th>
+                <th className="px-6 py-4 text-left">Date</th>
                 <th className="px-6 py-4 text-right">Total</th>
               </tr>
             </thead>
@@ -202,7 +204,7 @@ const Dashboard = () => {
                         }).replace(/\//g, ' - ')}
                     </td>
                     <td className="px-6 py-4 text-sm text-right font-bold text-gray-900">
-                        ₹{order.finalAmount}
+                        ₹{formatNumber(order.finalAmount)}
                     </td>
                   </tr>
                 ))

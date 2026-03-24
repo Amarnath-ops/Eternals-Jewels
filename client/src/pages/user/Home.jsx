@@ -5,35 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
 import { SpinnerBadge } from "@/components/Spinner";
 import useGetLandingCategories from "@/hooks/tanstack_Queries/user/categories/useGetLandingCategories";
+import { useGetProducts } from "@/hooks/tanstack_Queries/user/products/useGetProducts";
 import { Link } from "react-router-dom";
-
-const FEATURED_PRODUCTS = [
-    {
-        name: "Mini Hoops",
-        price: "$40.00",
-        image: "https://images.unsplash.com/photo-1630019852942-f89202989a51?q=80&w=500&auto=format&fit=crop",
-    },
-    {
-        name: "Textured Ring",
-        price: "$45.00",
-        image: "https://images.unsplash.com/photo-1626784215021-2e39ccf971cd?q=80&w=500&auto=format&fit=crop",
-    },
-    {
-        name: "Diamond Chain",
-        price: "$85.00",
-        image: "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=500&auto=format&fit=crop",
-    },
-    {
-        name: "Globe Charm",
-        price: "$60.00",
-        image: "https://images.unsplash.com/photo-1602751584552-8ba420552259?q=80&w=500&auto=format&fit=crop",
-    },
-    {
-        name: "Leafy Looper",
-        price: "$55.00",
-        image: "https://images.unsplash.com/photo-1535632787350-4e68ef0ac584?q=80&w=500&auto=format&fit=crop",
-    },
-];
 
 const FAQS = [
     {
@@ -66,8 +39,10 @@ const HomePage = () => {
     const accessToken = useSelector((state) => state.user);
     console.log(accessToken);
 
-    const { data, isLoading } = useGetLandingCategories();
-    if (isLoading) return <SpinnerBadge content={"Loading..."} />;
+    const { data, isLoading: isCategoriesLoading } = useGetLandingCategories();
+    const { data: productsData, isLoading: isProductsLoading } = useGetProducts({ limit: 5 });
+
+    if (isCategoriesLoading || isProductsLoading) return <SpinnerBadge content={"Loading..."} />;
     return (
         <>
             <div className="w-full bg-white font-sans text-gray-900">
@@ -169,23 +144,35 @@ const HomePage = () => {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-x-4 gap-y-10 mb-12">
-                        {FEATURED_PRODUCTS.map((product, index) => (
-                            <div key={index} className="group cursor-pointer">
-                                <div className="w-full aspect-4/5 overflow-hidden mb-4 bg-gray-100">
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
-                                    />
-                                </div>
-                                <div className="text-center">
-                                    <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide mb-1">
-                                        {product.name}
-                                    </h3>
-                                    <p className="text-sm text-red-400 font-medium">{product.price}</p>
-                                </div>
-                            </div>
-                        ))}
+                        {productsData?.products?.slice(0, 5).map((product, index) => {
+                            const displayImage = product.variants && product.variants[0]?.images && product.variants[0].images.length > 0
+                                ? product.variants[0].images[0].image_url
+                                : product.thumbnail?.image_url;
+                            
+                            const price = product.variants && product.variants.length > 0 ? product.variants[0].salePrice : 0;
+                            const formattedPrice = new Intl.NumberFormat('en-IN', {
+                                style: 'currency',
+                                currency: 'INR',
+                            }).format(price);
+
+                            return (
+                                <Link to={`/product/${product._id}`} key={product._id || index} className="group cursor-pointer block">
+                                    <div className="w-full aspect-4/5 overflow-hidden mb-4 bg-gray-100">
+                                        <img
+                                            src={displayImage}
+                                            alt={product.productName}
+                                            className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                                        />
+                                    </div>
+                                    <div className="text-center">
+                                        <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide mb-1 truncate px-2">
+                                            {product.productName}
+                                        </h3>
+                                        <p className="text-sm text-red-400 font-medium">{formattedPrice}</p>
+                                    </div>
+                                </Link>
+                            );
+                        })}
                     </div>
 
                     <div className="flex justify-center">

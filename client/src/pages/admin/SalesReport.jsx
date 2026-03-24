@@ -77,7 +77,7 @@ const SalesReport = () => {
             body: tableRows,
             startY: 45,
             theme: 'grid',
-            headStyles: { fillColor: [0, 0, 0] } // Changed to black for a sleeker look
+            headStyles: { fillColor: [0, 0, 0] }
         });
 
         doc.save(`sales_report_${filterType}_${new Date().getTime()}.pdf`);
@@ -125,15 +125,11 @@ const SalesReport = () => {
     const filterOptions = [
         { label: 'All Time', value: 'all' },
         { label: '12 Months', value: 'yearly' },
-        { label: '30 Days', value: '30days' }, // updated repo/service might need tweak if I used 'weekly' etc
+        { label: '30 Days', value: '30days' },
         { label: '7 Days', value: 'weekly' },
         { label: '24 Hour', value: 'daily' },
         { label: 'Custom', value: 'custom' },
     ];
-
-    // Note: I used 'weekly' in service for 7 days. 
-    // I should ensure service handles '30days' too if I add it.
-    // For now I'll stick to what I wrote in service or update it.
 
     return (
         <div className="p-8 bg-gray-50 min-h-screen">

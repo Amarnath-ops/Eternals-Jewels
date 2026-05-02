@@ -5,8 +5,11 @@ import {
     findUserByReferralCode,
     setReferredBy,
     findUserByRefreshToken,
-    clearRefreshTokenById,
     setUserPasswordById,
+    clearRefreshTokenByRefreshToken,
+    setRefreshTokenByEmail,
+    findUserById,
+    updateUserById,
 } from "../../repositories/user.repo.js";
 import { generateAccessToken, generateRefreshToken, verifyToken } from "../../utils/jwt.js";
 import { STATUS_CODES } from "../../constants/statusCode.js";
@@ -16,8 +19,8 @@ import cache from "../../utils/node.cache.js";
 import generateOTP from "../../utils/otp.generator.js";
 import { CONSTANTS } from "../../constants/constants.js";
 import { sendMail } from "../../utils/nodemailer.js";
+import generateAvatar from "../../utils/avatar.js";
 export const signUpService = async (userData) => {
-    // Check if email exists
     const existing = await findUserByEmail(userData?.email);
     if (existing) {
         const error = new Error(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS);
@@ -26,16 +29,14 @@ export const signUpService = async (userData) => {
         throw error;
     }
 
-    if (userData.password !== userData.confirmPassword) {
-        const error = new Error(ERROR_MESSAGES.PASSWORD_MISMATCH);
-        error.statusCode = STATUS_CODES.BAD_REQUEST;
-        error.fieldName = "confirmPassword";
-        throw error;
-    }
-    // Hash password
+    const avatarURL = generateAvatar(userData.fullname);
+    const avatar = {
+        provider: "local",
+        url: avatarURL,
+    };
+
     const hashedPassword = await bcrypt.hash(userData?.password, 10);
 
-    // Generate unique referal code
     let referalCode;
     for (let i = 0; i < 5; i++) {
         const codeForTest = generateReferralCode(userData?.fullname);
@@ -46,22 +47,20 @@ export const signUpService = async (userData) => {
         }
     }
 
-    // If no code found after 5 tries
     if (!referalCode) {
         referalCode = `${Date.now().toString(36).toUpperCase()}`;
     }
 
-    // Create User
     const userInfo = {
         fullname: userData.fullname,
         email: userData.email,
         phone: userData.phone,
         password: hashedPassword,
         referralCode: referalCode,
+        avatar,
     };
     const user = await createUser(userInfo);
 
-    // Client provides referral Code
     if (userData.referredBy) {
         const referrer = await findUserByReferralCode(userData.referredBy);
         if (referrer) {
@@ -76,22 +75,36 @@ export const signUpService = async (userData) => {
     const otp = generateOTP();
 
     cache.set(`verify_${user.email}`, otp, CONSTANTS.OTP_CACHE_TIME);
-
+    console.log(otp);
     await sendMail(user.email, otp);
-    // REST API Response
+
     return {
         message: CONSTANTS.OTP_SEND,
     };
 };
 
 export const refreshTokenService = async (oldToken) => {
+    if (!oldToken) {
+        const error = new Error(ERROR_MESSAGES.UNAUTHORIZED);
+        error.statusCode = STATUS_CODES.UNAUTHORIZED;
+        throw error;
+    }
     const user = await findUserByRefreshToken(oldToken);
     if (!user) {
         const error = new Error(ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
-        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        error.statusCode = STATUS_CODES.FORBIDDEN;
         throw error;
     }
-
+    if (user.isAdmin) {
+        const error = new Error(ERROR_MESSAGES.USE_ADMIN_ENDPOINT);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     verifyToken(oldToken);
 
     const newAccessToken = generateAccessToken(user);
@@ -99,8 +112,16 @@ export const refreshTokenService = async (oldToken) => {
 
     user.refreshToken = newRefreshToken;
     await user.save();
-
-    return { newAccessToken, newRefreshToken };
+    return {
+        newAccessToken,
+        newRefreshToken,
+        user: {
+            id: user._id,
+            fullname: user.fullname,
+            email: user.email,
+            isAdmin: user.isAdmin,
+        },
+    };
 };
 
 export const loginService = async (userData) => {
@@ -110,14 +131,28 @@ export const loginService = async (userData) => {
         error.statusCode = STATUS_CODES.UNAUTHORIZED;
         throw error;
     }
-
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
+    if (user.isAdmin) {
+        const error = new Error(ERROR_MESSAGES.LOGIN_FROM_ADMIN_PANEL);
+        error.statusCode = STATUS_CODES.BAD_GATEWAY;
+        throw error;
+    }
     const validPassword = await bcrypt.compare(userData.password, user.password);
     if (!validPassword) {
         const error = new Error(ERROR_MESSAGES.INVALID_PASSWORD);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
-
+    if (!user.isVerified) {
+        const otp = generateOTP();
+        cache.set(`verify_${user.email}`, otp, CONSTANTS.OTP_CACHE_TIME);
+        console.log(otp);
+        await sendMail(user.email, otp);
+    }
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
@@ -129,20 +164,16 @@ export const loginService = async (userData) => {
             id: user._id,
             fullname: user.fullname,
             email: user.email,
-            phone: user.phone,
             isAdmin: user.isAdmin,
-            isBlocked: user.isBlocked,
-            referralCode: user.referralCode,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
+            isVerified: user.isVerified,
         },
         accessToken,
         refreshToken,
     };
 };
 
-export const logoutService = async (userId) => {
-    await clearRefreshTokenById(userId);
+export const logoutService = async (rToken) => {
+    await clearRefreshTokenByRefreshToken(rToken);
 };
 
 export const verifyOTPService = async ({ email, otp }) => {
@@ -152,7 +183,11 @@ export const verifyOTPService = async ({ email, otp }) => {
         error.statusCode = STATUS_CODES.USER_NOT_FOUND;
         throw error;
     }
-
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     const cachedOTP = cache.get(`verify_${email}`);
     if (!cachedOTP) {
         const error = new Error(ERROR_MESSAGES.OTP_EXPIRED);
@@ -193,6 +228,11 @@ export const resendOTPService = async (email) => {
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     if (user.isVerified) {
         const error = new Error(ERROR_MESSAGES.ALREADY_VERIFIED);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
@@ -201,7 +241,7 @@ export const resendOTPService = async (email) => {
 
     const otp = generateOTP();
     cache.set(`verify_${email}`, otp, CONSTANTS.OTP_CACHE_TIME);
-
+    console.log(otp);
     await sendMail(email, otp);
 
     return {
@@ -216,10 +256,15 @@ export const forgotPasswordOTPService = async (email) => {
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     const otp = generateOTP();
 
     cache.set(`verify_${email}`, otp, CONSTANTS.OTP_CACHE_TIME);
-
+    console.log(otp);
     await sendMail(email, otp);
 
     return {
@@ -234,7 +279,11 @@ export const forgotPasswordVerifyService = async (email, otp) => {
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
-
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
     const cachedOTP = cache.get(`verify_${email}`);
     if (!cachedOTP) {
         const error = new Error(ERROR_MESSAGES.OTP_EXPIRED);
@@ -262,30 +311,77 @@ export const resetPasswordService = async (email, password, confirmPassword) => 
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }
-
-    if(password !== confirmPassword){
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
+    if (password !== confirmPassword) {
         const error = new Error(ERROR_MESSAGES.PASSWORD_MISMATCH);
         error.statusCode = STATUS_CODES.BAD_REQUEST;
-        throw error;    
+        throw error;
     }
-    
-    const hashedPassword = await bcrypt.hash(password,10);
 
-    await setUserPasswordById(user._id,hashedPassword);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await setUserPasswordById(user._id, hashedPassword);
 
     const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user)
+    const refreshToken = generateRefreshToken(user);
     user.refreshToken = refreshToken;
-    await user.save()
+    await user.save();
 
     return {
-        message:CONSTANTS.PASSWORD_RESET_SUCCESS,
+        message: CONSTANTS.PASSWORD_RESET_SUCCESS,
         refreshToken,
         accessToken,
-        user:{
-            _id:user._id,
-            email:user.email,
-            name:user.fullname
-        }
+        user: {
+            _id: user._id,
+            email: user.email,
+            name: user.fullname,
+        },
+    };
+};
+
+export const googleCallbackService = async (user) => {
+    if (!user) {
+        const error = new Error(ERROR_MESSAGES.USER_NOT_FOUND);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
     }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+    await setRefreshTokenByEmail(user.email, refreshToken);
+    return {
+        accessToken,
+        refreshToken,
+    };
+};
+
+export const changePasswordService = async (userId, payload) => {
+    const user = await findUserById(userId);
+    if (!user) {
+        const error = new Error(ERROR_MESSAGES.USER_NOT_FOUND);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+    if (user.isBlocked) {
+        const error = new Error(ERROR_MESSAGES.USER_BLOCKED);
+        error.statusCode = STATUS_CODES.FORBIDDEN;
+        throw error;
+    }
+    const validPassword = await bcrypt.compare(payload.currentPassword, user.password);
+    if (!validPassword) {
+        const error = new Error(ERROR_MESSAGES.INVALID_PASSWORD);
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+    return updateUserById(userId, {
+        password: payload.newPassword,
+    });
 };

@@ -1,32 +1,93 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "../pages/user/Login";
-import Navbar from "../components/Navbar";
 import SignUpPage from "../pages/user/Signup";
 import HomePage from "../pages/user/Home";
 import Footer from "../components/Footer";
 import AboutUsPage from "@/pages/user/About";
 import ContactPage from "@/pages/user/ContactUs";
 import ShopPage from "@/pages/user/Shop";
+import ProductDetails from "@/pages/user/ProductDetails";
 import OtpVerification from "@/pages/user/OtpVerify";
 import ForgotPasswordPage from "@/pages/user/ForgotPassword";
 import ResetPassword from "@/pages/user/ResetPassword";
+import { useDispatch, useSelector } from "react-redux";
+import GoogleSuccess from "@/pages/user/GoogleSuccess";
+import MyProfile from "@/pages/user/MyProfile";
+import EditProfile from "@/pages/user/EditProfile";
+import MyAddressPage from "@/pages/user/MyAddress";
+import AddressEditPage from "@/pages/user/AddressEditPage";
+import AddressAddPage from "@/pages/user/AddAddress";
+import ChangePassword from "@/pages/user/ChangePassword";
+import ProfileDashboard from "@/layouts/ProfileDashboard";
+import { useEffect } from "react";
+import axiosInstance from "@/api/axios";
+import { setCredentials } from "@/store/user/authSlice";
+import toast from "react-hot-toast";
+import CartPage from "@/pages/user/Cart";
+import Wishlist from "@/pages/user/Wishlist";
+import CheckoutPage from "@/pages/user/Checkout";
+import OrderSuccessPage from "@/pages/user/OrderSuccess";
+import MyOrders from "@/pages/user/MyOrders";
+import OrderDetails from "@/pages/user/OrderDetails";
+import PaymentFailurePage from "@/pages/user/PaymentFailure";
+import WalletPage from "@/pages/user/Wallet";
+import ReferralPage from "@/pages/user/Referral";
 
 const UserRoutes = () => {
+    const dispatch = useDispatch();
+    const restoreToken = async () => {
+        try {
+            const res = await axiosInstance.post("/auth/refresh");
+            dispatch(setCredentials({ accessToken: res.data.data.accessToken, user: res.data.data.user }));
+        } catch (error) {
+            console.error("No active Sessions ", error);
+            error.response?.data?.message === "Your account is blocked" && toast.error(error?.response?.data?.message);
+        }
+    };
+    useEffect(() => {
+        restoreToken();
+    }, []);
+
+    const accessToken = useSelector((state) => state.user.accessToken);
+    const isLogin = useSelector((state) => state.user.isLogin);
+    console.log("access token recieved", accessToken);
     return (
         <>
             <Routes>
-                <Route path="login" element={<LoginPage />} />
-                <Route path="register" element={<SignUpPage />} />
-                <Route path="/" element={<HomePage/>} />
-                <Route path="/about" element={<AboutUsPage/>} />
-                <Route path="/contact" element={<ContactPage/>} />
-                <Route path="/shop" element={<ShopPage/>} />
-                <Route path="/verify-otp" element={<OtpVerification/>} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage/>} />
-                <Route path="/reset-password" element={<ResetPassword/>} />
+                <Route path="/login" element={accessToken ? <Navigate to="/" replace /> : <LoginPage />} />
+                <Route path="/register" element={accessToken ? <Navigate to="/" replace /> : <SignUpPage />} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutUsPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/verify-otp" element={accessToken ? <Navigate to="/" replace /> : <OtpVerification />} />
+                <Route
+                    path="/forgot-password"
+                    element={accessToken ? <Navigate to="/" replace /> : <ForgotPasswordPage />}
+                />
+                <Route path="/reset-password" element={accessToken ? <Navigate to="/" replace /> : <ResetPassword />} />
+                <Route path="/google-success" element={accessToken ? <Navigate to="/" replace /> : <GoogleSuccess />} />
+                <Route path="/cart" element={isLogin ? <CartPage /> : <LoginPage/>} />
+                <Route path="/wishlist" element={isLogin ? <Wishlist /> : <LoginPage />} />
+                <Route path="/checkout" element={isLogin ? <CheckoutPage /> : <LoginPage />} />
+                <Route path="/order-success" element={isLogin ? <OrderSuccessPage /> : <LoginPage />} />
+                <Route path="/payment-failed" element={isLogin ? <PaymentFailurePage /> : <LoginPage />} />
+                <Route path="/account" element={isLogin ? <ProfileDashboard /> : <LoginPage />}>
+                    <Route index path="profile" element={<MyProfile />}></Route>
+                    <Route path="edit-profile" element={<EditProfile />}></Route>
+                    <Route path="address" element={<MyAddressPage />}></Route>
+                    <Route path="edit-address/:addressId" element={<AddressEditPage />}></Route>
+                    <Route path="add-address/" element={<AddressAddPage />}></Route>
+                    <Route path="orders" element={<MyOrders />}></Route>
+                    <Route path="orders/:orderId" element={<OrderDetails />}></Route>
+                    <Route path="change-password" element={<ChangePassword />}></Route>
+                    <Route path="wallet" element={<WalletPage />}></Route>
+                    <Route path="referral" element={<ReferralPage />}></Route>
+                    
+                </Route>
             </Routes>
-            <Footer/>
-
+            <Footer />
         </>
     );
 };

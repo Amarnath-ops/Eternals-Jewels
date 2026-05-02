@@ -1,21 +1,22 @@
 import React, { useState } from "react";
-import axiosInstance from "../../api/axios";
-import { signupSchema } from "../../schema/signup.schema";
+import { signupSchema } from "../../validations/auth.schema";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
-import { toast } from "sonner";
 import { Eye, EyeClosed } from "lucide-react";
 import useZodForm from "@/hooks/useZodForm";
 import FormWrapper from "@/components/form/Form";
 import FormInput from "@/components/form/FormInput";
+import { SpinnerBadge } from "@/components/Spinner";
+import { useSignupUser } from "@/hooks/tanstack_Queries/user/auth/useSignupUser";
 const SignUpPage = () => {
+    const navigate = useNavigate();
+    const { mutateAsync, isPending } = useSignupUser();
     const initialState = {
         password: false,
         confirmPassword: false,
     };
     const [eyeButton, setEyeButton] = useState(initialState);
-    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
@@ -25,21 +26,8 @@ const SignUpPage = () => {
     const onSignup = async (data) => {
         data.phone = `+91 ${data.phone}`;
         try {
-            const res = await axiosInstance.post("/auth/register", {
-                fullname: data.fullname,
-                email: data.email,
-                phone: data.phone,
-                password: data.password,
-                confirmPassword: data.confirmPassword,
-                refferedBy: data.refferedBy,
-            });
-            if (res.data.success) {
-                toast.success(res.data.message);
-                navigate("/verify-otp", { state: { email: data.email } });
-            } else {
-                toast.error(res.data.message || "Something went wrong !");
-                console.log(res);
-            }
+            await mutateAsync(data);
+            navigate("/verify-otp", { state: { email: data.email } });
         } catch (error) {
             console.log(error);
             if (error.response.data.fieldName) {
@@ -47,17 +35,23 @@ const SignUpPage = () => {
             }
         }
     };
+    if (isPending) {
+        return <SpinnerBadge content={"Sending OTP..."} />;
+    }
+    const handleGoogleLogin = () => {
+        window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
+    };
     return (
         <>
             <Navbar homePage={false} />
             <div className="min-h-screen flex items-center justify-center">
                 <div className="w-full max-w-md p-6">
-                    {/* Title */}
+                    {}
                     <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">SignUp</h1>
 
-                    {/* Form */}
+                    {}
                     <FormWrapper className="space-y-4" onSubmit={handleSubmit(onSignup)}>
-                        {/* Full Name */}
+                        {}
                         <div>
                             <FormInput
                                 label="Full Name"
@@ -72,7 +66,7 @@ const SignUpPage = () => {
                             />
                         </div>
 
-                        {/* Email */}
+                        {}
                         <div>
                             <FormInput
                                 label="Email"
@@ -87,7 +81,7 @@ const SignUpPage = () => {
                             />
                         </div>
 
-                        {/* Phone Number */}
+                        {}
                         <div>
                             <div className="relative">
                                 <span className="absolute left-4 top-10 transform -translate-y-1/2 text-gray-500 font-medium pointer-events-none border-e-2 pe-2 border-gray-500">
@@ -107,7 +101,7 @@ const SignUpPage = () => {
                             </div>
                         </div>
 
-                        {/* Password */}
+                        {}
                         <div>
                             <div className="relative">
                                 <FormInput
@@ -130,7 +124,7 @@ const SignUpPage = () => {
                             </div>
                         </div>
 
-                        {/* Confirm Password */}
+                        {}
                         <div>
                             <div className="relative">
                                 <FormInput
@@ -145,7 +139,7 @@ const SignUpPage = () => {
                                     error={errors.confirmPassword}
                                 />
                                 <span
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                                    className="absolute right-3 top-10 transform -translate-y-1/2 text-gray-400 cursor-pointer "
                                     onClick={() =>
                                         setEyeButton({ ...eyeButton, confirmPassword: !eyeButton.confirmPassword })
                                     }
@@ -155,7 +149,7 @@ const SignUpPage = () => {
                             </div>
                         </div>
 
-                        {/* Referral Section */}
+                        {}
                         <div className="mt-6">
                             <p className="text-center text-sm text-gray-600 mb-2">
                                 Anyone has referred You? Claim the reward
@@ -170,7 +164,7 @@ const SignUpPage = () => {
                             />
                         </div>
 
-                        {/* Login Link */}
+                        {}
                         <p className="text-center text-sm text-gray-600 mt-4">
                             Already have an account?{" "}
                             <a href="/login" className="font-bold text-gray-800 hover:underline">
@@ -178,7 +172,7 @@ const SignUpPage = () => {
                             </a>
                         </p>
 
-                        {/* Sign Up Button */}
+                        {}
                         <Button
                             type="submit"
                             className="w-full py-3 px-4 bg-[#1F463E] hover:bg-[#16332d] text-white font-bold rounded-lg transition duration-200"
@@ -187,14 +181,17 @@ const SignUpPage = () => {
                         </Button>
                     </FormWrapper>
 
-                    {/* Or Login with */}
+                    {}
                     <div className="mt-6">
                         <div className="relative flex py-4 items-center">
                             <div className="grow border-t border-gray-600/50"></div>
                             <span className="shrink mx-4 text-gray-900 text-sm ">Or Login with</span>
                             <div className="grow border-t border-gray-600/50"></div>
                         </div>
-                        <button className="w-full flex items-center justify-center py-3 px-4 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200">
+                        <button
+                            className="w-full flex items-center justify-center py-3 px-4 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-200"
+                            onClick={handleGoogleLogin}
+                        >
                             <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
                                 <path
                                     fill="#EA4335"
